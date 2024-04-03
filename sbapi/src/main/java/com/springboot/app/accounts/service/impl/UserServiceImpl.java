@@ -1,7 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
-import org.springframework.stereotype.Service;
+import com.springboot.app.accounts.service.UserService;
 
-@Service
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
 }

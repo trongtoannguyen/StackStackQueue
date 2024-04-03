@@ -1,7 +1,7 @@
 package com.springboot.app.tags;
 
 import com.springboot.app.model.BaseEntity;
-import com.springboot.app.discussions.entity.Discussion;
+import com.springboot.app.forums.entity.Discussion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

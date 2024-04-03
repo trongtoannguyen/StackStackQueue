@@ -1,7 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
-import org.springframework.stereotype.Service;
+import com.springboot.app.accounts.service.RoleService;
 
-@Service
-public class RoleServiceImpl {
+public class RoleServiceImpl implements RoleService {
 }

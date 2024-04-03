@@ -1,0 +1,28 @@
+package com.springboot.app.forums.repository;
+
+import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.Forum;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+	@Modifying
+	@Transactional
+	@Query("SELECT COUNT(c) FROM Comment c WHERE c.discussion.forum = :forum")
+	Number countComment(@Param("forum") Forum forum);
+	@Modifying
+	@Transactional
+	@Query("SELECT c FROM Comment c WHERE c.discussion.forum = :forum ORDER BY c.id DESC")
+	Comment findLatestComment(@Param("forum") Forum forum);
+
+	@Modifying
+	@Transactional
+	@Query("SELECT COUNT(c) FROM Comment c WHERE c.discussion = :discussion")
+	Number countCommentByDiscussion(Discussion discussion);
+}

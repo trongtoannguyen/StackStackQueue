@@ -1,8 +1,8 @@
 package com.springboot.app.accounts.controller;
 
-import com.springboot.app.accounts.dto.request.LoginRequest;
-import com.springboot.app.accounts.dto.request.SignupRequest;
-import com.springboot.app.accounts.dto.response.JwtResponse;
+import com.springboot.app.security.dto.request.LoginRequest;
+import com.springboot.app.security.dto.request.SignupRequest;
+import com.springboot.app.security.dto.response.JwtResponse;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.accounts.entity.Role;
 import com.springboot.app.accounts.enumeration.RoleName;

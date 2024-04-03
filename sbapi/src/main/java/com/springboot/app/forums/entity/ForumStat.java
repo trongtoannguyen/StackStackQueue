@@ -1,6 +1,5 @@
 package com.springboot.app.forums.entity;
 
-import com.springboot.app.discussions.entity.CommentInfo;
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

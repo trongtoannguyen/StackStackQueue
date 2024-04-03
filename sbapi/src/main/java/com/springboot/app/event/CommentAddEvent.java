@@ -1,6 +1,6 @@
 package com.springboot.app.event;
 
-import com.springboot.app.discussions.entity.Comment;
+import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.accounts.entity.User;
 import org.springframework.context.ApplicationEvent;
 

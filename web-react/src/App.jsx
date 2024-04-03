@@ -1,20 +1,21 @@
 // import { useState } from 'react'
-import Container from 'react-bootstrap/Container'
 import './App.scss'
+import AdminRoutes from './routes/AdminRoutes';
 import AppRoutes from './routes/AppRoutes'
-import Header from './components/Header'
+// import { Admin, Resource, CustomRoutes } from 'react-admin';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
   // const [count, setCount] = useState(0)
 
   return (
 
-      <div className="app-container">
-        <Header />
-        <Container>
-          <AppRoutes />
-        </Container>
-      </div>
+    <main className="app-container">
+      <Routes>
+        <Route path="/*" element={<AppRoutes />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
+      </Routes>
+    </main>
 
   )
 }
