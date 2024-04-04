@@ -1,12 +1,18 @@
 import Table from 'react-bootstrap/Table';
 import ForumInfo from '../forumsPage/ForumInfo';
-import { NavLink, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
 
 import { Container } from 'react-bootstrap';
+import BannerTop from '../layout/BannerTop';
 
 
 const ListDiscussions = () => {
+
+  const bannerName = "List Discussions";
+  const breadcrumbs = [
+    { id: 1, name: 'List Discussions', link: '/list-discussion' }
+  ];
 
   const handlePageClick = (event) => {
     console.log(event)
@@ -21,35 +27,21 @@ const ListDiscussions = () => {
 
 
   return (
-    <section className="mt-3 row border">
-      <nav className="ui-breadcrumb col-12" aria-label='breadcrumb'>
-        <ol className='breadcrumb'>
-          <li className="breadcrumb-item">
-            <NavLink tag={Link} to="/" className='nav-link'>
-              <i className="fa-solid fa-house"></i>
-            </NavLink>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            <NavLink tag={Link} to="/forums/discussions" className='nav-link'>
-              [name of category/name] Java
-            </NavLink>
-          </li>
-        </ol>
-      </nav>
-      <span className="banner-page-item col-12 mb-3">
-        <div className="title-page">
-          <h3>Forums [category/name] Java</h3>
-        </div>
-      </span>
+    <article className="list-discussion-container mt-3">
+      <BannerTop
+        bannerName={bannerName}
+        breadcrumbs={breadcrumbs}
+      />
+      <Container>
       <div className='filter-top col-12 mb-3 row'>
-        <div className='filter'>
+        <div className='filter-item'>
           <span className='filter-name'>Sort by: </span>
           <label htmlFor='recent'><input type='radio' id='recent' name='sortBy' value="1" /> Most Recent</label>
           <label htmlFor='reply'><input type='radio' id='reply' name='sortBy' value="2" /> Most Recent</label>
           <label htmlFor='view'><input type='radio' id='view' name='sortBy' value="3" /> Most Recent</label>
         </div>
 
-        <div className='filter'>
+        <div className='filter-item'>
           <span className='filter-name'>Sort Order:</span>
           <button>
             <i className="fa-solid fa-arrow-down-long"></i>
@@ -59,7 +51,7 @@ const ListDiscussions = () => {
           </button>
         </div>
 
-        <div className='filter'>
+        <div className='filter-item'>
           <span className='filter-name'>Page Size</span>
           <button>10</button>
           <button>20</button>
@@ -67,7 +59,7 @@ const ListDiscussions = () => {
         </div>
 
       </div>
-      <Container className='mx-auto row'>
+      <section className='mx-auto row'>
 
         <article className="mb-3 col-12 col-md-8 col-lg-9">
 
@@ -129,8 +121,9 @@ const ListDiscussions = () => {
             <ForumInfo />
           </div>
         </aside>
+        </section>
       </Container>
-    </section>
+    </article>
   );
 }
 

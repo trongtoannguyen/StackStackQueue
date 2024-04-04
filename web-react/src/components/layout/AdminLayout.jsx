@@ -7,7 +7,7 @@ import './AdminLayout.scss'
 
 const AdminLayout = () => {
   return (
-    <div className="layout">
+    <div className="layout-admin">
       <Header />
       <div className="main-content">
         <Sidebar className="col-12 col-md-3" />

@@ -157,5 +157,22 @@
         margin-bottom: 20px;
       }
     }
+
+    .list-discussion-container{
+      .filter-top{
+        display: flex;
+        flex-direction: row;
+        justify-items: start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        .filter-item{
+          display: flex;
+          flex-direction: row;
+          justify-content: start;
+          align-items: center;
+        }
+      }
+    }
   }
 }
