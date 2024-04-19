@@ -4,27 +4,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class JwtResponse {
-	private String token;
+	private String accessToken;
 	private String type = "Bearer";
 	private Long id;
 	private String username;
 	private String email;
 	private Set<String> roles = new HashSet<String>();
+	private String avatar;
+
 	public JwtResponse() {
 	}
-	public JwtResponse(String token, Long id, String username, String email, Set<String> roles) {
-		this.token = token;
+	public JwtResponse(String accessToken, Long id, String username, String email, Set<String> roles) {
+		this.accessToken = accessToken;
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.roles = roles;
 	}
-	public String getToken() {
-		return token;
+
+	public JwtResponse(String accessToken, Long id, String username, String email, Set<String> roles, String avatar) {
+		this.accessToken = accessToken;
+		this.id = id;
+		this.username = username;
+		this.email = email;
+		this.roles = roles;
+		this.avatar = avatar;
 	}
-	public void setToken(String token) {
-		this.token = token;
-	}
+
+
 	public String getType() {
 		return type;
 	}
@@ -61,5 +68,21 @@ public class JwtResponse {
 
 	public void setRoles(Set<String> roles) {
 		this.roles = roles;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 }

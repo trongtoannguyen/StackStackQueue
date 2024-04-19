@@ -1,41 +1,264 @@
-import Form from 'react-bootstrap/Form';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from 'react';
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../redux/apiRequest";
+import { signupApi } from "../../services/AuthService";
+
+
+import StyledInput from "./StyledInput";
+import {
+  USER_REGEX,
+  EMAIL_REGEX,
+  PWD_REGEX
+} from "./ConstRegex";
+
 
 
 const RegisterForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const userRef = useRef();
+  const errRef = useRef();
+
+  const [username, setUsername] = useState("");
+  const [validName, setValidName] = useState(false);
+  const [userFocus, setUserFocus] = useState(false);
+
+
+  const [email, setEmail] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+
+  const [password, setPassword] = useState("");
+  const [validPwd, setValidPwd] = useState(false);
+  const [pwdFocus, setPwdFocus] = useState(false);
+
+  const [confirm, setConfirm] = useState("");
+  const [validConfirm, setValidConfirm] = useState(false);
+  const [confirmFocus, setConfirmFocus] = useState(false);
+
+  const [isShowPassword, setIsShowPassword] = useState(false);
+
+  const [errMsg, setErrMsg] = useState('');
+  const [success, setSuccess] = useState(false);
+
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   userRef.current.focus();
+  // }, []);
+
+  useEffect(() => {
+    setValidName(USER_REGEX.test(username));
+  }, [username]);
+
+  useEffect(() => {
+    setValidEmail(EMAIL_REGEX.test(email));
+  }, [email]);
+
+  useEffect(() => {
+    setValidPwd(PWD_REGEX.test(password));
+    setValidConfirm(password === confirm);
+  }, [password, confirm]);
+
+
+
+  useEffect(() => {
+    setErrMsg('');
+  }, [username, email, password, confirm]);
+
+  const handleRegister = async () => {
+
+    setIsLoading(true);
+
+    const v1 = USER_REGEX.test(username);
+    const v2 = EMAIL_REGEX.test(email);
+    const v3 = PWD_REGEX.test(password);
+    if (!v1 || !v2 || !v3) {
+      setErrMsg('Please enter valid information');
+      return;
+    }
+    // return;
+    const registerInfo = {
+      username,
+      email,
+      password
+    }
+    registerUser(registerInfo, dispatch, navigate);
+
+
+
+    try {
+      const response = await signupApi(username, email, password);
+      if (response && response.status === 200) {
+        setSuccess(true);
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setConfirm('');
+
+        setIsLoading(false);
+
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      } else {
+        setErrMsg('Register failed');
+      }
+    } catch (error) {
+      if (!error?.response) {
+        setErrMsg('Network error');
+      } else if (error.response.status === 400) {
+        setErrMsg('Username or email already exists');
+      } else {
+        setErrMsg('Register failed');
+      }
+      errRef.current.focus();
+    }
+  }
+
+
+  const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      handleRegister();
+    }
+  }
+
+  const isAction = () => {
+    return validName && validEmail && validPwd && validConfirm;
+  }
+
+
   return (
-    <article className='login-container container mt-3 col-12 col-sm-8 col-lg-4 mx-auto'>
-      <h1>Register Form</h1>
-      <p className="text-muted">If you have an account, you can <Link to="/login">login here</Link></p>
+    <article className='auth-container container mt-3 col-12 col-sm-8 col-lg-4 mx-auto'>
 
-      <Form className='col-12 mx-auto'>
-        <FloatingLabel
-          controlId="floatingInput"
-          label="Username"
-          className="mb-3"
-        >
-          <Form.Control type="text" placeholder="Username" />
-        </FloatingLabel>
+      <h1 className="login-title">Create an account</h1>
 
-        <FloatingLabel
-          controlId="floatingInput"
-          label="Email address"
-          className="mb-3"
-        >
-          <Form.Control type="email" placeholder="name@example.com" />
-        </FloatingLabel>
 
-        <FloatingLabel controlId="floatingPassword" label="Password" className="mb-3">
-          <Form.Control type="password" placeholder="Password" />
-        </FloatingLabel>
+      {success && <div className="alert alert-success">Register successfully. Redirecting to login page...</div>}
+      {errMsg && <div className="alert alert-danger" ref={errRef}>{errMsg}</div>}
 
-        <FloatingLabel controlId="floatingCfmPassword" label="Confirm Password" className="mb-3">
-          <Form.Control type="password" placeholder="Confirm Password" />
-        </FloatingLabel>
+      <StyledInput type='text'
+        id="username"
+        ref={userRef}
+        autoComplete="off"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username (*)"
+        required
+        aria-invalid={!validName}
+        aria-describedby="username-err"
+        onFocus={() => setUserFocus(true)}
+        onBlur={() => setUserFocus(false)}
+        valid={+(username.length === 0 || validName)}
+      />
+      <small id="username-err" className={userFocus && username || !validName ? "text-danger" : "invalid-feedback"} role="alert" hidden={validName || !userFocus}>
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        Username must be 4-24 characters long and start with a letter.<br />
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        Letters, numbers, underscores, hyphens allowed.
+      </small>
 
-        <button className="btn btn-primary btn-lg mb-3 w-100" type="submit">Register</button>
-      </Form>
+
+      <StyledInput
+        type='text'
+        id="email"
+        placeholder="Email address (*)"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        aria-invalid={!validEmail}
+        aria-describedby="email-err"
+        onFocus={() => setEmailFocus(true)}
+        onBlur={() => setEmailFocus(false)}
+        valid={+(email.length === 0 || validEmail)}
+      />
+      <small id="email-err" className={emailFocus && email || !validEmail ? "text-danger" : "invalid-feedback"} role="alert" hidden={validEmail || !emailFocus}>
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        Please enter a valid email address
+      </small>
+
+      <div className="input-password">
+        <StyledInput
+          type={isShowPassword ? "text" : "password"}
+          id="password"
+          placeholder="Password (*)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          required
+          aria-invalid={!validPwd}
+          aria-describedby="password-err"
+          onFocus={() => setPwdFocus(true)}
+          onBlur={() => setPwdFocus(false)}
+          valid={+(password.length === 0 || validPwd)}
+        />
+        <i
+          className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
+          onClick={() => setIsShowPassword(!isShowPassword)}
+          onKeyDown={() => setIsShowPassword(!isShowPassword)}
+        ></i>
+      </div>
+      <small id="password-err"
+        className={pwdFocus && password || !validPwd ? "text-danger" : "invalid-feedback"}
+        role="alert" hidden={validPwd || !pwdFocus}
+      >
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        Password must be 8-24 characters long. <br />
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        And contain at least one lowercase letter, one uppercase letter, one number. <br />
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        And one special character (
+        <span aria-label="exclamation mark">! </span>
+        <span aria-label="at symbol">@ </span>
+        <span aria-label="hashtag"># </span>
+        <span aria-label="dollar sign">$ </span>
+        <span aria-label="percent">%</span>)
+      </small>
+
+      <div className="input-password">
+        <StyledInput
+          type={isShowPassword ? "text" : "password"}
+          id="confirm"
+          placeholder="Confirm Password (*)"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          required
+          aria-invalid={!validConfirm}
+          aria-describedby="confirm-err"
+          onFocus={() => setConfirmFocus(true)}
+          onBlur={() => setConfirmFocus(false)}
+          valid={+(confirm.length===0 ||validConfirm)}
+        />
+        <i
+          className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
+          onClick={() => setIsShowPassword(!isShowPassword)}
+          onKeyDown={() => setIsShowPassword(!isShowPassword)}
+        ></i>
+      </div>
+      <small id="confirm-err"
+        className={confirmFocus && confirm || !validConfirm ? "text-danger" : "invalid-feedback"}
+        role="alert" hidden={validConfirm || !confirmFocus}>
+        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+        Passwords do not match
+      </small>
+
+      <button
+        className={isAction() ? "active" : ""}
+        disabled={isAction() ? +false : +true}
+        onClick={() => handleRegister()}
+      >
+        {isLoading && <i className="fas fa-sync fa-spin"></i>}
+        &nbsp;Register
+      </button>
+
+      <p className="login-subtitle">Do you have an account? <Link to="/login">Sign in</Link></p>
+
+
 
       <div className="back">
         <Link to="/" className='nav-link'>

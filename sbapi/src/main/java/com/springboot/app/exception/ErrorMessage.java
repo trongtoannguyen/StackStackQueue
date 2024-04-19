@@ -3,7 +3,7 @@ package com.springboot.app.exception;
 import java.util.Date;
 
 public class ErrorMessage {
-	private int statusCode;
+	private int status;
 	private Date timestamp;
 	private String message;
 	private String description;
@@ -11,19 +11,19 @@ public class ErrorMessage {
 	public ErrorMessage() {
 	}
 
-	public ErrorMessage(int statusCode, Date timestamp, String message, String description) {
-		this.statusCode = statusCode;
+	public ErrorMessage(int status, Date timestamp, String message, String description) {
+		this.status = status;
 		this.timestamp = timestamp;
 		this.message = message;
 		this.description = description;
 	}
 
-	public int getStatusCode() {
-		return statusCode;
+	public int getStatus() {
+		return status;
 	}
 
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
+	public void setStatus(int statusCode) {
+		this.status = statusCode;
 	}
 
 	public Date getTimestamp() {

@@ -1,6 +1,7 @@
+
 const ForumInfo = () => {
   return (
-    <div>
+    <div className="p-3">
       <h4>
         <i className="fa-solid fa-circle-info"></i> <></>
         Forum Info

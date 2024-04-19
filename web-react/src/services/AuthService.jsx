@@ -1,13 +1,16 @@
 import axios from "./customize-axios";
 
-const postLoginApi = async(email,password) => {
-  return await axios.post('auth/signin',{username:email, password});
+const loginApi = async (loginInfo) => {
+  return await axios.post('auth/signin', loginInfo);
 }
 
-const postSignupApi = async (username, email, password) => {
-  return await axios.post('auth/signup', { username, email, password });
+const signupApi = async (username, email, password) => {
+  return await axios.post('auth/signup',
+    JSON.stringify({ username, email, password }), {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true
+  });
 }
 
 
-
-export { postLoginApi, postSignupApi };
+export { loginApi, signupApi };

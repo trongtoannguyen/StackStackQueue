@@ -4,7 +4,6 @@ import java.util.Set;
 
 
 public class SignupRequest {
-	private String name;
 	private String username;
 	private String email;
 	private String password;
@@ -19,21 +18,13 @@ public class SignupRequest {
 		this.password = password;
 	}
 
-	public SignupRequest(String name, String username, String email, String password, Set<String> roles) {
-		this.name = name;
+	public SignupRequest(String username, String email, String password, Set<String> roles) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.roles = roles;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getUsername() {
 		return username;

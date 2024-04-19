@@ -59,9 +59,9 @@ public class DatabaseInit {
 			return;
 		}
 		User ad = new User(
+				"admin",
 				"admin@gmail.com",
-				"admin@gmail.com",
-				encoder.encode("admin@gmail.com"),
+				encoder.encode("admin@123"),
 				AccountStatus.valueOf("ACTIVE")
 		);
 		Set<Role> r = Set.of(roles.get());

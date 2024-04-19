@@ -16,6 +16,7 @@ import org.hibernate.annotations.NaturalId;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -65,10 +66,6 @@ public class User extends BaseEntity {
 	@Lob
 	private String avatar;
 
-	@Enumerated(EnumType.STRING)
-	private ProviderName provider;
-
-
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role",
 			joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -86,6 +83,10 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "user_stat_id", foreignKey = @ForeignKey(name = "FK_USER_USER_STAT"))
 	private UserStat stat;
 
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OrderBy("createdAt DESC")
+	private List<ProviderAccount> providerAccounts;
+
 
 	public User(String username, String email, String password) {
 		this.username = username;
@@ -93,10 +94,9 @@ public class User extends BaseEntity {
 		this.password = password;
 	}
 
-	public User(String username, String email,ProviderName provider, AccountStatus accountStatus) {
+	public User(String username, String email, AccountStatus accountStatus) {
 		this.username = username;
 		this.email = email;
-		this.provider = provider;
 		this.accountStatus = accountStatus;
 	}
 

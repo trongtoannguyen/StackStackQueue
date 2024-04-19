@@ -31,6 +31,7 @@ const ModalAddDiscussion = (props) => {
     return (
         <Modal show={show} onHide={handleClose}
             backdrop="static"
+            size="lg"
             keyboard={false}>
 
             <Modal.Header closeButton>
@@ -49,7 +50,7 @@ const ModalAddDiscussion = (props) => {
 
                 <div className="form-group mb-3">
                     <label htmlFor="content">Content</label>
-                    <textarea className="form-control" id="content" rows="3"></textarea>
+                    <textarea className="form-control" id="content" rows="3" placeholder="Enter content here"></textarea>
                 </div>
 
                 <div className="form-group mb-3">

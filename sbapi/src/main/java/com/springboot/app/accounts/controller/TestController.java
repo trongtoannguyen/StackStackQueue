@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.security.jwt.JwtUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,24 +13,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 	@GetMapping("/all")
 	public String allAccess() {
-		return "Public Content.";
+		var session = JwtUtils.getSession();
+		return "Public Content. " + session;
 	}
 
 	@GetMapping("/user")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public String userAccess() {
-		return "User Content.";
+		var session = JwtUtils.getSession();
+		return "User Content. " + session;
 	}
 
 	@GetMapping("/mod")
 	@PreAuthorize("hasRole('MODERATOR')")
 	public String moderatorAccess() {
-		return "Moderator Board.";
+		var session = JwtUtils.getSession();
+		return "Moderator Board. " + session;
 	}
 
 	@GetMapping("/admin")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String adminAccess() {
-		return "Admin Board.";
+		var session = JwtUtils.getSession();
+		return "Admin Board. "+ session;
 	}
 }

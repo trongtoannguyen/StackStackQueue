@@ -1,21 +1,47 @@
-// import { useState } from 'react'
+import { useEffect } from 'react'
 import './App.scss'
 import AdminRoutes from './routes/AdminRoutes';
 import AppRoutes from './routes/AppRoutes'
 // import { Admin, Resource, CustomRoutes } from 'react-admin';
 import { Routes, Route } from 'react-router-dom';
 
+import { ToastContainer } from 'react-toastify';
+
+import { useDispatch } from "react-redux";
+import { handleRefresh } from "./redux/actions/userAction"
+
 function App() {
   // const [count, setCount] = useState(0)
 
-  return (
+  const dispatch = useDispatch();
 
-    <main className="app-container">
-      <Routes>
-        <Route path="/*" element={<AppRoutes />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
-      </Routes>
-    </main>
+  useEffect(() => {
+    if (localStorage.getItem("token") !== null) {
+      dispatch(handleRefresh())
+    }
+  }, [])
+
+  return (
+    <>
+      <main className="app-container">
+        <Routes>
+          <Route path="/*" element={<AppRoutes />} />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+        </Routes>
+      </main>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </>
 
   )
 }

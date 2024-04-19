@@ -1,8 +1,19 @@
 import ReactPaginate from "react-paginate";
-import { Container, Table } from "react-bootstrap";
-
 import ForumInfo from "../forumsPage/ForumInfo";
-import BannerTop from "../layout/BannerTop";
+import BannerTop from "../bannerTop/BannerTop";
+
+import { Link } from "react-router-dom";
+
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardTitle,
+  Table,
+  Row,
+  Col,
+} from "reactstrap";
+
 
 
 const MemberList = () => {
@@ -27,93 +38,85 @@ const MemberList = () => {
 
 
   return (
-    <section className="members-container">
-      <BannerTop
-        bannerName={bannerName}
-        breadcrumbs={breadcrumbs}
-      />
+    <section className="members-container content">
+      <Row>
+        <Col md-12>
+          <BannerTop
 
-      <Container className="row mx-auto mb-3">
-
-        <article className="mb-3 col-12 col-md-8 col-lg-9">
-          <div className='pagination pagination-top'>
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel="next >"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={5}
-              pageCount={15}
-              previousLabel="< previous"
-
-              pageClassName='page-item'
-              pageLinkClassName='page-link'
-              previousClassName='page-item'
-              previousLinkClassName='page-link'
-              nextClassName='page-item'
-              nextLinkClassName='page-link'
-              breakClassName='page-item'
-              breakLinkClassName='page-link'
-              containerClassName='pagination'
-              activeClassName='active'
-            />
-          </div>
-          <Table striped bordered responsive hover>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Discussion Created</th>
-                <th>Comments</th>
-                <th>Last Comment</th>
-                <th>Joined Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memberList?.map((item) => {
-                return (
-                  <tr key={item.username}>
-                    <td>{item.username}</td>
-                    <td>{item.discussionCreated}</td>
-                    <td>{item.comments}</td>
-                    <td>{item.lastComment}</td>
-                    <td>{item.joinedDate}</td>
-                  </tr>
-                )
-              })}
-
-            </tbody>
-          </Table>
-
-          <div className='pagination pagination-end'>
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel="next >"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={5}
-              pageCount={15}
-              previousLabel="< previous"
-              pageClassName='page-item'
-              pageLinkClassName='page-link'
-              previousClassName='page-item'
-              previousLinkClassName='page-link'
-              nextClassName='page-item'
-              nextLinkClassName='page-link'
-              breakClassName='page-item'
-              breakLinkClassName='page-link'
-              containerClassName='pagination'
-              activeClassName='active'
-            />
-          </div>
-
-        </article>
-
-        {/* right column */}
-        <aside className="mb-3 col-12 col-md-4 col-lg-3">
-
-          <div className="card">
-            <ForumInfo />
-          </div>
-        </aside>
-      </Container>
+            bannerName={bannerName}
+            breadcrumbs={breadcrumbs}
+          />
+        </Col>
+        <Col md="12">
+          <Row>
+            <Col md="8">
+              <Card>
+                <CardHeader>
+                  <CardTitle tag="h4">Members List</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <Table responsive>
+                    <thead className="text-primary">
+                      <tr>
+                        <th>Name</th>
+                        <th className="text-right">Discussion</th>
+                        <th className="text-right">Comments</th>
+                        <th className="text-right">Last Comment</th>
+                        <th className="text-right">Join Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {memberList?.map((item) => {
+                        return (
+                          <tr key={item.username}>
+                            <td>
+                              <Link to="/user/1">{item.username}</Link>
+                            </td>
+                            <td className="text-right">{item.discussionCreated}</td>
+                            <td className="text-right">{item.comments}</td>
+                            <td className="text-right">{item.lastComment}</td>
+                            <td className="text-right">{item.joinedDate}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </Table>
+                  <div className='pagination pagination-end'>
+                    <ReactPaginate
+                      breakLabel="..."
+                      nextLabel="next >"
+                      onPageChange={handlePageClick}
+                      pageRangeDisplayed={5}
+                      pageCount={15}
+                      previousLabel="< previous"
+                      pageClassName='page-item'
+                      pageLinkClassName='page-link'
+                      previousClassName='page-item'
+                      previousLinkClassName='page-link'
+                      nextClassName='page-item'
+                      nextLinkClassName='page-link'
+                      breakClassName='page-item'
+                      breakLinkClassName='page-link'
+                      containerClassName='pagination'
+                      activeClassName='active'
+                    />
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+            <Col md="4">
+              <Card className="h-100">
+                <CardHeader>
+                  <CardTitle tag="h4">Forum Info</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <ForumInfo />
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     </section>
   );
 }

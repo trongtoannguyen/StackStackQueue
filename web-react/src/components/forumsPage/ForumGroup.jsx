@@ -1,10 +1,27 @@
 import { useState, useEffect } from 'react';
 import ForumInfo from './ForumInfo';
 import { Link } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import Table from 'react-bootstrap/Table';
-import BannerTop from '../layout/BannerTop';
+import BannerTop from '../bannerTop/BannerTop';
+
+
+
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  CardTitle,
+  FormGroup,
+  Form,
+  Input,
+  Row,
+  Col,
+} from "reactstrap";
+
+
 
 const ForumGroup = () => {
 
@@ -32,73 +49,60 @@ const ForumGroup = () => {
   }
 
   return (
-    <section className="forums-container">
-      <BannerTop
-        bannerName={bannerName}
-        breadcrumbs={breadcrumbs}
-      />
+    <section className="forums-container content">
+      <Col md="12">
+        <BannerTop
+          bannerName={bannerName}
+          breadcrumbs={breadcrumbs}
+        />
+      </Col>
 
-      <Container className='container row mx-auto mb-3'>
+      <Col md="12">
+        <Row>
 
-        <article className="mb-3 col-12 col-md-8 col-lg-9">
-          <Table striped bordered responsive hover>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Category/Name</th>
-                <th>Discussions</th>
-                <th>Comments</th>
-                <th>Last Post</th>
-              </tr>
-            </thead>
-            <tbody>
-              {forumGroup?.map((forum) => {
-                return (
-                  <tr key={forum.id}>
-                    <td><i className="fa-solid fa-volume-high"></i> <></></td>
-                    <td>
-                      <h4>
-                        <Link to="/forums/1">{forum.name}</Link>
-                      </h4>
-                      <p>{forum.description}</p>
-                    </td>
-                    <td> 2</td>
-                    <td> 20</td>
-                    <td> Abc</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </Table>
+          <Col md={8}>
+            <Card className='h-100'>
+              <div style={{ display: "block", overflow: 'hidden' }}>
+                <Table striped responsive hover>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Category/Name</th>
+                      <th>Discussions</th>
+                      <th>Comments</th>
+                      <th>Last Post</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forumGroup?.map((forum) => {
+                      return (
+                        <tr key={forum.id}>
+                          <td><i className="fa-regular fa-comments fa-xl"></i>{" "}</td>
+                          <td>
+                            <h4>
+                              <Link to="/forums/1">{forum.name}</Link>
+                            </h4>
+                            <p>{forum.description}</p>
+                          </td>
+                          <td> 2</td>
+                          <td> 20</td>
+                          <td> Abc</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <Card className='p-3 h-100'>
+              <ForumInfo />
+            </Card>
+          </Col>
+        </Row>
 
-          <div className="pagination">
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel="next >"
-              onPageChange={handlePageClick}
-              pageRangeDisplayed={5}
-              pageCount={15}
-              previousLabel="< previous"
-              pageClassName='page-item'
-              pageLinkClassName='page-link'
-              previousClassName='page-item'
-              previousLinkClassName='page-link'
-              nextClassName='page-item'
-              nextLinkClassName='page-link'
-              breakClassName='page-item'
-              breakLinkClassName='page-link'
-              containerClassName='pagination'
-              activeClassName='active'
-            />
-          </div>
-
-        </article>
-        <aside className="mb-3 col-12 col-md-4 col-lg-3">
-          <div className="card">
-            <ForumInfo />
-          </div>
-        </aside>
-      </Container>
+      </Col>
     </section>
   )
 }

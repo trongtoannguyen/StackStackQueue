@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 const NotFound = () => {
   return (
-    <article style={{ padding: "100px" }}>
+    <article className="content text-center" >
       <h1>Oops!</h1>
       <p>Page Not Found</p>
       <div className="flexGrow">
