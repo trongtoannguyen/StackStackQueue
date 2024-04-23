@@ -12,9 +12,10 @@ import FixedPlugin from "../components/admin/FixedPlugin/FixedPlugin";
 
 import './Layout.scss';
 
-
 let ps;
 const AdminLayout = (props) => {
+
+  
   const [backgroundColor, setBackgroundColor] = React.useState("black");
   const [activeColor, setActiveColor] = React.useState("info");
 

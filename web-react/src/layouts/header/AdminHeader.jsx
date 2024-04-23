@@ -94,6 +94,12 @@ function AdminHeader() {
       setColor("transparent");
     }
   };
+
+  const handleProfile = () => {
+    navigate("/my-profile");
+  }
+
+
   React.useEffect(() => {
     window.addEventListener("resize", updateColor.bind(this));
   });
@@ -191,19 +197,24 @@ function AdminHeader() {
                 toggle={(e) => dropdownToggleAccount(e)}
               >
                 <DropdownToggle caret nav>
-                  <img src={currentUser?.avatar || avatar} alt="avatar" className="avatar d-lg-inline-block d-none" style={{ height: "2rem", width: "2rem", borderRadius: "50%" }} />
+                  <img src={(currentUser?.avatar ?? currentUser?.imageUrl) ?? avatar} alt="avatar" className="avatar d-lg-inline-block d-none" style={{ height: "2rem", width: "clamp(55ch, 50%, 75ch)", borderRadius: "50%", }} />
                   <p>
-                    <span className="d-lg-none d-md-block">{currentUser?.username}</span>
+                    <span className="d-lg-none d-md-block text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
                   </p>
                 </DropdownToggle>
-                <DropdownMenu right>
+                <DropdownMenu right style={{ width: "clamp(55ch, 50%, 75ch)" }}>
                   <DropdownItem header className="d-lg-inline-block d-none">{currentUser.username}</DropdownItem>
                   <DropdownItem divider />
-                  <DropdownItem tag="a">MyProfile</DropdownItem>
+                  <DropdownItem tag="a" onClick={() => handleProfile()}>
+                    <i className="fa-solid fa-user fa-xl d-inline-block d-none"></i>
+                    <p>
+                      <span className="d-block">My profile</span>
+                    </p>
+                  </DropdownItem>
                   <DropdownItem tag="a">Activities</DropdownItem>
                   <DropdownItem divider />
                   <DropdownItem tag="a" onClick={() => handleLogout()}>
-                    <i className="fa-solid fa-right-from-bracket fa-xl d-inline-block"></i>
+                    <i className="fa-solid fa-right-from-bracket fa-xl d-inline-block d-none"></i>
                     <p>
                       <span className="d-block">Logout</span>
                     </p>
@@ -236,7 +247,7 @@ function AdminHeader() {
               <NavItem className="d-lg-inline-block d-none">
                 <Link to="/my-profile" className="nav-link btn-rotate">
                   <p>
-                    <span>{currentUser?.username}</span>
+                    <span className="text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
                   </p>
                 </Link>
               </NavItem>

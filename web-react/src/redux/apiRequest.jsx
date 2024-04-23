@@ -19,7 +19,6 @@ export const loginUser = async (user, dispatch) => {
   dispatch(loginStart());
   try {
     let res = await axios.post('auth/signin', user);
-    console.log(`Here is the response: ${JSON.stringify(res)}`);
     if (res?.accessToken) {
       toast.success("Login successfully!");
       dispatch(loginSuccess(res));
@@ -36,11 +35,19 @@ export const loginUser = async (user, dispatch) => {
 export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
-    await axios.post("/auth/signup", user);
-    dispatch(registerSuccess());
-    navigate("/login");
-    toast.success("Register successfully!");
+    let res = await axios.post("/auth/signup", user);
+    console.log(`Here is the response: ${JSON.stringify(res)}`);
+    console.log(`Here is the status: ${+res?.status}`);
+    if (+res?.status === 201) {
+      dispatch(registerSuccess());
+      navigate("/login");
+      toast.success("Register successfully!");
+    } else if (+res?.data?.status === 400) {
+      toast.error(res?.data?.message);
+      dispatch(registerFailed());
+    }
   } catch (err) {
+    toast.error(err?.data?.message);
     dispatch(registerFailed());
   }
 };
@@ -53,8 +60,7 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
       headers: { token: `Bearer ${accessToken}` },
     });
     dispatch(logOutSuccess());
-    // navigate("/login");
-    navigate(-1);
+    navigate("/login");
     toast.success("Logout Successfully!");
   } catch (err) {
     console.log(`Here is the error: ${err}`);
@@ -62,3 +68,28 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
     dispatch(logOutFailed());
   }
 };
+
+
+export const getCurrentUser = async (dispatch, accessToken) => {
+  dispatch(loginStart());
+  try {
+    const res = await axios.get("/auth/user/me", {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      },
+    });
+    if (res?.accessToken) {
+      // toast.success("Login successfully!");
+      dispatch(loginSuccess(res));
+    } else if (+res?.data?.status === 500) {
+      toast.error(res.data?.message);
+      dispatch(loginFailed());
+    }
+  } catch (err) {
+    toast.error(err?.data?.message);
+    dispatch(loginFailed());
+  }
+
+};
+

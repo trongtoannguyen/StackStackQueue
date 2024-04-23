@@ -42,6 +42,9 @@ public class JwtUtils {
 	@Value("${springboot.app.jwtCookieName}")
 	private String jwtCookie;
 
+	@Value("${springboot.app.jwtRefreshExpirationMs}")
+	private int jwtRefreshExpirationMs;
+
 	@Value("${springboot.app.jwtRefreshCookieName}")
 	private String jwtRefreshCookie;
 
@@ -80,6 +83,11 @@ public class JwtUtils {
 
 	public String getUserNameFromJwtToken(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+	}
+
+	public Long getUserIdFromJwtToken(String token) {
+		Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+		return Long.parseLong(claims.getSubject());
 	}
 
 	public boolean validateJwtToken(String authToken) {
@@ -128,6 +136,7 @@ public class JwtUtils {
 		}
 	}
 
+	// Get the current session information from the SecurityContextHolder and return it as a UserInfoResponse object.
 	public static UserInfoResponse getSession(){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication instanceof AnonymousAuthenticationToken) {

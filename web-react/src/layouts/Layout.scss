@@ -59,6 +59,7 @@ $bd-while: #f4f4f4;
     }
   }
   button {
+    width: 100%!important;
     margin-top: 15px;
     padding: 1rem 1.6rem;
     border-radius: 0.5em;
@@ -68,6 +69,7 @@ $bd-while: #f4f4f4;
     &.active {
       background-color: #fe2c55;
       color: white;
+      border: none;
     }
 
     button[disabled="disabled"],

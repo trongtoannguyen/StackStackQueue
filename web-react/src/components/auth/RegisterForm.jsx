@@ -1,9 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from 'react';
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../redux/apiRequest";
-import { signupApi } from "../../services/AuthService";
 
 
 import StyledInput from "./StyledInput";
@@ -12,8 +10,6 @@ import {
   EMAIL_REGEX,
   PWD_REGEX
 } from "./ConstRegex";
-
-
 
 const RegisterForm = () => {
   const dispatch = useDispatch();
@@ -42,10 +38,9 @@ const RegisterForm = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
 
   const [errMsg, setErrMsg] = useState('');
-  const [success, setSuccess] = useState(false);
 
 
-  const [isLoading, setIsLoading] = useState(false);
+  const isLoading = useSelector(state => state.auth.login?.isFetching);
 
   // useEffect(() => {
   //   userRef.current.focus();
@@ -65,14 +60,11 @@ const RegisterForm = () => {
   }, [password, confirm]);
 
 
-
   useEffect(() => {
     setErrMsg('');
   }, [username, email, password, confirm]);
 
   const handleRegister = async () => {
-
-    setIsLoading(true);
 
     const v1 = USER_REGEX.test(username);
     const v2 = EMAIL_REGEX.test(email);
@@ -88,36 +80,6 @@ const RegisterForm = () => {
       password
     }
     registerUser(registerInfo, dispatch, navigate);
-
-
-
-    try {
-      const response = await signupApi(username, email, password);
-      if (response && response.status === 200) {
-        setSuccess(true);
-        setUsername('');
-        setEmail('');
-        setPassword('');
-        setConfirm('');
-
-        setIsLoading(false);
-
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 3000);
-      } else {
-        setErrMsg('Register failed');
-      }
-    } catch (error) {
-      if (!error?.response) {
-        setErrMsg('Network error');
-      } else if (error.response.status === 400) {
-        setErrMsg('Username or email already exists');
-      } else {
-        setErrMsg('Register failed');
-      }
-      errRef.current.focus();
-    }
   }
 
 
@@ -137,9 +99,9 @@ const RegisterForm = () => {
 
       <h1 className="login-title">Create an account</h1>
 
-
-      {success && <div className="alert alert-success">Register successfully. Redirecting to login page...</div>}
-      {errMsg && <div className="alert alert-danger" ref={errRef}>{errMsg}</div>}
+      {errMsg &&
+        <p className="alert alert-danger" role="alert" ref={errRef} aria-live="assertive" aria-atomic="true">{errMsg}</p>
+      }
 
       <StyledInput type='text'
         id="username"

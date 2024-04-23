@@ -51,3 +51,15 @@ export const handleRefresh = () => {
         });
     }
 }
+
+
+// userActions.js
+export const SET_CURRENT_USER = 'SET_CURRENT_USER';
+
+export function setCurrentUser(token) {
+    return {
+        type: SET_CURRENT_USER,
+        payload: token
+    };
+}
+

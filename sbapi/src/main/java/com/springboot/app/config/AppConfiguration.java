@@ -2,6 +2,7 @@ package com.springboot.app.config;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -26,6 +27,9 @@ public class AppConfiguration implements WebMvcConfigurer {
 		return mapper;
 	}
 
+	private final long MAX_AGE_SECS = 3600;
+	@Value("${app.cors.allowed-origins}")
+	private String[] allowedOrigins;
 	/**
 	 * CORS configuration
 	 * - Cross-Origin Resource Sharing
@@ -34,7 +38,10 @@ public class AppConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**") // All endpoints
-				.allowedOrigins("*") // React app URL
-				.allowedMethods("*"); // HTTP methods allowed for CORS
+				.allowedOrigins(allowedOrigins) // React app URL
+				.allowedMethods("*")
+				.allowedHeaders("*")
+//				.allowCredentials(true)
+				.maxAge(MAX_AGE_SECS);
 	}
 }

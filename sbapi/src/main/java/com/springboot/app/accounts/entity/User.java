@@ -2,7 +2,7 @@ package com.springboot.app.accounts.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springboot.app.accounts.enumeration.AccountStatus;
-import com.springboot.app.accounts.enumeration.ProviderName;
+import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.model.BaseEntity;
 import com.springboot.app.profile.entity.Person;
 import jakarta.persistence.*;
@@ -16,7 +16,6 @@ import org.hibernate.annotations.NaturalId;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -83,15 +82,42 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "user_stat_id", foreignKey = @ForeignKey(name = "FK_USER_USER_STAT"))
 	private UserStat stat;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@OrderBy("createdAt DESC")
-	private List<ProviderAccount> providerAccounts;
+	@Column(name = "provider_id")
+	private String providerId;
 
+	@Column(name = "provider_name")
+	@Enumerated(EnumType.STRING)
+	private AuthProvider provider;
+
+	@Column(name = "name")
+	private String name;
+
+	@Column(name = "image_url")
+	private String imageUrl;
+
+	@Column(name = "email_verified")
+	private Boolean emailVerified = false;
 
 	public User(String username, String email, String password) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
+		this.accountStatus = AccountStatus.ACTIVE;
+	}
+
+	public User(String username, String email, String password, AuthProvider provider) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.provider = provider;
+		this.accountStatus = AccountStatus.ACTIVE;
+	}
+
+	public User(String username, String email, String password, AccountStatus accountStatus) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.accountStatus = accountStatus;
 	}
 
 	public User(String username, String email, AccountStatus accountStatus) {
@@ -100,12 +126,6 @@ public class User extends BaseEntity {
 		this.accountStatus = accountStatus;
 	}
 
-	public User(String username, String email, String password,AccountStatus accountStatus) {
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.accountStatus = accountStatus;
-	}
 
 	public User(Long id, String username, String email, String password, String avatar, Set<Role> roles) {
 		this.id = id;
@@ -116,13 +136,6 @@ public class User extends BaseEntity {
 		this.roles = roles;
 	}
 
-//	              @NotBlank @Size(min = 3, max = 50)String username,
-//	              @NotBlank @Size(max = 50) @Email String email,
-//	              @NotBlank @Size(min = 6, max = 100)String encode) {
-//		this.username = username;
-//		this.email = email;
-//		this.password = encode;
-//	}
 
 
 

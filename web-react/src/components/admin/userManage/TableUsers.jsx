@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+
 import Table from 'react-bootstrap/Table';
-import { Link } from "react-router-dom";
 
 import {
   Card,
@@ -12,8 +15,8 @@ import {
 } from "reactstrap";
 
 import avatar from "../../../assets/img/default-avatar.png";
-
-
+import { getAllUsers, deleteUser } from "../../../redux/apiUserRequest";
+import { createAxios } from "../../../services/createInstance";
 
 function TableUsers() {
 
@@ -48,6 +51,28 @@ function TableUsers() {
         active: false,
       }
     ]
+
+  const user = useSelector((state) => state.auth.login?.currentUser);
+  const userList = useSelector((state) => state.users.users?.allUsers);
+
+  // const msg = useSelector((state) => state.users?.msg);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  let axiosJWT = createAxios(user, dispatch, loginSuccess);
+
+  const handleDelete = (id) => {
+    deleteUser(user?.accessToken, dispatch, id, axiosJWT);
+  };
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+    if (user?.accessToken) {
+      getAllUsers(user?.accessToken, dispatch, axiosJWT);
+    }
+  })
 
   return (
     <div className='content'>
@@ -84,7 +109,7 @@ function TableUsers() {
                       <i className="fas fa-sync-alt" /> Update
                     </span>
                     <span className="stats mx-2">
-                      <i className="fas fa-sync-alt" />  Delete
+                      <i className="fa-solid fa-delete-left"></i>  Delete
                     </span>
                   </CardFooter>
                 </Card>

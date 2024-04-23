@@ -5,13 +5,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class UserDetailsImpl implements UserDetails {
+public class UserDetailsImpl implements OAuth2User, UserDetails {
 	private static final long serialVersionUID = 1L;
 	private Long id;
 	private String username;
@@ -19,6 +21,8 @@ public class UserDetailsImpl implements UserDetails {
 	@JsonIgnore
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
+
+	private Map<String, Object> attributes;
 
 	public UserDetailsImpl(Long id, String username, String email, String password,
 	                       Collection<? extends GrantedAuthority> authorities) {
@@ -40,6 +44,12 @@ public class UserDetailsImpl implements UserDetails {
 				user.getEmail(),
 				user.getPassword(),
 				authorities);
+	}
+
+	public static UserDetailsImpl create(User user, Map<String, Object> attributes) {
+		UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+		userDetails.setAttributes(attributes);
+		return userDetails;
 	}
 
 	@Override
@@ -86,6 +96,20 @@ public class UserDetailsImpl implements UserDetails {
 	}
 
 	@Override
+	public <A> A getAttribute(String name) {
+		return OAuth2User.super.getAttribute(name);
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, Object> attributes) {
+		this.attributes = attributes;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -93,5 +117,10 @@ public class UserDetailsImpl implements UserDetails {
 			return false;
 		UserDetailsImpl user = (UserDetailsImpl) o;
 		return Objects.equals(id, user.id);
+	}
+
+	@Override
+	public String getName() {
+		return String.valueOf(id);
 	}
 }

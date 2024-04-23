@@ -15,22 +15,90 @@ import {
 } from "reactstrap";
 
 import avatar from '../../assets/img/default-avatar.png';
+import ModalEditProfile from './ModalEditProfile';
+import { useState } from 'react';
 
 
 export const MyProfile = () => {
 
   const currentUser = useSelector(state => state.auth.login?.currentUser);
 
+  const [showModal, setShowModal] = useState(false);
+
+  const handleClose = () => {
+    setShowModal(false);
+  }
+
+  const handleUpdateInfo = (newInfo) => {
+    console.log(`Here is new info: ${newInfo}`);
+  }
+
 
   return (
     <div className="content">
+      <Col md="12">
+        <Card className="card-user">
+          <div className="image">
+            <img alt="banner" src="" />
+          </div>
+          <CardBody>
+            <Row>
+              <Col md="4" lg="3" className='text-center'>
+                <a href={currentUser?.imageUrl}>
+                  <img
+                    alt="avatar"
+                    className="avatar border-gray"
+                    src={(currentUser?.imageUrl ?? currentUser?.avatar) ?? avatar}
+                  />
+                </a>
+              </Col>
+              <Col md="8" lg="9" className='text-md-left text-center'>
+                <h5 className="title">{currentUser?.name ?? currentUser?.username}</h5>
+                <p className="description">Email: {currentUser?.email}</p>
+                <p className="description">Address: Ho Chi Minh</p>
+              </Col>
+              <div>
+                <button className="btn btn-none"
+                  onClick={() => { setShowModal(true) }}>
+                  <i className="fa-solid fa-pen-to-square fa-xl"></i>
+                </button>
+              </div>
+            </Row>
+          </CardBody>
+          <CardFooter>
+            <hr />
+            <div className="text-center">
+              <Row>
+                <Col className="ml-auto" lg="3" md="6" xs="6">
+                  <h5>
+                    12 <br />
+                    <small>Posts</small>
+                  </h5>
+                </Col>
+                <Col className="ml-auto mr-auto" lg="4" md="6" xs="6">
+                  <h5>
+                    2 <br />
+                    <small>Point</small>
+                  </h5>
+                </Col>
+                <Col className="mr-auto" lg="4">
+                  <h5>
+                    24,6 <br />
+                    <small>Spent</small>
+                  </h5>
+                </Col>
+              </Row>
+            </div>
+          </CardFooter>
+        </Card>
+      </Col>
       <Row>
         <Col md="12">
           <Row>
             <Col md="4">
               <Card className="card-user">
                 <div className="image">
-                  <img alt="..." src="" />
+                  <img alt="banner" src="" />
                 </div>
                 <CardBody>
                   <div className="author">
@@ -40,9 +108,9 @@ export const MyProfile = () => {
                         className="avatar border-gray"
                         src={currentUser.avatar || avatar}
                       />
-                      <h5 className="title">{currentUser?.username }</h5>
+                      <h5 className="title">{currentUser?.username}</h5>
                     </a>
-                    <p className="description">{ currentUser?.email}</p>
+                    <p className="description">{currentUser?.email}</p>
                   </div>
                   <p className="description text-center">
                     I like the way you work it <br />
@@ -62,12 +130,12 @@ export const MyProfile = () => {
                       <Col className="ml-auto mr-auto" lg="4" md="6" xs="6">
                         <h5>
                           2 <br />
-                          <small>Comments</small>
+                          <small>Point</small>
                         </h5>
                       </Col>
                       <Col className="mr-auto" lg="4">
                         <h5>
-                          24,6$ <br />
+                          24,6 <br />
                           <small>Spent</small>
                         </h5>
                       </Col>
@@ -174,131 +242,6 @@ export const MyProfile = () => {
             </Col>
 
             <Col md="8">
-
-              <Card className="card-user">
-                <CardHeader>
-                  <CardTitle tag="h5">Edit Profile</CardTitle>
-                </CardHeader>
-                <CardBody>
-                  <Form>
-                    <Row>
-                      <Col className="pr-1" md="5">
-                        <FormGroup>
-                          <label>Company (disabled)</label>
-                          <Input
-                            defaultValue="Creative Code Inc."
-                            disabled
-                            placeholder="Company"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="px-1" md="3">
-                        <FormGroup>
-                          <label>Username</label>
-                          <Input
-                            defaultValue="michael23"
-                            placeholder="Username"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="pl-1" md="4">
-                        <FormGroup>
-                          <label htmlFor="exampleInputEmail1">
-                            Email address
-                          </label>
-                          <Input placeholder="Email" type="email" />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col className="pr-1" md="6">
-                        <FormGroup>
-                          <label>First Name</label>
-                          <Input
-                            defaultValue="Chet"
-                            placeholder="Company"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="pl-1" md="6">
-                        <FormGroup>
-                          <label>Last Name</label>
-                          <Input
-                            defaultValue="Faker"
-                            placeholder="Last Name"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col md="12">
-                        <FormGroup>
-                          <label>Address</label>
-                          <Input
-                            defaultValue="Melbourne, Australia"
-                            placeholder="Home Address"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col className="pr-1" md="4">
-                        <FormGroup>
-                          <label>City</label>
-                          <Input
-                            defaultValue="Melbourne"
-                            placeholder="City"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="px-1" md="4">
-                        <FormGroup>
-                          <label>Country</label>
-                          <Input
-                            defaultValue="Australia"
-                            placeholder="Country"
-                            type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="pl-1" md="4">
-                        <FormGroup>
-                          <label>Postal Code</label>
-                          <Input placeholder="ZIP Code" type="number" />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col md="12">
-                        <FormGroup>
-                          <label>About Me</label>
-                          <Input
-                            type="textarea"
-                            defaultValue="Oh so, your weak rhyme You doubt I'll bother, reading into it"
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <div className="update ml-auto mr-auto">
-                        <Button
-                          className="btn-round"
-                          color="primary"
-                          type="submit"
-                        >
-                          Update Profile
-                        </Button>
-                      </div>
-                    </Row>
-                  </Form>
-                </CardBody>
-              </Card>
 
               <Card className="card-activities">
                 <CardHeader>Activities History</CardHeader>
@@ -430,6 +373,14 @@ export const MyProfile = () => {
           </Row>
         </Col>
       </Row>
+
+
+      <ModalEditProfile
+        show={showModal}
+        handleClose={handleClose}
+        handleUpdateInfo={handleUpdateInfo}
+      />
+
     </div>
 
   );

@@ -4,6 +4,7 @@ import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.service.UserService;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.security.dto.request.SignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +33,14 @@ public class UserController {
 			return ResponseEntity.ok(new ObjectResponse("404","User not found",null));
 		}
 		return ResponseEntity.ok(new ObjectResponse("200","Success user",userService.findById(id)));
+	}
+
+	@PostMapping("create")
+	public ResponseEntity<ObjectResponse> createUser(@RequestBody SignupRequest signupRequest) {
+		User user = userService.save(signupRequest);
+		if (user == null) {
+			return ResponseEntity.ok(new ObjectResponse("400","User not created",null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("201","User created",user));
 	}
 }

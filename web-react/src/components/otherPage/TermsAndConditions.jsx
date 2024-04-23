@@ -1,6 +1,6 @@
 const TermsAndConditions = () => {
   return (
-    <div>
+    <section className="content">
       <h1 className="text-center">Terms and Conditions</h1>
       <br />
       <p>
@@ -9,9 +9,8 @@ const TermsAndConditions = () => {
       <br />
       <p>
         By accessing this website we assume you accept these terms and conditions. Do not continue to use Website Name if you do not agree to take all of the terms and conditions stated on this page.
-        Last updated: March 20,
+        Last updated: March 20, 2023
       </p>
-      2023<br />
       <br />
       <h2 className="text-center">Cookies</h2>
       <br />
@@ -41,7 +40,7 @@ const TermsAndConditions = () => {
         The following organizations may link to our Website without prior written approval:
       </p>
       <br />
-    </div>
+    </section>
   )
 
 }

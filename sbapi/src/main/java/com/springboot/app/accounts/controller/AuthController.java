@@ -1,7 +1,8 @@
 package com.springboot.app.accounts.controller;
 
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.dto.response.MessageResponse;
+import com.springboot.app.security.dto.CurrentUser;
 import com.springboot.app.security.dto.request.LoginRequest;
 import com.springboot.app.security.dto.request.SignupRequest;
 import com.springboot.app.security.dto.response.JwtResponse;
@@ -12,6 +13,7 @@ import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.repository.RoleRepository;
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.security.entity.RefreshToken;
+import com.springboot.app.security.exception.ResourceNotFoundException;
 import com.springboot.app.security.exception.TokenRefreshException;
 import com.springboot.app.security.jwt.JwtUtils;
 import com.springboot.app.security.service.RefreshTokenService;
@@ -19,9 +21,12 @@ import com.springboot.app.security.userprinal.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +42,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
 	@Autowired
 	AuthenticationManager authenticationManager;
 
@@ -78,7 +84,8 @@ public class AuthController {
 		User user = new User(
 				signUpRequest.getUsername(),
 				signUpRequest.getEmail(),
-				encoder.encode(signUpRequest.getPassword())); // encode the password before saving it in the database
+				encoder.encode(signUpRequest.getPassword()), // encode the password before saving it in the database
+				AuthProvider.local);
 
 		Set<String> strRoles = signUpRequest.getRoles();
 		Set<Role> roles = new HashSet<>();
@@ -112,7 +119,7 @@ public class AuthController {
 		// set the roles of the user and save the user in the database and return a success message
 		user.setRoles(roles);
 		userRepository.save(user);
-		return ResponseEntity.ok(new ObjectResponse("success","User registered successfully!",user));
+		return ResponseEntity.ok(new ObjectResponse("201","User registered successfully!",user));
 	}
 
 
@@ -134,6 +141,8 @@ public class AuthController {
 		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
 		String avatar = refreshToken.getUser().getAvatar();
+		String imageUrl = refreshToken.getUser().getImageUrl();
+		String name = refreshToken.getUser().getName();
 
 		return ResponseEntity.ok()
 //                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
@@ -144,7 +153,9 @@ public class AuthController {
 						userDetails.getUsername(),
 						userDetails.getEmail(),
 						roles,
-						avatar
+						avatar,
+						imageUrl,
+						name
 				));
 	}
 
@@ -184,9 +195,39 @@ public class AuthController {
 							"Refresh token is not in database!"));
 		}
 
-		return ResponseEntity.badRequest().body(new MessageResponse("Refresh Token is empty!"));
+		return ResponseEntity.badRequest().body(new ObjectResponse("400","Refresh Token is empty!",null));
 	}
 
+
+	@GetMapping("/user/me")
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<?> getCurrentUser(@CurrentUser UserDetailsImpl userDetails) {
+
+		Set<String> roles = userDetails.getAuthorities().stream()
+				.map(item -> item.getAuthority())
+				.collect(Collectors.toSet());
+
+		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+		ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
+		String avatar = refreshToken.getUser().getAvatar();
+		String imageUrl = refreshToken.getUser().getImageUrl();
+		String name = refreshToken.getUser().getName();
+
+		return ResponseEntity.ok()
+				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+				.body(new JwtResponse(
+						jwtCookie.getValue(),
+						userDetails.getId(),
+						userDetails.getUsername(),
+						userDetails.getEmail(),
+						roles,
+						avatar,
+						imageUrl,
+						name
+				));
+	}
 
 
 

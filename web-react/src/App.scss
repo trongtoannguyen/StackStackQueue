@@ -24,3 +24,9 @@ body {
 ::after {
   box-sizing: border-box;
 }
+
+.text-three-dot{
+  white-space: nowrap;
+  text-overflow: ellipse;
+  overflow: hidden;
+}
