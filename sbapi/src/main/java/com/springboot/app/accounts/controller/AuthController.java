@@ -4,6 +4,7 @@ import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.dto.response.MessageResponse;
 import com.springboot.app.security.dto.CurrentUser;
 import com.springboot.app.security.dto.request.LoginRequest;
+import com.springboot.app.security.dto.request.PasswordResetRequest;
 import com.springboot.app.security.dto.request.SignupRequest;
 import com.springboot.app.security.dto.response.JwtResponse;
 import com.springboot.app.dto.response.ObjectResponse;
@@ -228,6 +229,7 @@ public class AuthController {
 						name
 				));
 	}
+
 
 
 

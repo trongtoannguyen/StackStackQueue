@@ -1,25 +1,26 @@
+import PropTypes from 'prop-types';
 import {
-  Form, InputGroup
-} from 'react-bootstrap';
+  InputGroup, InputGroupText, InputGroupAddon, Input
+} from 'reactstrap';
 
-const SearchFormHeader = () => {
+
+const SearchFormHeader = ({ color }) => {
   return (
-
-    <Form className='col-12 col-lg-auto'>
-      <InputGroup>
-        <InputGroup.Text id="basic-addon-search">
-          <i className="fa-solid fa-magnifying-glass"></i>
-        </InputGroup.Text>
-        <Form.Control
-          placeholder="Search"
-          aria-label="Search"
-          aria-describedby="basic-addon-search"
-          className="search-bar"
-        />
+    <form className="col-sm-6 mx-auto">
+      <InputGroup className="no-border">
+        <Input placeholder="Search..." className={(color === "transparent" ? "text-dark" : "bg-light")} />
+        <InputGroupAddon addonType="append">
+          <InputGroupText className={color === "transparent" ? "d-inline-block px-3 text-dark" : "d-inline-block px-3 bg-light"}>
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </InputGroupText>
+        </InputGroupAddon>
       </InputGroup>
-    </Form>
-
+    </form>
   );
+};
+
+SearchFormHeader.propTypes = {
+  color: PropTypes.string.isRequired,
 };
 
 export default SearchFormHeader;

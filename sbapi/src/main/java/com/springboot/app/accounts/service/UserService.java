@@ -16,4 +16,5 @@ public interface UserService {
 	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection);
 
 	User save(SignupRequest signupRequest);
+
 }

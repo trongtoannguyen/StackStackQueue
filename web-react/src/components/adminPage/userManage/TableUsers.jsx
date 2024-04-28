@@ -17,6 +17,7 @@ import {
 import avatar from "../../../assets/img/default-avatar.png";
 import { getAllUsers, deleteUser } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
+import { loginSuccess } from "../../../redux/authSlice";
 
 function TableUsers() {
 
@@ -42,20 +43,20 @@ function TableUsers() {
         email: "user2@localhost",
         role: "User",
         active: false,
-      }
-      , {
+      },
+      {
         id: 4,
         username: "user323",
         email: "user3@localhost",
         role: "User",
-        active: false,
+        active: false
       }
-    ]
+    ];
 
   const user = useSelector((state) => state.auth.login?.currentUser);
   const userList = useSelector((state) => state.users.users?.allUsers);
 
-  // const msg = useSelector((state) => state.users?.msg);
+  const msg = useSelector((state) => state.users?.msg);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -72,14 +73,14 @@ function TableUsers() {
     if (user?.accessToken) {
       getAllUsers(user?.accessToken, dispatch, axiosJWT);
     }
-  })
+  }, [user, navigate, axiosJWT, dispatch])
 
   return (
     <div className='content'>
       <h4>List of Users</h4>
       <Col>
         <Row>
-          {users.map((user) => {
+          {userList?.data.map((user) => {
             return (
 
               <Col key={user.id} lg="3" md="6" sm="6">

@@ -4979,7 +4979,7 @@ img {
 .main-panel>.content {
   padding: 0 30px 30px;
   min-height: calc(100vh - 123px);
-  margin-top: 93px
+  margin-top: 13px;
 }
 
 .main-panel>.navbar {
@@ -4987,7 +4987,7 @@ img {
 }
 
 .main-panel .header {
-  margin-bottom: 50px
+  margin-bottom: 50px;
 }
 
 .perfect-scrollbar-on .sidebar,

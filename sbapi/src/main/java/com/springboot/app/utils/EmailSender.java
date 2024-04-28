@@ -26,7 +26,7 @@ public class EmailSender {
 	}
 
 	public static class Builder {
-		private EmailSender emailSender;
+		private final EmailSender emailSender;
 		private Builder(){
 			this.emailSender = new EmailSender();
 		}

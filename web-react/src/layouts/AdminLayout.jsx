@@ -8,7 +8,7 @@ import routes from "../routes/routes";
 
 import AdminHeader from './header/AdminHeader';
 import AdminFooter from "./footer/AdminFooter";
-import FixedPlugin from "../components/admin/FixedPlugin/FixedPlugin";
+import FixedPlugin from "../components/adminPage/FixedPlugin/FixedPlugin";
 
 
 let ps;

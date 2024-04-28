@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,8 +51,8 @@ public class DatabaseInit {
 	}
 
 	private void addAdmin(UserRepository userRepository, RoleRepository roleRepository) {
-		Optional<Role> roles = roleRepository.findByName(RoleName.ROLE_ADMIN);
-		if(roles.isEmpty()) {
+		List<Role> roleList = roleRepository.findAll();
+		if(roleList.isEmpty()) {
 			return;
 		}
 		List<User> users = userRepository.findAll();
@@ -61,9 +62,9 @@ public class DatabaseInit {
 		User ad = new User(
 				"admin",
 				"admin@gmail.com",
-				encoder.encode("admin@123")
+				encoder.encode("Admin@123")
 		);
-		Set<Role> r = Set.of(roles.get());
+		Set<Role> r = roleList.stream().collect(HashSet::new, HashSet::add, HashSet::addAll);
 		ad.setRoles(r);
 		userRepository.save(ad);
 		logger.info("Account of admin added to th database.");

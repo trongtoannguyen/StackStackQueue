@@ -1,14 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
-import DashBoard from "../components/admin/adminDashBoard/DashBoard";
+import DashBoard from "../components/adminPage/adminDashBoard/DashBoard";
 import AdminLayout from "../layouts/AdminLayout";
-import TableUsers from "../components/admin/userManage/TableUsers";
-import ForumManage from "../components/admin/forumManage/ForumManage";
-import DiscussionManage from "../components/admin/discussionManage/DiscussionManage";
+import TableUsers from "../components/adminPage/userManage/TableUsers";
+import ForumManage from "../components/adminPage/forumManage/ForumManage";
+import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
 import '../assets/scss/paper-dashboard.scss?v=1.3.0';
-import TagsStat from "../components/admin/tagManage/TagsStat";
-import UserProfile from "../components/admin/userManage/UserProfile";
+import TagsStat from "../components/adminPage/tagManage/TagsStat";
+import UserProfile from "../components/adminPage/userManage/UserProfile";
 import RequireAuth from "../components/auth/RequireAuth";
 
 const ROLES = {

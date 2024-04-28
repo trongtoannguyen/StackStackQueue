@@ -2,11 +2,14 @@ package com.springboot.app.security.service;
 
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.security.dto.request.PasswordResetRequest;
 import com.springboot.app.security.entity.RefreshToken;
+import com.springboot.app.security.exception.ResourceNotFoundException;
 import com.springboot.app.security.exception.TokenRefreshException;
 import com.springboot.app.security.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +28,32 @@ public class RefreshTokenService {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	public Optional<RefreshToken> findByToken(String token) {
 		return refreshTokenRepository.findByToken(token);
 	}
 
 	public RefreshToken createRefreshToken(Long userId) {
-		User user = userRepository.findById(userId).get();
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+		if(user != null) {
+			return generateRefreshTokenByUser(user);
+		}
+		return null;
+	}
 
+	public RefreshToken createRefreshTokenByEmail(String email) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+		if(user != null) {
+			return generateRefreshTokenByUser(user);
+		}
+		return null;
+	}
+
+	private RefreshToken generateRefreshTokenByUser(User user) {
 		RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
 				.orElse(new RefreshToken());
 
@@ -43,6 +65,7 @@ public class RefreshTokenService {
 		refreshToken = refreshTokenRepository.save(refreshToken);
 		return refreshToken;
 	}
+
 
 	public RefreshToken verifyExpiration(RefreshToken token) {
 		if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
@@ -56,5 +79,29 @@ public class RefreshTokenService {
 	@Transactional
 	public int deleteByUserId(Long userId) {
 		return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
+	}
+
+	@Transactional
+	public int deleteByToken(String token) {
+		return refreshTokenRepository.deleteByToken(token);
+	}
+
+	public User getUserByRefreshToken(String token) {
+		return refreshTokenRepository.findByToken(token)
+				.map(RefreshToken::getUser)
+				.orElseThrow(() -> new TokenRefreshException(
+						token,
+						"Refresh token was expired. Please make a new signin request"));
+	}
+
+	public void updatePassword(PasswordResetRequest passwordResetRequest) {
+		User user = refreshTokenRepository.findByToken(passwordResetRequest.getToken())
+				.map(RefreshToken::getUser)
+				.orElseThrow(() -> new TokenRefreshException(
+						passwordResetRequest.getToken(),
+						"Refresh token was expired. Please make a new signin request"));
+
+		user.setPassword(passwordEncoder.encode(passwordResetRequest.getPassword()));
+		userRepository.save(user);
 	}
 }

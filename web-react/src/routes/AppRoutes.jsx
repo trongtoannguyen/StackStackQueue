@@ -8,7 +8,7 @@ import OAuth2RedirectHandler from "../components/auth/oauth2/OAuth2RedirectHandl
 
 import Discussion from "../components/discussions/Discussions";
 import MemberList from "../components/memberPage/MemberList";
-import TableUsers from "../components/admin/userManage/TableUsers";
+import TableUsers from "../components/adminPage/userManage/TableUsers";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 import ListDiscussions from "../components/discussions/ListDiscussions";
 
@@ -18,7 +18,7 @@ import Layout from "../layouts/Layout";
 import ResetPassword from "../components/auth/ResetPassword";
 import Unauthorized from "../components/errorPage/Unauthorized";
 import RequireAuth from "../components/auth/RequireAuth";
-import { MyProfile } from "../components/memberPage/MyProfile";
+import { MyProfile } from "../components/profilePage/MyProfile";
 import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
@@ -62,7 +62,7 @@ function AppRoutes() {
           <Route path="/redirect-to" element={<RedirectHandlerAfterLogin />} />
 
           <Route path="/users" element={<TableUsers />} />
-          <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/my-profile/*" element={<MyProfile />} />
 
         </Route>
         {/* catch all */}

@@ -22,19 +22,19 @@ const BannerTop = (props) => {
           {breadcrumbs?.map((item) => {
             return (
               <Breadcrumb.Item key={item.id} href={item.link}>
-                  {item.name}
+                {item.name}
               </Breadcrumb.Item>
             )
           })}
         </Breadcrumb>
-
       }
-
-      <span className="banner-page-item w-100">
-        <div className="title-page">
-          <h3>{bannerName}</h3>
-        </div>
-      </span>
+      {bannerName?.length > 0 &&
+        <span className="banner-page-item w-100">
+          <div className="title-page">
+            <h3>{bannerName}</h3>
+          </div>
+        </span>
+      }
     </div>
   );
 }

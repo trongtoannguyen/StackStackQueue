@@ -13,6 +13,7 @@ import {
   Row,
   Col,
 } from "reactstrap";
+import Avatar from "../avatar/Avatar";
 
 
 
@@ -40,9 +41,8 @@ const MemberList = () => {
   return (
     <section className="members-container content">
       <Row>
-        <Col md-12>
+        <Col md="12">
           <BannerTop
-
             bannerName={bannerName}
             breadcrumbs={breadcrumbs}
           />
@@ -70,7 +70,9 @@ const MemberList = () => {
                         return (
                           <tr key={item.username}>
                             <td>
-                              <Link to="/user/1">{item.username}</Link>
+                              <Link to="/my-profile/1" state={item.username}>
+                                <Avatar username={item.username} height={50} width={50} />
+                              </Link>
                             </td>
                             <td className="text-right">{item.discussionCreated}</td>
                             <td className="text-right">{item.comments}</td>

@@ -5,6 +5,8 @@ import "perfect-scrollbar/css/perfect-scrollbar.css";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./assets/scss/paper-dashboard.scss?v=1.3.0";
+import "./assets/css/paper-dashboard.min.css";
+
 
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';

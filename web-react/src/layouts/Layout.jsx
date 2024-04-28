@@ -4,18 +4,17 @@ import PerfectScrollbar from "perfect-scrollbar";
 
 import { Outlet, useLocation } from "react-router-dom"
 import Sidebar from "./sidebar/Sidebar"
+
 import routes from "../routes/routes2";
 
 import AdminHeader from './header/AdminHeader';
 import AdminFooter from "./footer/AdminFooter";
-import FixedPlugin from "../components/admin/FixedPlugin/FixedPlugin";
-
-import './Layout.scss';
+import FixedPlugin from "../components/adminPage/FixedPlugin/FixedPlugin";
 
 let ps;
 const AdminLayout = (props) => {
 
-  
+
   const [backgroundColor, setBackgroundColor] = React.useState("black");
   const [activeColor, setActiveColor] = React.useState("info");
 

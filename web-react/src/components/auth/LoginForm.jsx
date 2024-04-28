@@ -48,12 +48,7 @@ const LoginForm = () => {
     setValidPwd(PWD_REGEX.test(password));
   }, [password]);
 
-  useEffect(() => {
-    if (currentUser?.roles?.length > 0) {
-      navigate("/redirect-to"); // redirect home page
-      // navigate(-1);
-    }
-  }, [currentUser, error, navigate])
+
 
 
   const handleLogin = async (e) => {
@@ -77,11 +72,17 @@ const LoginForm = () => {
     loginUser(loginInfo, dispatch);
   }
 
-  // const handleKeyDown = (e) => {
-  //   if (e.keyCode === 13) {
-  //     handleLogin();
-  //   }
-  // }
+  const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      handleLogin();
+    }
+  }
+
+  useEffect(() => {
+    if (currentUser?.roles?.length > 0) {
+      navigate(-1) === navigate("unauthorized") ? navigate("/") : navigate(-1);
+    }
+  }, [currentUser, error, navigate])
 
   // If the OAuth2 login encounters an error,
   // the user is redirected to the / login page with an error.

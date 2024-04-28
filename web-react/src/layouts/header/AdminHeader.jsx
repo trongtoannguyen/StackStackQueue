@@ -18,15 +18,12 @@ import {
   DropdownMenu,
   DropdownItem,
   Container,
-  InputGroup,
-  InputGroupText,
-  InputGroupAddon,
-  Input,
 } from "reactstrap";
 
 import avatar from "../../assets/img/default-avatar.png";
 
 import routes from "../../routes/routes";
+import SearchFormHeader from "../../components/search/SearchFormHeader";
 
 function AdminHeader() {
 
@@ -39,8 +36,6 @@ function AdminHeader() {
   const handleLogout = () => {
     logOut(dispatch, currentUser?.id, navigate, currentUser?.accessToken, axiosJWT);
   }
-
-
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
@@ -73,7 +68,8 @@ function AdminHeader() {
   const getBrand = () => {
     let brandName = "Tech Forum";
     routes.map((prop) => {
-      if (window.location.href.indexOf(prop.layout + prop.path) !== -1) {
+      console.log(`Here: ${(prop?.layout + prop?.path)}`);
+      if (window.location.href.indexOf(prop?.layout + prop?.path) !== -1) {
         brandName = prop.name;
       }
       return null;
@@ -99,6 +95,16 @@ function AdminHeader() {
     navigate("/my-profile");
   }
 
+  function getNavbarClassName() {
+    if (location.pathname.indexOf("full-screen-maps") !== -1) {
+      return "navbar-absolute fixed-top";
+    } else if (color === "transparent") {
+      return "navbar-transparent";
+    } else {
+      return "";
+    }
+  }
+
 
   React.useEffect(() => {
     window.addEventListener("resize", updateColor.bind(this));
@@ -120,12 +126,7 @@ function AdminHeader() {
         location.pathname.indexOf("full-screen-maps") !== -1 ? "dark" : color
       }
       expand="lg"
-      className={
-        location.pathname.indexOf("full-screen-maps") !== -1
-          ? "navbar-absolute fixed-top"
-          : "navbar-absolute fixed-top " +
-          (color === "transparent" ? "navbar-transparent" : "")
-      }
+      className={getNavbarClassName()}
     >
       <Container fluid>
         <div className="navbar-wrapper mx-3">
@@ -141,18 +142,11 @@ function AdminHeader() {
               <span className="navbar-toggler-bar bar3" />
             </button>
           </div>
-          <NavbarBrand href="/">{getBrand()}</NavbarBrand>
+          <NavbarBrand href="#">{getBrand()}</NavbarBrand>
         </div>
-        <form className="col-sm-6 mx-auto">
-          <InputGroup className="no-border">
-            <Input placeholder="Search..." className={(color === "transparent" ? "text-dark" : "bg-light")} />
-            <InputGroupAddon addonType="append">
-              <InputGroupText className={color === "transparent" ? "d-inline-block px-3 text-dark" : "d-inline-block px-3 bg-light"}>
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </InputGroupText>
-            </InputGroupAddon>
-          </InputGroup>
-        </form>
+
+        <SearchFormHeader color={color} />
+
         <NavbarToggler onClick={toggle}>
           <span className="navbar-toggler-bar navbar-kebab" />
           <span className="navbar-toggler-bar navbar-kebab" />
@@ -197,7 +191,7 @@ function AdminHeader() {
                 toggle={(e) => dropdownToggleAccount(e)}
               >
                 <DropdownToggle caret nav>
-                  <img src={(currentUser?.avatar ?? currentUser?.imageUrl) ?? avatar} alt="avatar" className="avatar d-lg-inline-block d-none" style={{ height: "2rem", width: "clamp(55ch, 50%, 75ch)", borderRadius: "50%", }} />
+                  <img src={(currentUser?.avatar ?? currentUser?.imageUrl) ?? avatar} alt="avatar" className="avatar d-lg-inline-block d-none" style={{ height: "25px", width: "25px", borderRadius: "50%", }} />
                   <p>
                     <span className="d-lg-none d-md-block text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
                   </p>

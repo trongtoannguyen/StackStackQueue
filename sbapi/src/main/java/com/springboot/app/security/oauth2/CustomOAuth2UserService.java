@@ -10,6 +10,7 @@ import com.springboot.app.security.oauth2.user.OAuth2UserInfo;
 import com.springboot.app.security.oauth2.user.OAuth2UserInfoFactory;
 import com.springboot.app.security.userprinal.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	@Lazy
+	private PasswordEncoder encoder;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -72,9 +77,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
 		User user = new User();
-		user.setUsername(oAuth2UserInfo.getEmail());
-		user.setPassword(oAuth2UserInfo.getEmail() + "1234");
-
+		user.setUsername(oAuth2UserInfo.getEmail()); // Set a default username
+		user.setPassword(encoder.encode(oAuth2UserInfo.getEmail() + "1234")); // Set a default password
+		// Encode the password before saving it in the database
 		user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
 		user.setProviderId(oAuth2UserInfo.getId());
 		user.setName(oAuth2UserInfo.getName());
@@ -85,7 +90,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		// if the user does not specify the role during registration process
 		// or if the user is registered using OAuth2 provider
 		roleRepository.findByName(RoleName.ROLE_USER).ifPresent(role -> user.setRoles(new HashSet<>(Set.of(role))));
-		System.out.println("User: " + user);
 
 		return userRepository.save(user);
 	}

@@ -1,4 +1,4 @@
-package com.springboot.app.profile.entity;
+package com.springboot.app.accounts.entity;
 
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;

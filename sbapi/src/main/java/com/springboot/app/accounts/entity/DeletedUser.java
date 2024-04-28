@@ -2,12 +2,13 @@ package com.springboot.app.accounts.entity;
 
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.model.BaseEntity;
-import com.springboot.app.profile.entity.Person;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 
 @Entity
 @Table(name = "deleted_users")
@@ -26,6 +27,9 @@ public class DeletedUser extends BaseEntity {
 	@Column(name = "password", length = 200, nullable = false)
 	private String password;
 
+	@Column(name = "email", length = 100, nullable = false)
+	private String email;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", length = 50, nullable = false)
 	private RoleName role;
@@ -37,5 +41,30 @@ public class DeletedUser extends BaseEntity {
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_stat_id", foreignKey = @ForeignKey(name = "fk_del_user_stat"))
 	private UserStat stat;
+
+	/*
+	 * utility method to copy from User object
+	 */
+	public static DeletedUser fromUser(User user) {
+
+		DeletedUser deletedUser = new DeletedUser();
+
+		deletedUser.setId(user.getId());
+		deletedUser.setUsername(user.getUsername());
+		deletedUser.setEmail(user.getEmail());
+		deletedUser.setPassword(user.getPassword());
+		deletedUser.setPerson(user.getPerson());
+		deletedUser.setStat(user.getStat());
+		deletedUser.setCreatedBy(user.getCreatedBy());
+		deletedUser.setCreatedAt(user.getCreatedAt());
+		deletedUser.setUpdatedBy(user.getUpdatedBy());
+		deletedUser.setUpdatedAt(user.getUpdatedAt());
+		deletedUser.setRole(user.getRoles().stream().findFirst().get().getName());
+
+		LocalDateTime now=LocalDateTime.now();
+		deletedUser.setDeletedAt(now);
+
+		return deletedUser;
+	}
 
 }

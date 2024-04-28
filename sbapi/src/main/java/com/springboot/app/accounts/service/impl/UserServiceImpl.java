@@ -1,16 +1,23 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.entity.DeletedUser;
+import com.springboot.app.accounts.entity.PasswordReset;
 import com.springboot.app.accounts.entity.Role;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.accounts.enumeration.RoleName;
+import com.springboot.app.accounts.repository.DeletedUserRepository;
+import com.springboot.app.accounts.repository.PasswordResetRepository;
 import com.springboot.app.accounts.repository.RoleRepository;
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.UserService;
+import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
 import com.springboot.app.security.jwt.JwtUtils;
+import com.springboot.app.utils.Validators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,6 +46,10 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	PasswordEncoder encoder;
+	@Autowired
+	private PasswordResetRepository passwordResetRepository;
+	@Autowired
+	private DeletedUserRepository deletedUserRepository;
 
 	@Override
 	public Optional<User> findById(Long id) {
@@ -77,11 +86,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User save(SignupRequest signUpRequest) {
 		try{
-			if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-				throw new IllegalStateException("Username is already taken!");
-			}
-			if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-				throw new IllegalStateException("Email is already in use!");
+			List<String> errorMessages = validateUser(signUpRequest);
+			if(!errorMessages.isEmpty()) {
+				logger.error("Error: User not created. %s".formatted(errorMessages));
+				return null;
 			}
 			// Create new user's account
 			User user = new User(
@@ -124,6 +132,68 @@ public class UserServiceImpl implements UserService {
 			return null;
 
 		}
+	}
+
+	@Transactional(readOnly = false)
+	public ServiceResponse<Void> passwordReset(PasswordReset passwordReset, String newPassword) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		User user = userRepository.findByEmail(passwordReset.getEmail()).orElse(null);
+		if(user != null && !"".equals(newPassword)) {
+			user.setPassword(encoder.encode(newPassword));
+			userRepository.save(user);
+			passwordResetRepository.delete(passwordReset);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage(String.format(
+				"Unable to locate user with email %s", passwordReset.getEmail()));
+		}
+		return response;
+	}
+
+	@Transactional(readOnly=false)
+	public ServiceResponse<Void> deleteUser(User user) {
+
+		ServiceResponse<Void> response = new ServiceResponse<>();
+
+		DeletedUser deletedUser = DeletedUser.fromUser(user);
+
+		// clear up relationships before deleting
+		user.setPerson(null);
+		user.setStat(null);
+		userRepository.delete(user);
+
+		// save deletedUser
+		deletedUserRepository.save(deletedUser);
+
+		return response;
+	}
+
+
+
+	private List<String> validateUser(SignupRequest user) {
+
+		List<String> messages = new ArrayList<>();
+
+		if(user.getUsername().length() < 5) {
+			messages.add("Username must be at least 5 characters");
+		}
+		else if(userRepository.existsByUsername(user.getUsername()) || deletedUserRepository.existsByUsername(user.getUsername())) {
+			messages.add("Username already exists in the system");
+		}
+
+		if(!Validators.isEmailValid(user.getEmail())) {
+			messages.add("Invalid Email Format");
+		}
+		else if(userRepository.existsByEmail(user.getEmail()) || deletedUserRepository.existsByEmail(user.getEmail())) {
+			messages.add("Email already exists in the system");
+		}
+
+		if(user.getPassword().length() < 5) {
+			messages.add("Password must be at least 5 characters");
+		}
+
+		return messages;
 	}
 
 

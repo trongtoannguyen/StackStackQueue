@@ -13,7 +13,7 @@ export const getAllUsers = async (accessToken, dispatch, axiosJWT) => {
     const res = await axiosJWT.get("/users", {
       headers: { token: `Bearer ${accessToken}` },
     });
-    dispatch(getUsersSuccess(res.data));
+    dispatch(getUsersSuccess(res));
   } catch (err) {
     dispatch(getUsersFailed());
   }
@@ -22,7 +22,7 @@ export const getAllUsers = async (accessToken, dispatch, axiosJWT) => {
 export const deleteUser = async (accessToken, dispatch, id, axiosJWT) => {
   dispatch(deleteUserStart());
   try {
-    const res = await axiosJWT.delete("/v1/user/" + id, {
+    const res = await axiosJWT.delete("/users/" + id, {
       headers: { token: `Bearer ${accessToken}` },
     });
     dispatch(deleteUsersSuccess(res.data));

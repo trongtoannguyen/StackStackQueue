@@ -1,9 +1,9 @@
-import DashBoard from "../components/admin/adminDashBoard/DashBoard"
-import DiscussionManage from "../components/admin/discussionManage/DiscussionManage";
-import ForumManage from "../components/admin/forumManage/ForumManage";
-import TagsStat from "../components/admin/tagManage/TagsStat";
-import TableUsers from "../components/admin/userManage/TableUsers"
-import UserProfile from "../components/admin/userManage/UserProfile";
+import DashBoard from "../components/adminPage/adminDashBoard/DashBoard"
+import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
+import ForumManage from "../components/adminPage/forumManage/ForumManage";
+import TagsStat from "../components/adminPage/tagManage/TagsStat";
+import TableUsers from "../components/adminPage/userManage/TableUsers"
+import UserProfile from "../components/adminPage/userManage/UserProfile";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 
 const routes = [

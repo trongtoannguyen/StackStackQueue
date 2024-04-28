@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PasswordResetRepository extends JpaRepository<PasswordReset, Long> {
@@ -19,6 +21,9 @@ public interface PasswordResetRepository extends JpaRepository<PasswordReset, Lo
 	@Modifying
 	@Query("Select count(pr) FROM PasswordReset pr WHERE pr.email = :email")
 	Integer countEntities(@Param("email") String email);
+
+	List<PasswordReset> findByResetKey(String resetKey);
+
 
 
 }
