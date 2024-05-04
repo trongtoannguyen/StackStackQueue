@@ -1,4 +1,4 @@
-package com.springboot.app.forums.service;
+package com.springboot.app.forums.service.impl;
 
 
 import com.springboot.app.forums.repository.DiscussionRepository;
@@ -8,14 +8,16 @@ import com.springboot.app.forums.entity.ForumGroup;
 import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.repository.ForumGroupRepository;
 import com.springboot.app.forums.repository.ForumRepository;
+import com.springboot.app.forums.service.ForumService;
+import com.springboot.app.forums.service.SystemInfoService;
+import com.springboot.app.repository.GenericDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("forumService")
 @Transactional
@@ -36,9 +38,24 @@ public class ForumServiceImpl implements ForumService {
 
 	private List<ForumGroup> topLevelForumGroups;
 
+	@Autowired
+	private GenericDAO genericDAO;
+
 	@Override
+	@Transactional(readOnly = true)
 	public ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> getChildForumsAndForumGroups(ForumGroup forumGroup) {
 		ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> response = new ServiceResponse<>();
+
+		List<Forum> forums = genericDAO.getEntities(Forum.class,
+				Collections.singletonMap("forumGroup", forumGroup));
+
+		List<ForumGroup> forumGroups = genericDAO.getEntities(ForumGroup.class,
+				Collections.singletonMap("parent", forumGroup));
+
+		AbstractMap.SimpleEntry<List<Forum>, List<ForumGroup>> dataObject =
+				new AbstractMap.SimpleEntry<List<Forum>, List<ForumGroup>>(forums, forumGroups);
+
+		response.setDataObject(dataObject);
 		return response;
 	}
 
@@ -57,7 +74,11 @@ public class ForumServiceImpl implements ForumService {
 			forumGroupRepository.save(parent);
 		}
 
-		return null;
+		// increment forum group count
+		SystemInfoService.Statistics systemStat = systemInfoService.getStatistics().getDataObject();
+		systemStat.addForumGroupCount(1);
+
+		return response;
 	}
 
 	@Override
@@ -138,6 +159,7 @@ public class ForumServiceImpl implements ForumService {
 
 		return response;
 	}
+
 
 
 }

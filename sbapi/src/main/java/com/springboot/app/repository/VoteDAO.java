@@ -29,8 +29,12 @@ public class VoteDAO {
 		return resultList.isEmpty() ? null : resultList.getFirst();
 	}
 
+	/*
+	 * This method is used to get the reputation of all users in the system.
+	 */
 	public Map<String,Long> getReputation4AllUsers() {
 		Map<String,Long> results = new HashMap<>();
+
 		String queryStr = "SELECT c.createdBy, COALESCE(SUM(v.voteValue), 0) FROM Comment c, c.commentVote.votes v GROUP BY c.createdBy";
 		Query query = entityManager.createQuery(queryStr);
 

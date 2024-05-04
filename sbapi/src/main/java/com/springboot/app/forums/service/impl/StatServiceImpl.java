@@ -1,4 +1,4 @@
-package com.springboot.app.forums.service;
+package com.springboot.app.forums.service.impl;
 
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.CommentInfo;
@@ -11,6 +11,7 @@ import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.repository.ForumStatRepository;
+import com.springboot.app.forums.service.StatService;
 import com.springboot.app.repository.StatDAO;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Stream;

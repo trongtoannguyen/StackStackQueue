@@ -114,4 +114,29 @@ public class DiscussionDAO {
 		return commentors;
 	}
 
+	public List<Discussion> fetch(List<Long> discussionIds) {
+
+		TypedQuery<Discussion> typedQuery = entityManager.createQuery("FROM Discussion d WHERE d.id in :discussionIds", Discussion.class);
+		typedQuery.setParameter("discussionIds", discussionIds);
+
+		return typedQuery.getResultList();
+	}
+
+	public Number countCommentsForTag(Tag tag) {
+
+		String queryStr = "SELECT COALESCE(SUM(SIZE(d.comments)), 0) FROM Discussion d WHERE :tag MEMBER OF d.tags";
+
+		TypedQuery<Number> typedQuery = entityManager.createQuery(queryStr, Number.class);
+		typedQuery.setParameter("tag", tag);
+
+		return typedQuery.getSingleResult();
+	}
+
+
+
+
+
+
+
+
 }

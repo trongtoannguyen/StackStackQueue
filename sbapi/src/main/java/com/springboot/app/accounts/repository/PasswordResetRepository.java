@@ -22,7 +22,7 @@ public interface PasswordResetRepository extends JpaRepository<PasswordReset, Lo
 	@Query("Select count(pr) FROM PasswordReset pr WHERE pr.email = :email")
 	Integer countEntities(@Param("email") String email);
 
-	List<PasswordReset> findByResetKey(String resetKey);
+	Optional<PasswordReset> findByResetKey(String resetKey);
 
 
 

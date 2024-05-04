@@ -37,7 +37,6 @@ public class EmailSender {
 		private String password;
 		private String defaultEncoding;
 		private Boolean authentication;
-
 		private Boolean tlsEnabled;
 
 		public Builder host(String host) {

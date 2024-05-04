@@ -1,7 +1,10 @@
 package com.springboot.app.dto.response;
 
+import com.springboot.app.accounts.entity.PasswordReset;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ServiceResponse<T> {
 	public ServiceResponse() {

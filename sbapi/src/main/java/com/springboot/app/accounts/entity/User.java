@@ -32,12 +32,14 @@ import java.util.Set;
 public class User extends BaseEntity {
 	@PrePersist
 	public void prePersist() {
+		lowerCaseEmail();
 		LocalDateTime now = LocalDateTime.now();
 		this.setCreatedAt(now);
 	}
 
 	@PreUpdate
 	public void preUpdate() {
+		lowerCaseEmail();
 		LocalDateTime now = LocalDateTime.now();
 		this.setUpdatedAt(now);
 	}
@@ -134,6 +136,15 @@ public class User extends BaseEntity {
 		this.avatar = avatar;
 		this.roles = roles;
 	}
+
+
+
+	private void lowerCaseEmail() {
+		if(this.email != null) {
+			this.email = this.email.toLowerCase();
+		}
+	}
+
 
 
 

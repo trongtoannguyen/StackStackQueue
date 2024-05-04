@@ -5,10 +5,12 @@ import com.springboot.app.accounts.repository.PasswordResetRepository;
 import com.springboot.app.accounts.service.PasswordResetService;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.accounts.entity.EmailOption;
+import com.springboot.app.accounts.entity.RegistrationOption;
+import com.springboot.app.repository.GenericDAO;
 import com.springboot.app.repository.UserDAO;
-import com.springboot.app.search.QuerySpec;
+import com.springboot.app.utils.EmailSender;
 import com.springboot.app.utils.JSFUtils;
-import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class PasswordResetServiceImpl implements PasswordResetService{
@@ -30,14 +30,18 @@ public class PasswordResetServiceImpl implements PasswordResetService{
 	private final PasswordResetRepository passwordResetRepository;
 
 	private final UserDAO userDAO;
+	private final GenericDAO genericDAO;
+
 	@Autowired
-	public PasswordResetServiceImpl(UserDAO userDAO, PasswordResetRepository passwordResetRepository) {
+	public PasswordResetServiceImpl(UserDAO userDAO, PasswordResetRepository passwordResetRepository, GenericDAO genericDAO) {
 		this.userDAO = userDAO;
 		this.passwordResetRepository = passwordResetRepository;
+		this.genericDAO = genericDAO;
 	}
 
 	private static final String applicationName = "Tech Forum";
 
+	@Transactional(readOnly = false)
 	public ServiceResponse<Void> sendPasswordResetEmail(String email) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
 
@@ -88,10 +92,24 @@ public class PasswordResetServiceImpl implements PasswordResetService{
 	 * Helper method to send password reset email
 	 * @param passwordReset
 	 */
-
 	public void emailPasswordReset(PasswordReset passwordReset) throws Exception {
-	}
+		RegistrationOption registrationOption = genericDAO.find(RegistrationOption.class, 1L);
+		EmailOption emailOption = genericDAO.find(EmailOption.class, 1L);
 
+		EmailSender emailSender = EmailSender.builder()
+				.host(emailOption.getHost())
+				.port(emailOption.getPort())
+				.username(emailOption.getUsername())
+				.password(emailOption.getPassword())
+				.tlsEnabled(emailOption.getTlsEnable())
+				.defaultEncoding("UTF-8").authentication(emailOption.getAuthentication()).build();
+
+		emailSender.sendEmail(emailOption.getUsername(),passwordReset.getEmail(),
+				registrationOption.getPasswordResetEmailSubject(),
+				buildPasswordResetEmailContent(registrationOption.getPasswordResetEmailTemplate(), passwordReset),
+				true
+		);
+	}
 
 	/*
 	 * replace the following patterns: #username, #email, and #confirm-url with values from registration and system
@@ -101,7 +119,7 @@ public class PasswordResetServiceImpl implements PasswordResetService{
 				.replaceAll("#email", passwordReset.getEmail())
 				.replaceAll("#reset-url",
 						"<a href=\""
-								+ JSFUtils.getBaseURL() + "reset-password?key=" + passwordReset.getResetKey()
+								+ JSFUtils.getBaseURL() + "verify?key=" + passwordReset.getResetKey()
 								+ "\">" + this.applicationName + "</a>");
 		return emailTemplate;
 	}
@@ -120,5 +138,20 @@ public class PasswordResetServiceImpl implements PasswordResetService{
 		Date thresholdDate = cal.getTime();
 		Integer deletedCount = passwordResetRepository.deleteLessThan(thresholdDate);
 		logger.info("Deleted {} password reset requests", deletedCount);
+	}
+
+	public ServiceResponse<PasswordReset> verifyPasswordResetToken(String resetKey) {
+		ServiceResponse<PasswordReset> response = new ServiceResponse<>();
+		Optional<PasswordReset> passwordReset = passwordResetRepository.findByResetKey(resetKey);
+		if(passwordReset.isPresent()) {
+			response.setDataObject(passwordReset.get());
+			response.setAckCode(AckCodeType.SUCCESS);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("password.reset.invalid.key");
+		}
+
+		return response;
 	}
 }

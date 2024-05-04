@@ -16,7 +16,7 @@ const routes = [
   },
   {
     path: "/users",
-    name: "users",
+    name: "manage users",
     icon: "fa-solid fa-people-group",
     component: <TableUsers />,
     layout: "/admin"
@@ -30,28 +30,28 @@ const routes = [
   },
   {
     path: "/forums",
-    name: "forums",
+    name: "manage forums",
     icon: "fa-solid fa-users",
     component: <ForumManage />,
     layout: "/admin"
   },
   {
     path: "/discussions",
-    name: "discussions",
+    name: "manage discussions",
     icon: "fa-solid fa-comments",
     component: <DiscussionManage />,
     layout: "/admin"
   },
   {
     path: "/comments",
-    name: "comments",
+    name: "manage comments",
     icon: "fa-solid fa-comment",
     component: <ViewDiscussion />,
     layout: "/admin"
   },
   {
     path: "/tags",
-    name: "tags",
+    name: "manage tags",
     icon: "fa-solid fa-tags",
     component: <TagsStat />,
     layout: "/admin"

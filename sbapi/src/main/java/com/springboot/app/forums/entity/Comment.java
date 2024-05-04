@@ -34,7 +34,7 @@ public class Comment extends BaseEntity {
 
 	@Lob
 	@Basic(fetch = FetchType.LAZY)
-	@Column(name = "content", length = 255)
+	@Column(name = "content", columnDefinition = "LONGTEXT")
 	private String content; // content of the comment
 
 

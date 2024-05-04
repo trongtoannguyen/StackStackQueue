@@ -1,21 +1,25 @@
-package com.springboot.app.forums.service;
+package com.springboot.app.forums.service.impl;
 
+import com.springboot.app.accounts.entity.PasswordReset;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.entity.CommentVote;
 import com.springboot.app.forums.entity.Vote;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.VoteRepository;
+import com.springboot.app.forums.service.VoteService;
 import com.springboot.app.repository.VoteDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
-public class VoteServiceImpl implements VoteService{
+public class VoteServiceImpl implements VoteService {
 	@Autowired
 	private VoteRepository voteRepository;
 

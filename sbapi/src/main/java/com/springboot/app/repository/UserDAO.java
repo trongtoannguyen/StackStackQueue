@@ -54,7 +54,7 @@ public class UserDAO {
 
 		username2EmailMap = new BiMap<String, String>();
 
-		cq.multiselect(root.get("username"), root.get("person").get("email"));
+		cq.multiselect(root.get("username"), root.get("email"));
 
 		TypedQuery<Tuple> query = entityManager.createQuery(cq);
 		List<Tuple> results = query.getResultList();
@@ -81,7 +81,8 @@ public class UserDAO {
 
 	public void createUser(User user) {
 		entityManager.persist(user);
-		username2EmailMap.put(user.getUsername(), user.getPerson().getEmail());
+		username2EmailMap.put(user.getUsername(), user.getEmail());
+
 	}
 
 	public void deleteUser(User user) {
@@ -94,7 +95,7 @@ public class UserDAO {
 		entityManager.merge(user.getPerson());
 		// remove the old entry, then add the new one
 		username2EmailMap.remove(user.getUsername());
-		username2EmailMap.put(user.getUsername(), user.getPerson().getEmail());
+		username2EmailMap.put(user.getUsername(), user.getEmail());
 	}
 
 	public Set<String> getAllUsernames() {
