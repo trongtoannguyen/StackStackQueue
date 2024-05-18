@@ -7,18 +7,19 @@ import { Row } from 'reactstrap';
 
 
 const ModalEditProfile = (props) => {
-  const { show, handleClose, handleUpdateInfo } = props;
+  const { show, handleClose, handleUpdateInfo, user } = props;
 
   ModalEditProfile.propTypes = {
     show: PropTypes.bool.isRequired,
     handleClose: PropTypes.func.isRequired,
     handleUpdateInfo: PropTypes.func.isRequired,
+    user: PropTypes.object.isRequired,
   };
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(user?.username);
+  const [name, setName] = useState(user?.name);
+  const [address, setAddress] = useState(user?.address);
+  const [phone, setPhone] = useState(user?.phone);
+  const [email, setEmail] = useState(user?.email);
 
 
   const handleEditProfile = () => {
@@ -40,7 +41,7 @@ const ModalEditProfile = (props) => {
       keyboard={false}>
 
       <Modal.Header closeButton>
-        <Modal.Title className='mx-auto text-center'>Edit information</Modal.Title>
+        <Modal.Title>Edit information</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>

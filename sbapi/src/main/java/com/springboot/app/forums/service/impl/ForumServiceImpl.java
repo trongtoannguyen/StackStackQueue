@@ -62,7 +62,8 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	public ServiceResponse<ForumGroup> addForumGroup(ForumGroup newForumGroup, ForumGroup parent) {
 		ServiceResponse<ForumGroup> response = new ServiceResponse<>();
-		Integer maxSortOrder = forumGroupRepository.findMaxSortOrderByParent(parent);
+//		Integer maxSortOrder = forumGroupRepository.findMaxSortOrderByParent(parent);
+		Integer maxSortOrder = genericDAO.getMaxNumber(ForumGroup.class, "sortOrder", Collections.singletonMap("parent", parent)).intValue();
 
 		newForumGroup.setSortOrder(maxSortOrder + 1);
 		newForumGroup.setParent(parent);
@@ -119,7 +120,8 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	public ServiceResponse<Forum> addForum(Forum newForum, ForumGroup forumGroup) {
 		ServiceResponse<Forum> response = new ServiceResponse<>();
-		Integer maxSortOrder = forumGroupRepository.findMaxSortOrderByParent(forumGroup);
+
+		Integer maxSortOrder = genericDAO.getMaxNumber(Forum.class, "sortOrder", Collections.singletonMap("forumGroup", forumGroup)).intValue();
 
 		newForum.setSortOrder(maxSortOrder + 1);
 		newForum.setActive(true);

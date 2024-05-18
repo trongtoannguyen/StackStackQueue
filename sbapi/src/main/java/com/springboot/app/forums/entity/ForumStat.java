@@ -25,4 +25,12 @@ public class ForumStat extends BaseEntity {
 
 	@Column(name="discussion_count")
 	private long discussionCount;
+
+	public void addCommentCount(long number){
+		this.commentCount += number;
+	}
+
+	public void addDiscussionCount(long number){
+		this.discussionCount += number;
+	}
 }

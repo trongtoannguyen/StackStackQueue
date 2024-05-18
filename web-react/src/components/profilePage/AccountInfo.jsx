@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 import {
   Card, CardBody,
@@ -24,7 +25,7 @@ const AccountInfo = () => {
   }
 
   const handleUpdateInfo = (newInfo) => {
-    console.log(`Here is new info: ${newInfo}`);
+    alert(`Here is new info: ${newInfo}`);
   }
 
 
@@ -36,7 +37,8 @@ const AccountInfo = () => {
         </div>
         <CardBody>
           <Row>
-            <Col md="4" className="author mb-3">
+
+            <Col md="4" className="author mb-3 h-100">
               <a href="#pablo" onClick={(e) => e.preventDefault()}>
                 <img
                   alt="avatar"
@@ -46,10 +48,11 @@ const AccountInfo = () => {
                 <h5 className="title">{currentUser?.username}</h5>
               </a>
               <p className="description">{currentUser?.bio ?? "No thing gona change my love for you"}</p>
-              <Row className=''>
-
+              <Row className='mt-auto'>
+                <Link to="/admin" className="btn btn-success">Administration</Link>
               </Row>
             </Col>
+
             <Col md="8" className='mb-3'>
               <h5 className="title">{currentUser?.name ?? currentUser?.email}</h5>
               <p className="">
@@ -62,16 +65,24 @@ const AccountInfo = () => {
                 {currentUser?.bio}
               </p>
               <p>Follower: </p>
-              <div className="action-buttons">
-                <button className="btn btn-primary"
+              <div className="d-flex justify-content-end">
+                <Button className="btn btn-primary ml-auto"
                   onClick={() => { setShowModal(true) }}>
                   <i className="fa-solid fa-pen-to-square fa-xl"></i>
-                  <span className='mx-2'>Edit Profile</span>
-                </button>
-
-                <Button>Follow</Button>
-                <Button>Un-Follow</Button>
-                <Button>Chat</Button>
+                  <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
+                </Button>
+                <Button>
+                  <i className="fa-solid fa-plus fa-xl"></i>
+                  <span className="d-none d-lg-inline-block mx-2">Follow</span>
+                </Button>
+                <Button>
+                  <i className="fa-solid fa-minus fa-xl"></i>
+                  <span className="d-none d-lf-inline-block mx-2">UnFollow</span>
+                </Button>
+                <Button>
+                  <i className="fa-solid fa-message fa-xl"></i>
+                  <span className="d-none d-lg-inline-block mx-2">Chat</span>
+                </Button>
               </div>
             </Col>
           </Row>
@@ -82,6 +93,7 @@ const AccountInfo = () => {
         show={showModal}
         handleClose={handleClose}
         handleUpdateInfo={handleUpdateInfo}
+        user={currentUser}
       />
     </div>
 

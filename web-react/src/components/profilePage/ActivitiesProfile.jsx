@@ -44,7 +44,7 @@ const ActivitiesProfile = () => {
                 <tr key={activity.id}>
                   <td>
                     <p className={setColor(activity.color)}>
-                      <Avatar height={50} width={50} />
+                      <Avatar src="" username="" height={50} width={50} />
                     </p>
                   </td>
                   <td>

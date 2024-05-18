@@ -8,7 +8,7 @@ function AdminFooter(props) {
 
   return (
     <footer className={+(props.default) ? "footer footer-default" : "footer"}>
-      <Container fluid={+(props.fluid) ? true : false}>
+      <Container fluid={(props.fluid!="")}>
         <Row>
           <Col md="6">
             <nav className="footer-nav">

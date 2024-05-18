@@ -22,7 +22,7 @@ import {
 
 import avatar from "../../assets/img/default-avatar.png";
 
-import routes from "../../routes/routes";
+import routes from "../../routes/routesForAdmin";
 import SearchFormHeader from "../../components/search/SearchFormHeader";
 
 function AdminHeader() {
@@ -68,7 +68,6 @@ function AdminHeader() {
   const getBrand = () => {
     let brandName = "Tech Forum";
     routes.map((prop) => {
-      console.log(`Here: ${(prop?.layout + prop?.path)}`);
       if (window.location.href.indexOf(prop?.layout + prop?.path) !== -1) {
         brandName = prop.name;
       }

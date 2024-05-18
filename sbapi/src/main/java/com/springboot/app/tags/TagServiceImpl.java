@@ -28,6 +28,13 @@ public class TagServiceImpl implements TagService {
 	@Autowired
 	private DiscussionDAO discussionDAO;
 
+	@Transactional(readOnly = true)
+	public ServiceResponse<List<Tag>> getAllTags(){
+		ServiceResponse<List<Tag>> response = new ServiceResponse<>();
+		response.setDataObject(tagRepository.findAll());
+		return response;
+	}
+
 	@Transactional(readOnly = false)
 	public ServiceResponse<Long> createNewTag(Tag newTag){
 		ServiceResponse<Long> response = new ServiceResponse<>();

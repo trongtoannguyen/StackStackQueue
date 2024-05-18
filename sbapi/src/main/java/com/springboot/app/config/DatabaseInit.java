@@ -153,12 +153,11 @@ public class DatabaseInit {
 
 
 	private void createEmailOption(){
+		try{
 		EmailOption emailOption = genericService.getEntity(EmailOption.class, 1L).getDataObject();
 		if(emailOption !=null){
 			logger.info("Email option already exists.");
 		}else {
-			logger.info("Email option created.");
-
 			emailOption = new EmailOption();
 			emailOption.setId(1L);
 			emailOption.setCreatedBy("admin");
@@ -169,6 +168,10 @@ public class DatabaseInit {
 			emailOption.setTlsEnable(true);
 
 			genericService.saveEntity(emailOption);
+			logger.info("Email option created.");
+		}
+		}catch (Exception e){
+			logger.error("Error creating email option: "+e.getMessage());
 		}
 	}
 

@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
 import Layout from "../layouts/Layout";
 import DashBoard from "../components/adminPage/adminDashBoard/DashBoard";
-import UsersListManage from "../components/adminPage/userManage/UsersListManage";
+import TableUsers from "../components/adminPage/userManage/UsersListManage";
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
@@ -18,10 +18,10 @@ const ROLES = {
 }
 
 
-function AdminRoutes() {
+function AccountRoutes() {
   return (
     <Routes>
-      <Route exact path="/" element={<Layout route="routesAdmin" />}>
+      <Route exact path="/" element={<Layout route="routesProfile" />}>
         <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.MOD]} />}>
           <Route exact path="/" element={<DashBoard />} />
           <Route exact path="/dashboard" element={<DashBoard />} />
@@ -31,7 +31,7 @@ function AdminRoutes() {
 
           <Route exact path="/tags" element={<TagsStat />} />
 
-          <Route exact path="/users" element={<UsersListManage />} />
+          <Route exact path="/users" element={<TableUsers />} />
           <Route exact path="/user-page" element={<UserProfile />} />
         </Route>
 
@@ -41,4 +41,4 @@ function AdminRoutes() {
   )
 }
 
-export default AdminRoutes;
+export default AccountRoutes;

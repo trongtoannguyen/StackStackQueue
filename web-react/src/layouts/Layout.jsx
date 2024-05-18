@@ -5,14 +5,18 @@ import PerfectScrollbar from "perfect-scrollbar";
 import { Outlet, useLocation } from "react-router-dom"
 import Sidebar from "./sidebar/Sidebar"
 
-import routes from "../routes/routes2";
+import routes from "../routes/routes";
+import routesAdmin from "../routes/routesForAdmin";
 
 import AdminHeader from './header/AdminHeader';
 import AdminFooter from "./footer/AdminFooter";
 import FixedPlugin from "../components/adminPage/FixedPlugin/FixedPlugin";
+import PropTypes from 'prop-types';
 
 let ps;
-const AdminLayout = (props) => {
+const Layout = (props) => {
+
+  const { route } = props;
 
 
   const [backgroundColor, setBackgroundColor] = React.useState("black");
@@ -47,18 +51,29 @@ const AdminLayout = (props) => {
     setBackgroundColor(color);
   }
 
+  const routesSidebar = (route) => {
+    if (route === "routesProfile") {
+      return routes;
+    } else if (route === "routesAdmin") {
+      return routesAdmin;
+    }
+    return routes;
+  }
+
   return (
     <div className="layout-admin wrapper">
       <Sidebar
         {...props}
-        routes={routes}
+        // routes={routes}
+        routes={routesSidebar(route)}
         bgColor={backgroundColor}
         activeColor={activeColor}
       />
       <div className="main-panel" ref={mainPanel}>
         <AdminHeader {...props} />
 
-        <Outlet />
+        <Outlet bgColor={backgroundColor}
+          activeColor={activeColor} />
 
         <AdminFooter fluid />
       </div>
@@ -72,4 +87,8 @@ const AdminLayout = (props) => {
   )
 }
 
-export default AdminLayout;
+Layout.propTypes = {
+  route: PropTypes.string.isRequired,
+};
+
+export default Layout;

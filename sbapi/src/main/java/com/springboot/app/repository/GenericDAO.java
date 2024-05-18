@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,10 +15,11 @@ import java.util.Map;
 
 @Repository
 public class GenericDAO {
+	private static final Logger log = LoggerFactory.getLogger(GenericDAO.class);
 	@PersistenceContext
 	protected EntityManager entityManager;
 
-	public  void persist(Object entity) {
+	public void persist(Object entity) {
 		entityManager.persist(entity);
 	}
 
@@ -109,7 +112,7 @@ public class GenericDAO {
 
 				predicate = builder.between(getPathGeneric(root, paramName), value1, value2);
 			}
-			else {
+			else if(value !=null) {
 				predicate = builder.equal(getPathGeneric(root, paramName), value);
 			}
 
@@ -213,22 +216,29 @@ public class GenericDAO {
 
 
 	public <E> Number getMaxNumber(Class<E> entityClass, String targetPath, Map<String, Object> filters) {
+		try {
+			CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+			CriteriaQuery<Number> query = builder.createQuery(Number.class);
 
-		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Number> query = builder.createQuery(Number.class);
+			Root<E> root = query.from(entityClass);
 
-		Root<E> root = query.from(entityClass);
+			CriteriaBuilder.Coalesce<Number> coalesceExp = builder.coalesce();
+			coalesceExp.value(builder.max(getPathGeneric(root, targetPath)));
+			coalesceExp.value(0);
 
-		CriteriaBuilder.Coalesce<Number> coalesceExp = builder.coalesce();
-		coalesceExp.value(builder.max(getPathGeneric(root, targetPath)));
-		coalesceExp.value(0);
+			query.select(coalesceExp);
 
-		query.select(coalesceExp);
-
-		Predicate[] predicates = buildPredicates(builder, root, filters);
-		query.where(predicates);
-
-		return entityManager.createQuery(query).getSingleResult();
+			Predicate[] predicates = buildPredicates(builder, root, filters);
+			query.where(predicates);
+			var result = entityManager.createQuery(query).getSingleResult();
+			if(result == null) {
+				return 0;
+			}
+			return result;
+		}catch (Exception e) {
+			log.error("Error in getMaxNumber", e);
+			return 0;
+		}
 	}
 
 

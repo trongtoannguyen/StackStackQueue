@@ -12,10 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface ForumGroupRepository extends JpaRepository<ForumGroup, Long> {
 
 	@Modifying
-	@Query("SELECT MAX(fg.sortOrder) FROM ForumGroup fg WHERE fg.parent = :parent")
-	Integer findMaxSortOrderByParent(@Param("parent") ForumGroup parent);
-
-	@Modifying
 	@Query("UPDATE Discussion d SET d.forum = :toForum WHERE d.forum = :fromForum")
 	Integer moveDiscussions(@Param("fromForum") Forum fromForum, @Param("toForum") Forum toForum);
 

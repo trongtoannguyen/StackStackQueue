@@ -8,7 +8,8 @@ import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
 import { useDispatch } from "react-redux";
-import { handleRefresh } from "./redux/actions/userAction"
+import { handleRefresh } from "./redux/actions/userAction";
+
 
 function App() {
   // const [count, setCount] = useState(0)

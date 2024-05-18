@@ -1,61 +1,67 @@
-import DashBoard from "../components/adminPage/adminDashBoard/DashBoard"
-import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
-import ForumManage from "../components/adminPage/forumManage/ForumManage";
-import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import TableUsers from "../components/adminPage/userManage/TableUsers"
-import UserProfile from "../components/adminPage/userManage/UserProfile";
-import ViewDiscussion from "../components/discussions/ViewDiscussion";
+import RegisterForm from "../components/auth/RegisterForm";
+import Home from "../components/homePage/Home";
+import ForumGroup from "../components/forumsPage/ForumGroupPage";
+import MemberList from "../components/memberPage/MemberList";
 
 const routes = [
   {
-    path: "/dashboard",
-    name: "dashboard",
-    icon: "fa-solid fa-building-columns",
-    component: <DashBoard />,
-    layout: "/admin"
-  },
-  {
-    path: "/users",
-    name: "manage users",
-    icon: "fa-solid fa-people-group",
-    component: <TableUsers />,
-    layout: "/admin"
-  },
-  {
-    path: "/user-page",
-    name: "profile",
-    icon: "fa-solid fa-user",
-    component: <UserProfile />,
-    layout: "/admin"
+    path: "/home",
+    name: "home",
+    icon: "fa-solid fa-house",
+    component: <Home />,
+    layout: ""
   },
   {
     path: "/forums",
-    name: "manage forums",
+    name: "forums",
+    icon: "fa-solid fa-list fa-xl",
+    component: <ForumGroup />,
+    layout: ""
+  },
+  {
+    path: "/members",
+    name: "members",
     icon: "fa-solid fa-users",
-    component: <ForumManage />,
-    layout: "/admin"
+    component: <MemberList />,
+    layout: ""
   },
   {
-    path: "/discussions",
-    name: "manage discussions",
-    icon: "fa-solid fa-comments",
-    component: <DiscussionManage />,
-    layout: "/admin"
+    path: "/my-post",
+    name: "your post",
+    icon: "fa-regular fa-newspaper",
+    component: <MemberList />,
+    layout: ""
   },
   {
-    path: "/comments",
-    name: "manage comments",
-    icon: "fa-solid fa-comment",
-    component: <ViewDiscussion />,
-    layout: "/admin"
+    path: "/viewed-post",
+    name: "viewed post",
+    icon: "fa-solid fa-clock-rotate-left",
+    component: <MemberList />,
+    layout: ""
   },
   {
-    path: "/tags",
-    name: "manage tags",
-    icon: "fa-solid fa-tags",
-    component: <TagsStat />,
-    layout: "/admin"
-  }
+    path: "/liked-post",
+    name: "liked post",
+    icon: "fa-regular fa-thumbs-up",
+    component: <RegisterForm />,
+    layout: ""
+  },
+  {
+    path: "/subscription",
+    name: "subscription",
+    icon: "fa-solid fa-user-plus",
+    component: <RegisterForm />,
+    layout: ""
+  },
+  {
+    path: "/feedback",
+    name: "feedback",
+    icon: "fa-regular fa-flag",
+    component: <RegisterForm />,
+    layout: ""
+  },
+
+
 ];
 
 

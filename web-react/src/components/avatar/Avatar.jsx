@@ -1,12 +1,14 @@
 import NoAvatar from "../../assets/img/default-avatar.png";
 import PropTypes from 'prop-types';
 
-const Avatar = ({ src, username, height, width }) => {
+const Avatar = (props) => {
+
+  const { src, username, height, width } = props;
 
   return (
-    <div className="d-flex-row">
+    <span className="d-flex-row">
       <img
-        src={src ?? NoAvatar}
+        src={src && src.length > 0 ? src : NoAvatar}
         alt=""
         style={{
           height: `${height}px`,
@@ -17,10 +19,10 @@ const Avatar = ({ src, username, height, width }) => {
       />
       {username && (
         <span style={{ fontSize: "1rem" }} className="username">
-          {username ?? "No name"}
+          {username && username.length > 0 ? username : "No name"}
         </span>
       )}
-    </div>
+    </span>
   );
 }
 

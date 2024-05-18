@@ -1,14 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
 import Home from "../components/homePage/Home";
-import ForumGroup from "../components/forumsPage/ForumGroup";
+import ForumGroup from "../components/forumsPage/ForumGroupPage";
 import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import OAuth2RedirectHandler from "../components/auth/oauth2/OAuth2RedirectHandler";
 
 import Discussion from "../components/discussions/Discussions";
 import MemberList from "../components/memberPage/MemberList";
-import TableUsers from "../components/adminPage/userManage/TableUsers";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 import ListDiscussions from "../components/discussions/ListDiscussions";
 
@@ -22,6 +21,8 @@ import { MyProfile } from "../components/profilePage/MyProfile";
 import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
+
+import TableUsers from "../components/adminPage/userManage/UsersListManage";
 
 
 const ROLES = {
@@ -38,7 +39,7 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />}></Route>
 
-      <Route path="/" element={<Layout />}>
+      <Route path="/" element={<Layout route="routes1" />}>
         {/* public route */}
         <Route path="unauthorized" element={<Unauthorized />} />
 
@@ -65,9 +66,11 @@ function AppRoutes() {
           <Route path="/my-profile/*" element={<MyProfile />} />
 
         </Route>
+
         {/* catch all */}
         <Route path="*" element={<NotFound />} />
       </Route>
+
     </Routes>
   )
 }
