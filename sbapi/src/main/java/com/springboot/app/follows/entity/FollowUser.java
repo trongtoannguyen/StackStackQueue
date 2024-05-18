@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "follow_users")
+//@Entity
+//@Table(name = "follow_users")
 public class FollowUser extends BaseEntity {
 
 	@PrePersist

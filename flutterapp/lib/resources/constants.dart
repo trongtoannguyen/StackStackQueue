@@ -1,0 +1,4 @@
+const String HOME_SCREEN = "HOME PAGE";
+const String LOGIN_SCREEN = "LOGIN SCREEN";
+const String REGISTER_SCREEN = "REGISTER SCREEN";
+const String USER_LIST = "USER LIST";
