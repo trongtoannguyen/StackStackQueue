@@ -27,14 +27,16 @@ import SearchFormHeader from "../../components/search/SearchFormHeader";
 
 function AdminHeader() {
 
-  const currentUser = useSelector(state => state.auth.login?.currentUser);
+  let currentUser = useSelector(state => state.auth.login?.currentUser);
+  const accessToken = currentUser?.currentUser;
+  const id = currentUser?.id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
 
   const handleLogout = () => {
-    logOut(dispatch, currentUser?.id, navigate, currentUser?.accessToken, axiosJWT);
+    logOut(dispatch, id, navigate, accessToken, axiosJWT);
   }
 
   const [isOpen, setIsOpen] = React.useState(false);

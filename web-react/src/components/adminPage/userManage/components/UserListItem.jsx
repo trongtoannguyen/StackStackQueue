@@ -11,7 +11,7 @@ const UserListItem = (props) => {
         <Avatar src="" username="" height={50} width={50} />
       </td>
       <td>
-        <Link to='/user-page/1'>
+        <Link to='/my-profile/1'>
           <p>{user.username}</p>
           <p>{user.email}</p>
         </Link>

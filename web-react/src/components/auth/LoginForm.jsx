@@ -51,8 +51,8 @@ const LoginForm = () => {
 
 
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async () => {
+    // e.preventDefault();
 
     if (!username || !password) {
       errRef.current.focus();
