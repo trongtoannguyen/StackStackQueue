@@ -1,7 +1,7 @@
 import RegisterForm from "../components/auth/RegisterForm";
 import Home from "../components/homePage/Home";
 import ForumGroup from "../components/forumsPage/ForumGroupPage";
-import MemberList from "../components/memberPage/MemberList";
+import MemberList from "../components/memberPage/MemberListPage";
 
 const routes = [
   {

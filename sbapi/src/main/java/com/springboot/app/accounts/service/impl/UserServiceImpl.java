@@ -1,9 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
-import com.springboot.app.accounts.entity.DeletedUser;
-import com.springboot.app.accounts.entity.PasswordReset;
-import com.springboot.app.accounts.entity.Role;
-import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.entity.*;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.accounts.repository.DeletedUserRepository;
@@ -84,11 +81,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User save(SignupRequest signUpRequest) {
+	public ServiceResponse<User> createNewUser(SignupRequest signUpRequest) {
+		ServiceResponse<User> response = new ServiceResponse<>();
 		try{
 			List<String> errorMessages = validateUser(signUpRequest);
 			if(!errorMessages.isEmpty()) {
-				logger.error("Error: User not created. %s".formatted(errorMessages));
+				String err = "Error: User not created. %s".formatted(errorMessages);
+				logger.error(err);
+				response.setAckCode(AckCodeType.FAILURE);
+				response.addMessages(errorMessages);
 				return null;
 			}
 			// Create new user's account
@@ -102,36 +103,48 @@ public class UserServiceImpl implements UserService {
 			Set<Role> roles = new HashSet<>();
 			if (strRoles == null) {
 				Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+					.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
 				roles.add(userRole);
 			} else {
 				strRoles.forEach(role -> {
 				switch (role) {
 					case "admin":
 						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+								.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
 						roles.add(adminRole);
 						break;
 					case "mod":
 						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+								.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
 						roles.add(modRole);
 						break;
 					default:
 						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+								.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
 						roles.add(userRole);
 				}
 			});
 			}
 			user.setRoles(roles);
+			user.setCreatedBy(user.getUsername());
+
+			Person person = new Person();
+			user.setPerson(person);
+
+			UserStat userStat = new UserStat();
+			userStat.setCreatedBy(user.getUsername());
+			user.setStat(userStat);
+
 			userRepository.save(user);
-			return userRepository.save(user);
+			response.setAckCode(AckCodeType.SUCCESS);
+			response.setDataObject(user);
+
 		}catch (Exception e){
 			logger.error("Error: User not created. %s".formatted(e.getMessage()));
-			return null;
-
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage(e.getMessage());
 		}
+		return response;
 	}
 
 	@Transactional(readOnly = false)
@@ -189,11 +202,24 @@ public class UserServiceImpl implements UserService {
 			messages.add("Email already exists in the system");
 		}
 
-		if(user.getPassword().length() < 5) {
-			messages.add("Password must be at least 5 characters");
+		if(user.getPassword().length() < 8) {
+			messages.add("Password must be at least 8 characters");
 		}
 
 		return messages;
+	}
+
+	public ServiceResponse<String> getAvatarMember(String username) {
+		ServiceResponse<String> response = new ServiceResponse<>();
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user != null) {
+			response.setDataObject(user.getImageUrl());
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+		}
+		return response;
 	}
 
 

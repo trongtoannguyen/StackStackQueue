@@ -118,6 +118,7 @@ public class ForumServiceImpl implements ForumService {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public ServiceResponse<Forum> addForum(Forum newForum, ForumGroup forumGroup) {
 		ServiceResponse<Forum> response = new ServiceResponse<>();
 
@@ -128,12 +129,12 @@ public class ForumServiceImpl implements ForumService {
 		newForum.setStat(new ForumStat());
 		newForum.setForumGroup(forumGroup);
 
-		forumGroupRepository.save(forumGroup);
+		newForum = genericDAO.merge(newForum);
 		response.setDataObject(newForum);
 
 		if(forumGroup != null) {
 			forumGroup.getForums().add(newForum);
-			forumGroupRepository.save(forumGroup);
+			genericDAO.merge(forumGroup);
 		}
 
 		SystemInfoService.Statistics systemStat = systemInfoService.getStatistics().getDataObject();

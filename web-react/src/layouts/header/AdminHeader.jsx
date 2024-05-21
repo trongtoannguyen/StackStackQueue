@@ -28,7 +28,7 @@ import SearchFormHeader from "../../components/search/SearchFormHeader";
 function AdminHeader() {
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
-  const accessToken = currentUser?.currentUser;
+  const accessToken = currentUser?.accessToken;
   const id = currentUser?.id;
   const navigate = useNavigate();
   const dispatch = useDispatch();

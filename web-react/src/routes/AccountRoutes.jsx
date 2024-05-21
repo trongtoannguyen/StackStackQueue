@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
 import Layout from "../layouts/Layout";
-import DashBoard from "../components/adminPage/adminDashBoard/DashBoard";
-import TableUsers from "../components/adminPage/userManage/UsersListManage";
+import DashBoard from "../components/adminPage/adminDashBoard/DashBoardPage";
+import TableUsers from "../components/adminPage/userManage/UsersListManagePage";
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 

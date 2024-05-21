@@ -90,6 +90,7 @@ public class WebSecurityConfig {
 						auth.requestMatchers("/api/auth/**").permitAll()
 								.requestMatchers("/api/test/**").permitAll()
 								.requestMatchers("/api/reset-password/**").permitAll()
+								.requestMatchers("/api/user-stat").permitAll()
 								.requestMatchers("/").permitAll()
 								.anyRequest().authenticated()
 				);

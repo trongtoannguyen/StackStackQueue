@@ -6,4 +6,10 @@ const StyledInput = styled.input`
 `;
 
 
+// const StyledInput = styled.input(props => ({
+//   color: props.valid ? "green" : "red",
+//   border: `1px solid ${props.valid ? "green" : "red"}!important`
+// }));
+
+
 export default StyledInput;

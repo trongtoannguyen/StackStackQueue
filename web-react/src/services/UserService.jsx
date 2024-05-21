@@ -1,5 +1,20 @@
 import axios from './customize-axios';
 
+import { pathParams } from '../utils/Helper';
+
+export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
+  try {
+    let path = pathParams(pageData);
+    let res = await axiosJWT.get(`admin/users?${path}`,{
+      headers: { token: `Bearer ${accessToken}` },
+    });
+    return res;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
 const fetchAllUser = async (page) => {
   return await axios.get(`users?page=${page}`);
 }

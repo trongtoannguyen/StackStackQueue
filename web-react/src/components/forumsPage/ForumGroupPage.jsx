@@ -5,7 +5,7 @@ import ReactPaginate from 'react-paginate';
 import Table from 'react-bootstrap/Table';
 import BannerTop from '../bannerTop/BannerTop';
 
-import { setBgColor } from '../../utils/BgColorHepper';
+import { setBgColor } from '../../utils/BgColorHelpper';
 
 
 

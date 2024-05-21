@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom'
 
 import {
   Card, CardBody,
@@ -7,40 +8,27 @@ import {
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import IntroProfile from './IntroProfile';
-import BannerTop from '../../components/bannerTop/BannerTop';
+import BannerTop from '../bannerTop/BannerTop';
 import AccountInfo from './AccountInfo';
 import ActivitiesProfile from "./ActivitiesProfile";
 
-import { useNavigate } from "react-router-dom";
 
-import { createAxios } from "../../services/createInstance";
-import { loginSuccess } from "../../redux/authSlice";
-import { useSelector, useDispatch } from "react-redux";
+const MemberProfile = () => {
 
+  // const [member, setMember] = useState({});
 
-
-export const MyProfile = () => {
+  const { username } = useParams();
+  console.log(`Check username`, username);
 
   const bannerName = "";
   const breadcrumbs = [
-    { id: 1, name: 'Profile', link: '/my-profile' }
+    { id: 1, name: `Profile - ${username}`, link: `/member-profile/${username}` }
   ];
 
 
   const [key, setKey] = useState('home');
-
-  let currentUser = useSelector(state => state.auth.login?.currentUser);
-  const accessToken = currentUser?.accessToken;
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (currentUser && currentUser.accessToken === undefined) {
-      createAxios(currentUser, dispatch, loginSuccess);
-    }
-  }, []);
 
   return (
     <div className="content">
@@ -51,7 +39,7 @@ export const MyProfile = () => {
         />
       </Col>
       <Col>
-        <AccountInfo />
+        <AccountInfo username={ username} />
       </Col>
       <Col>
         <Tabs
@@ -94,3 +82,6 @@ export const MyProfile = () => {
 
   );
 }
+
+
+export default MemberProfile;

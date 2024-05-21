@@ -18,7 +18,7 @@ const Avatar = (props) => {
         }}
       />
       {username && (
-        <span style={{ fontSize: "1rem" }} className="username">
+        <span style={{ fontSize: "1rem" }} className="username mx-2">
           {username && username.length > 0 ? username : "No name"}
         </span>
       )}
@@ -27,10 +27,10 @@ const Avatar = (props) => {
 }
 
 Avatar.propTypes = {
-  src: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
+  src: PropTypes.string,
+  username: PropTypes.string,
+  height: PropTypes.number,
+  width: PropTypes.number,
 };
 
 export default Avatar;

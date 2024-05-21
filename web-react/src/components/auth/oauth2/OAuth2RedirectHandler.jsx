@@ -29,7 +29,6 @@ function OAuth2RedirectHandler() {
   let navigateTo;
   if (token) {
     navigateTo = <Navigate to="/" state={{ from: location }} replace />;
-    console.log(`Here is your location: ${JSON.stringify(location)}`);
   } else {
     navigateTo = <Navigate to="/login" state={{ from: location, error: error }} replace />;
   }

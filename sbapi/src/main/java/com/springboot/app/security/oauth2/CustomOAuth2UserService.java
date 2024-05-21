@@ -1,6 +1,10 @@
 package com.springboot.app.security.oauth2;
 
+import com.springboot.app.accounts.entity.Person;
+import com.springboot.app.accounts.entity.Role;
 import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.entity.UserStat;
+import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.accounts.repository.RoleRepository;
@@ -85,6 +89,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		user.setName(oAuth2UserInfo.getName());
 		user.setEmail(oAuth2UserInfo.getEmail());
 		user.setImageUrl(oAuth2UserInfo.getImageUrl());
+		user.setAccountStatus(AccountStatus.ACTIVE);
+
+		user.setCreatedBy(user.getUsername());
+
+		Person person = new Person();
+		person.setCreatedBy(user.getUsername());
+		user.setPerson(person);
+
+		UserStat userStat = new UserStat();
+		userStat.setCreatedBy(user.getUsername());
+		user.setStat(userStat);
 
 		// Assign the user role by default
 		// if the user does not specify the role during registration process
@@ -97,6 +112,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
 		existingUser.setName(oAuth2UserInfo.getName());
 		existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
+		existingUser.setUpdatedBy(existingUser.getUsername());
 		return userRepository.save(existingUser);
 	}
 

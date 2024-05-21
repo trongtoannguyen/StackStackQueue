@@ -66,7 +66,7 @@ const ResetPassword = () => {
         aria-describedby="emailRP-err"
         onFocus={() => setEmailRPFocus(true)}
         onBlur={() => setEmailRPFocus(false)}
-        isValid={+(emailRP.length===0 || validEmailRP)}
+        $valid={+(emailRP.length===0 || validEmailRP)}
       />
       <small id="emailRP-err" className={emailRPFocus && emailRP || !validEmailRP ? "text-danger" : "invalid-feedback"} role="alert" hidden={validEmailRP || !emailRPFocus}>
         <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}

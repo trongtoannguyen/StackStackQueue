@@ -2,6 +2,7 @@ package com.springboot.app.accounts.service;
 
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public interface UserService {
 
 	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection);
 
-	User save(SignupRequest signupRequest);
+	ServiceResponse<User> createNewUser(SignupRequest signupRequest);
+
+	ServiceResponse<String> getAvatarMember(String username);
 
 }

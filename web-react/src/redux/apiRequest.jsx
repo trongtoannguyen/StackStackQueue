@@ -36,8 +36,8 @@ export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
     let res = await axios.post("/auth/signup", user);
-    console.log(`Here is the response: ${JSON.stringify(res)}`);
-    console.log(`Here is the status: ${+res?.status}`);
+    // console.log(`Here is the response: ${JSON.stringify(res)}`);
+    // console.log(`Here is the status: ${+res?.status}`);
     if (+res?.status === 201) {
       dispatch(registerSuccess());
       navigate("/login");

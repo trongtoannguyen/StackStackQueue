@@ -7,11 +7,11 @@ import RegisterForm from "../components/auth/RegisterForm";
 import OAuth2RedirectHandler from "../components/auth/oauth2/OAuth2RedirectHandler";
 
 import Discussion from "../components/discussions/Discussions";
-import MemberList from "../components/memberPage/MemberList";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 import ListDiscussions from "../components/discussions/ListDiscussions";
 
-import { MemberProfile } from "../components/memberPage/MemberProfile";
+import MemberList from "../components/memberPage/MemberListPage";
+import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
 
 import Layout from "../layouts/Layout";
 import ResetPassword from "../components/auth/ResetPassword";
@@ -22,7 +22,7 @@ import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
 
-import TableUsers from "../components/adminPage/userManage/UsersListManage";
+import TableUsers from "../components/adminPage/userManage/UsersListManagePage";
 
 
 const ROLES = {
@@ -56,7 +56,7 @@ function AppRoutes() {
         <Route path="/list-discussion" element={<ListDiscussions />} />
 
         <Route path="/members" element={<MemberList />} />
-        <Route path="/user/1" element={<MemberProfile />} />
+        <Route path="/member-profile/:username" element={<MemberProfile />} />
 
         <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.MOD, ROLES.USER]} />}>
 

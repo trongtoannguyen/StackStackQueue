@@ -8,11 +8,10 @@ const UserListItem = (props) => {
   return (
     <tr key={user.id}>
       <td>
-        <Avatar src="" username="" height={50} width={50} />
+        <Avatar src="" username={user.username} height={50} width={50} />
       </td>
       <td>
         <Link to='/my-profile/1'>
-          <p>{user.username}</p>
           <p>{user.email}</p>
         </Link>
       </td>

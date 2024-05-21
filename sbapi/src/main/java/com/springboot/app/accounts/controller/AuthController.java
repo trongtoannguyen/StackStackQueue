@@ -1,7 +1,10 @@
 package com.springboot.app.accounts.controller;
 
 import com.springboot.app.accounts.enumeration.AuthProvider;
+import com.springboot.app.accounts.service.UserService;
+import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.MessageResponse;
+import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.CurrentUser;
 import com.springboot.app.security.dto.request.LoginRequest;
 import com.springboot.app.security.dto.request.PasswordResetRequest;
@@ -62,6 +65,9 @@ public class AuthController {
 	@Autowired
 	RefreshTokenService refreshTokenService;
 
+	@Autowired
+	private UserService userService;
+
 	/**
 	 * This method will register a new user in the application
 	 * and return a success message if the user is registered successfully.
@@ -70,57 +76,12 @@ public class AuthController {
 	 */
 	@PostMapping("/signup")
 	public ResponseEntity<ObjectResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new ObjectResponse("400","Error: Username is already taken!",null));
+		ServiceResponse<User> response = userService.createNewUser(signUpRequest);
+		if (response.getAckCode() != AckCodeType.SUCCESS) {
+			String errorMessage = String.join(", ", response.getMessages());
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","User not created. "+errorMessage,null));
 		}
-		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new ObjectResponse("400","Error: Email is already in use!",null));
-		}
-
-		// Create new user's account
-		User user = new User(
-				signUpRequest.getUsername(),
-				signUpRequest.getEmail(),
-				encoder.encode(signUpRequest.getPassword()), // encode the password before saving it in the database
-				AuthProvider.local);
-
-		Set<String> strRoles = signUpRequest.getRoles();
-		Set<Role> roles = new HashSet<>();
-
-		if (strRoles == null) {
-			// if the user does not specify the role, then assign the user role by default
-			Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-			roles.add(userRole);
-		} else {
-			// if the user specifies the role, then assign the role to the user
-			strRoles.forEach(role -> {
-				switch (role) {
-					case "admin":
-						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(adminRole);
-						break;
-					case "mod":
-						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(modRole);
-						break;
-					default:
-						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(userRole);
-				}
-			});
-		}
-		// set the roles of the user and save the user in the database and return a success message
-		user.setRoles(roles);
-		userRepository.save(user);
-		return ResponseEntity.ok(new ObjectResponse("201","User registered successfully!",user));
+		return ResponseEntity.ok(new ObjectResponse("201","User created",response.getDataObject()));
 	}
 
 
@@ -229,8 +190,4 @@ public class AuthController {
 						name
 				));
 	}
-
-
-
-
 }

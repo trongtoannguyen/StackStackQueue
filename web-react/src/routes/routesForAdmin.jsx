@@ -1,8 +1,8 @@
-import DashBoard from "../components/adminPage/adminDashBoard/DashBoard"
+import DashBoard from "../components/adminPage/adminDashBoard/DashBoardPage"
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import TableUsers from "../components/adminPage/userManage/UsersListManage"
+import TableUsers from "../components/adminPage/userManage/UsersListManagePage"
 import UserProfile from "../components/adminPage/userManage/UserProfile";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 
