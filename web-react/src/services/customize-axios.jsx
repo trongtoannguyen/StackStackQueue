@@ -6,11 +6,11 @@ import { API_BASE_URL } from '../constants';
 const BASE_URL = `${API_BASE_URL}/api/`;
 
 const instance = axios.create({
-  baseURL: BASE_URL
+  baseURL: BASE_URL,
 });
 
 
-// Add a response interceptor ~ middleware (req/res)
+// Add a response interceptor ~ middleware (req)
 // https://github.com/axios/axios#interceptors
 
 instance.interceptors.response.use(function (response) {

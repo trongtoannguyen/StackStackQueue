@@ -80,7 +80,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (currentUser?.roles?.length > 0) {
-      navigate(-1) === navigate("unauthorized") ? navigate("/") : navigate(-1);
+      navigate(-1) === navigate("/unauthorized") ? navigate("/") : navigate(-1);
     }
   }, [currentUser, error, navigate])
 
@@ -117,8 +117,7 @@ const LoginForm = () => {
         />
         <small id="username-err" className={userFocus && username || !validName ? "text-danger" : "invalid-feedback"} role="alert" hidden={validName || !userFocus}>
           <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-          Username must be 5-24 characters long and start with a letter.<br />
-          <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+          Username must be 5-24 characters long and start with a letter.
           Letters, numbers, underscores, hyphens allowed.
         </small>
 

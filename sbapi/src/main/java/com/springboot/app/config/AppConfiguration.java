@@ -41,7 +41,7 @@ public class AppConfiguration implements WebMvcConfigurer {
 				.allowedOrigins(allowedOrigins) // React app URL
 				.allowedMethods("*")
 				.allowedHeaders("*")
-//				.allowCredentials(true)
+				.allowCredentials(true)
 				.maxAge(MAX_AGE_SECS);
 	}
 }

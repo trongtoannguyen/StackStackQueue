@@ -42,7 +42,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+import static java.rmi.server.LogStream.log;
+
+@CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -139,8 +141,9 @@ public class AuthController {
 	}
 
 	@PostMapping("/refreshtoken")
-	public ResponseEntity<?> refreshtoken(HttpServletRequest request) {
+	public ResponseEntity<ObjectResponse> refreshtoken(HttpServletRequest request) {
 		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
+		log("refreshToken: "+refreshToken);
 
 		if ((refreshToken != null) && (!refreshToken.isEmpty())) {
 			return refreshTokenService.findByToken(refreshToken)
@@ -148,16 +151,17 @@ public class AuthController {
 					.map(RefreshToken::getUser)
 					.map(user -> {
 						ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
+						log("New JWT generated: "+ jwtCookie.getValue());
 
 						return ResponseEntity.ok()
-								.header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-								.body(new MessageResponse("Token is refreshed successfully!"));
+//								.header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+								.body(new ObjectResponse("200","Token is refreshed successfully!",jwtCookie.getValue()));
 					})
 					.orElseThrow(() -> new TokenRefreshException(refreshToken,
 							"Refresh token is not in database!"));
 		}
-
-		return ResponseEntity.badRequest().body(new ObjectResponse("400","Refresh Token is empty!",null));
+		return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(new ObjectResponse(String.format("%d",HttpStatus.FORBIDDEN.value()),"Refresh Token is empty!",null));
+//		return ResponseEntity.badRequest().body(new ObjectResponse("400","Refresh Token is empty!",null));
 	}
 
 

@@ -18,11 +18,11 @@ import { toast } from 'react-toastify';
 export const loginUser = async (user, dispatch) => {
   dispatch(loginStart());
   try {
-    let res = await axios.post('auth/signin', user);
+    let res = await axios.post('auth/signin', user, { withCredentials: true });
     if (res?.accessToken) {
       toast.success("Login successfully!");
       dispatch(loginSuccess(res));
-    } else if (+res?.data?.status === 500) {
+    } else if (+res?.status !== 200) {
       toast.error("Username or password incorrect!");
       dispatch(loginFailed());
     }
@@ -57,7 +57,7 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
   dispatch(logOutStart());
   try {
     await axiosJWT.post("/auth/signout", id, {
-      headers: { token: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     dispatch(logOutSuccess());
     navigate("/login");

@@ -13,11 +13,12 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 
 
-import { getAllUsers } from "../../../services/UserService";
+import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
 import UserCardItem from "./components/UserCardItem";
 import UserListItem from "./components/UserListItem";
+import Pagination from "../../pagination/Pagination";
 
 function UserListManage() {
 
@@ -32,42 +33,14 @@ function UserListManage() {
   const [orderBy, setOrderBy] = useState('createdAt');
   const [sortBy, setSortBy] = useState('ASC');
 
-
-
-  const users =
-    [
-      {
-        id: 1,
-        username: "admin123",
-        email: "admin@localhost",
-        role: "Admin",
-        active: true,
-      },
-      {
-        id: 2,
-        username: "user123",
-        email: "user@localhost",
-        role: "User",
-        active: true,
-      },
-      {
-        id: 3,
-        username: "user223",
-        email: "user2@localhost",
-        role: "User",
-        active: false,
-      },
-      {
-        id: 4,
-        username: "user323",
-        email: "user3@localhost",
-        role: "User",
-        active: false
-      }
-    ];
+  const handlePageClick = (event) => {
+    setPage(+event.selected + 1);
+    return true;
+  }
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
-  // const userList = useSelector((state) => state.users.users?.allUsers);
+  let isError = useSelector(state => state.auth.login.error);
+  const allUsers = useSelector((state) => state.users.users?.allUsers);
 
   // const msg = useSelector((state) => state.users?.msg);
 
@@ -79,6 +52,7 @@ function UserListManage() {
   //   deleteUser(user?.accessToken, dispatch, id, axiosJWT);
   // };
 
+  //export const getAllUsers = async (accessToken, dispatch, axiosJWT, pageData) => {
 
   const getAllUsersData = async () => {
     let pageData = {
@@ -87,29 +61,40 @@ function UserListManage() {
       orderBy: orderBy,
       sort: sortBy
     }
-    console.log(`accessToken`, currentUser?.accessToken);
-    let res = await getAllUsers(pageData, axiosJWT, currentUser?.accessToken);
-    console.log(`ccheck`, JSON.stringify(res));
+    let res = await getAllUsers(currentUser?.accessToken, dispatch, axiosJWT, pageData);
     if (res?.data.length > 0) {
       setUserList(res.data);
       setPageSize(res.pageSize);
       setTotalPages(res.totalPages);
       setTotalUsers(res.totalItems);
     }
+    return true;
   }
 
   useEffect(() => {
-    if (currentUser && currentUser?.accessToken == null) {
+    if (!currentUser.accessToken) {
       createAxios(currentUser, dispatch, loginSuccess);
     }
     getAllUsersData();
+
   }, []);
 
 
 
   const tableUserList = (users) => {
+    if (users.length == 0) {
+      return (
+        <div className="text-center">
+          <span className="d-flex justify-content-center">
+            <i className="fas fa-sync fa-spin fa-5x"></i>
+            <br />
+          </span>
+          <h5>Loading...</h5>
+        </div>
+      );
+    }
     return (
-      <Table responsive striped bordered hover className="text-center">
+      <Table responsive striped bordered hover>
         <thead>
           <tr>
             <th>Username</th>
@@ -192,12 +177,35 @@ function UserListManage() {
           justify
         >
           <Tab eventKey="userList" title="List">
-            {tableUserList(users)}
+            {tableUserList(userList)}
+
+            <Pagination
+              handlePageClick={handlePageClick}
+              pageSize={pageSize}
+              totalPages={totalPages}
+            />
           </Tab>
           <Tab eventKey="userGrid" title="Grid">
             <Col>
               <Row>
-                {users?.map((user) => <UserCardItem key={user.id} user={user} />)}
+                {
+                  (userList.length === 0)
+                    ? <div className="text-center">
+                      <span className="d-flex justify-content-center">
+                        <i className="fas fa-sync fa-spin fa-5x"></i>
+                        <br />
+                      </span>
+                      <h5>Loading...</h5>
+                    </div>
+                    : userList?.map((user) => <UserCardItem key={user.id} user={user} />)
+                }
+
+                <Pagination
+                  handlePageClick={handlePageClick}
+                  pageSize={pageSize}
+                  totalPages={totalPages}
+                />
+
               </Row>
             </Col>
           </Tab>

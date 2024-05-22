@@ -7,13 +7,18 @@ import {
   getUsersSuccess,
 } from "./userSlice";
 
-export const getAllUsers = async (accessToken, dispatch, axiosJWT) => {
+import { pathParams } from '../utils/Helper';
+
+
+export const getAllUsers = async (accessToken, dispatch, axiosJWT, pageData) => {
   dispatch(getUsersStart());
   try {
-    const res = await axiosJWT.get("/users", {
-      headers: { token: `Bearer ${accessToken}` },
+    let path = pathParams(pageData);
+    let res = await axiosJWT.get(`admin/users?${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-    dispatch(getUsersSuccess(res));
+    dispatch(getUsersSuccess(res.data));
+    return res.data;
   } catch (err) {
     dispatch(getUsersFailed());
   }

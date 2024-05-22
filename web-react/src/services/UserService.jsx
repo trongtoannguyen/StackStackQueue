@@ -6,9 +6,9 @@ export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
   try {
     let path = pathParams(pageData);
     let res = await axiosJWT.get(`admin/users?${path}`,{
-      headers: { token: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res;
+    return res.data;
   } catch (err) {
     console.log(err);
   }
