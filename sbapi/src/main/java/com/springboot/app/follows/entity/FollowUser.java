@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-//@Entity
-//@Table(name = "follow_users")
+@Entity
+@Table(name = "follow_users")
 public class FollowUser extends BaseEntity {
 
 	@PrePersist
@@ -40,7 +40,8 @@ public class FollowUser extends BaseEntity {
 	@JoinColumn(name = "following_user_id",foreignKey = @ForeignKey(name = "fk_follow_user_following"))
 	private User followingUser;
 
-	@Column(name="status")
+	@Enumerated(EnumType.STRING)
+	@Column(name="status",length = 50)
 	private FollowStatus status;
 
 
@@ -104,8 +105,5 @@ public class FollowUser extends BaseEntity {
 	public void setStatus(FollowStatus status) {
 		this.status = status;
 	}
-
-
-
 
 }

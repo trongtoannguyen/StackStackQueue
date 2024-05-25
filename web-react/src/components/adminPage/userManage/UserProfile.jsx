@@ -11,7 +11,9 @@ import Container from 'react-bootstrap/Container';
 import avatar from "../../../assets/img/default-avatar.png";
 
 
-const UserProfile = () => {
+const UserProfile = (props) => {
+  let { id } = props;
+  
   return (
     <div className="content">
       <Container>

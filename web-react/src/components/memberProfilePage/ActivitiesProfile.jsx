@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import {
   Button,
   Card, CardHeader, CardBody,
@@ -6,16 +7,18 @@ import {
 import Avatar from "../avatar/Avatar";
 
 
-const ActivitiesProfile = () => {
+const ActivitiesProfile = (props) => {
+
+  const { username } = props;
 
 
   const activities = [
-    { id: 1, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'info' },
-    { id: 2, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'primary' },
-    { id: 3, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'info' },
-    { id: 4, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'danger' },
-    { id: 5, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'info' },
-    { id: 6, name: 'Admin', action: 'updated users', time: '5 minutes ago', color: 'warning' },
+    { id: 1, name: username, action: 'updated users', time: '5 minutes ago', color: 'info' },
+    { id: 2, name: username, action: 'updated users', time: '5 minutes ago', color: 'primary' },
+    { id: 3, name: username, action: 'updated users', time: '5 minutes ago', color: 'info' },
+    { id: 4, name: username, action: 'updated users', time: '5 minutes ago', color: 'danger' },
+    { id: 5, name: username, action: 'updated users', time: '5 minutes ago', color: 'info' },
+    { id: 6, name: username, action: 'updated users', time: '5 minutes ago', color: 'warning' },
   ];
 
   const setColor = (color) => {
@@ -74,5 +77,9 @@ const ActivitiesProfile = () => {
     </Card>
   )
 }
+
+ActivitiesProfile.propTypes = {
+  username: PropTypes.string.isRequired,
+};
 
 export default ActivitiesProfile;

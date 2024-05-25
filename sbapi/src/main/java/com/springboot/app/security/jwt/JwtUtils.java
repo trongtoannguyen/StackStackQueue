@@ -59,8 +59,9 @@ public class JwtUtils {
 		return generateCookie(jwtCookie, jwt, "/api");
 	}
 
+	//Note: Path of the refresh token cookie is /api/auth/refreshtoken
 	public ResponseCookie generateRefreshJwtCookie(String refreshToken) {
-		return generateCookie(jwtRefreshCookie, refreshToken, "/api/auth/refreshtoken");
+		return generateCookie(jwtRefreshCookie, refreshToken, "/api/auth");
 	}
 
 	public String getJwtFromCookies(HttpServletRequest request) {
@@ -75,9 +76,9 @@ public class JwtUtils {
 		ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path("/api").build();
 		return cookie;
 	}
-
+	//Note: Path of the refresh token cookie is /api/auth/refreshtoken
 	public ResponseCookie getCleanJwtRefreshCookie() {
-		ResponseCookie cookie = ResponseCookie.from(jwtRefreshCookie, null).path("/api/auth/refreshtoken").build();
+		ResponseCookie cookie = ResponseCookie.from(jwtRefreshCookie, null).path("/api/auth").build();
 		return cookie;
 	}
 
@@ -140,7 +141,7 @@ public class JwtUtils {
 	public static UserInfoResponse getSession(){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication instanceof AnonymousAuthenticationToken) {
-			throw new AccessDeniedException("Not authorized.");
+			throw new AccessDeniedException("Not authorized."); // If the user is not logged in, throw an exception. (Note: access Token)
 		}
 
 		Object principal = authentication.getPrincipal();

@@ -65,7 +65,6 @@ const Layout = (props) => {
     <div className="layout-admin wrapper">
       <Sidebar
         {...props}
-        // routes={routes}
         routes={routesSidebar(route)}
         bgColor={backgroundColor}
         activeColor={activeColor}
@@ -73,8 +72,7 @@ const Layout = (props) => {
       <div className="main-panel" ref={mainPanel}>
         <AdminHeader {...props} />
 
-        <Outlet bgColor={backgroundColor}
-          activeColor={activeColor} />
+        <Outlet />
 
         <AdminFooter fluid />
       </div>

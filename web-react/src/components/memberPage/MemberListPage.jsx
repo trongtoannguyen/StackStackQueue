@@ -215,7 +215,7 @@ const MemberList = () => {
               <CardHeader>
                 <Row>
                   <span className="col-md-4 mb-2 mb-lg-0">
-                    <CardTitle tag="h4">Total: {totalUsers} user(s)</CardTitle>
+                    <CardTitle tag="h4">Total: {totalUsers} user(s)/page{ page}</CardTitle>
                   </span>
 
                   <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
@@ -227,7 +227,7 @@ const MemberList = () => {
                       className="form-select col-4"
                       onChange={(e) => setPageSize(e.currentTarget.value)}
                     >
-                      <option value="1">05</option>
+                      <option value="5">05</option>
                       <option value="10">10</option>
                       <option value="20">20</option>
                       <option value="50">50</option>

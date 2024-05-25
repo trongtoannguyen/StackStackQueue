@@ -97,6 +97,10 @@ public class DatabaseInit {
 
 		ad.setPerson(p);
 
+		UserStat userStat = new UserStat();
+		userStat.setCreatedBy(ad.getUsername());
+		ad.setStat(userStat);
+
 		userRepository.save(ad);
 		logger.info("Account of admin added to th database.");
 

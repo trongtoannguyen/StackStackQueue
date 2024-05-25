@@ -1,6 +1,7 @@
 import Avatar from '../avatar/Avatar';
 import PropTypes from 'prop-types';
-  const Messenger = (props) => {
+
+const Messenger = (props) => {
     const { first } = props;
 
   return (

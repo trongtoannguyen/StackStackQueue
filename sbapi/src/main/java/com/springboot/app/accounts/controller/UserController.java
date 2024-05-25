@@ -7,8 +7,10 @@ import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
+import com.springboot.app.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
@@ -21,13 +23,15 @@ public class UserController {
 	private UserService userService;
 
 	@GetMapping("")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<PaginateResponse> getUsers(
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
 			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort
+			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
+			@RequestParam(value="search",defaultValue = "",required = false) String search
 	) {
-		return ResponseEntity.ok(userService.getAllUsers(page, size, orderBy, sort));
+		return ResponseEntity.ok(userService.getAllUsers(page, size, orderBy, sort, search));
 	}
 
 	@GetMapping("/{id}")
@@ -36,6 +40,49 @@ public class UserController {
 		if (user == null) {
 			return ResponseEntity.ok(new ObjectResponse("404","User not found",null));
 		}
-		return ResponseEntity.ok(new ObjectResponse("200","Success user",userService.findById(id)));
+		return ResponseEntity.ok(new ObjectResponse("200","Success user",user));
 	}
+
+	@GetMapping("/account/{username}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ObjectResponse> getUserByUsername(@PathVariable String username) {
+		User user = userService.findByUsername(username).orElse(null);
+		if (user == null) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("404","User not found",null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200","Success user",user));
+	}
+
+	@DeleteMapping("delete/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ObjectResponse> deleteUser(@PathVariable Long id) {
+		User user = userService.findById(id).orElse(null);
+		if (user == null) {
+			return ResponseEntity.status(404).body(new ObjectResponse("404","User not found",null));
+		}
+		//check user has role admin
+		if(user.getRoles().stream().anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"))) {
+			return ResponseEntity.status(400).body(new ObjectResponse("400","Cannot delete user with role admin",null));
+		}
+		ServiceResponse<Void> response = userService.deleteUser(user);
+		if (response.getAckCode().equals(AckCodeType.SUCCESS)) {
+			return ResponseEntity.ok(new ObjectResponse("200","User deleted",null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("500","Failed to delete user",null));
+	}
+
+	@PatchMapping("status/{id}")
+	@PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+	public ResponseEntity<ObjectResponse> updateStatusUser(@PathVariable Long id, @RequestParam String status) {
+		if(!status.equals("ACTIVE") && !status.equals("INACTIVE") && !status.equals("LOCKED")) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","Invalid status",null));
+		}
+		ServiceResponse<User> response = userService.updateStatusUser(id, status);
+		if (response.getAckCode().equals(AckCodeType.SUCCESS)) {
+			return ResponseEntity.ok(new ObjectResponse("200","User status updated",response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("500","Failed to update user status",null));
+	}
+
+
 }

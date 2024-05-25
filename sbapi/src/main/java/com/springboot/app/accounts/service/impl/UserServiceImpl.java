@@ -1,6 +1,7 @@
 package com.springboot.app.accounts.service.impl;
 
 import com.springboot.app.accounts.entity.*;
+import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.accounts.repository.DeletedUserRepository;
@@ -14,6 +15,7 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
 import com.springboot.app.security.jwt.JwtUtils;
+import com.springboot.app.security.service.RefreshTokenService;
 import com.springboot.app.utils.Validators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,6 +51,8 @@ public class UserServiceImpl implements UserService {
 	private PasswordResetRepository passwordResetRepository;
 	@Autowired
 	private DeletedUserRepository deletedUserRepository;
+	@Autowired
+	private RefreshTokenService refreshTokenService;
 
 	@Override
 	public Optional<User> findById(Long id) {
@@ -62,14 +68,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public PaginateResponse getAllUsers(int pageNo, int pageSize, String orderBy, String sortDir) {
+	public PaginateResponse getAllUsers(int pageNo, int pageSize, String orderBy, String sortDir,String keyword) {
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
 
 		// create Pageable instance
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
 		// get the list of users from the UserRepository and return it as a Page object
-		Page<User> usersPage = userRepository.findAll(pageable);
+		Page<User> usersPage = userRepository.searchByUsernameOrEmail(keyword, keyword, pageable);
 
 		return new PaginateResponse(
 				usersPage.getNumber()+1,
@@ -90,7 +96,7 @@ public class UserServiceImpl implements UserService {
 				logger.error(err);
 				response.setAckCode(AckCodeType.FAILURE);
 				response.addMessages(errorMessages);
-				return null;
+				return response;
 			}
 			// Create new user's account
 			User user = new User(
@@ -100,31 +106,7 @@ public class UserServiceImpl implements UserService {
 				AuthProvider.local);
 
 			Set<String> strRoles = signUpRequest.getRoles();
-			Set<Role> roles = new HashSet<>();
-			if (strRoles == null) {
-				Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-				roles.add(userRole);
-			} else {
-				strRoles.forEach(role -> {
-				switch (role) {
-					case "admin":
-						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
-						roles.add(adminRole);
-						break;
-					case "mod":
-						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-								.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
-						roles.add(modRole);
-						break;
-					default:
-						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-								.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-						roles.add(userRole);
-				}
-			});
-			}
+			Set<Role> roles = getRolesByString(strRoles);
 			user.setRoles(roles);
 			user.setCreatedBy(user.getUsername());
 
@@ -136,7 +118,6 @@ public class UserServiceImpl implements UserService {
 			user.setStat(userStat);
 
 			userRepository.save(user);
-			response.setAckCode(AckCodeType.SUCCESS);
 			response.setDataObject(user);
 
 		}catch (Exception e){
@@ -174,6 +155,9 @@ public class UserServiceImpl implements UserService {
 		// clear up relationships before deleting
 		user.setPerson(null);
 		user.setStat(null);
+		// delete refresh tokens
+		refreshTokenService.deleteByUserId(user.getId());
+
 		userRepository.delete(user);
 
 		// save deletedUser
@@ -182,6 +166,70 @@ public class UserServiceImpl implements UserService {
 		return response;
 	}
 
+	@Transactional(readOnly=false)
+	public ServiceResponse<User> updateStatusUser(Long id, String status) {
+		ServiceResponse<User> response = new ServiceResponse<>();
+		User user = userRepository.findById(id).orElse(null);
+		if(user != null) {
+			AccountStatus accountStatus = getAccountStatus(status);
+			user.setAccountStatus(accountStatus);
+			userRepository.save(user);
+			response.setDataObject(user);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+		}
+		return response;
+	}
+
+	public void updateLastLogin(Long id) {
+		User user = userRepository.findById(id).orElse(null);
+		if(user != null) {
+			user.getStat().setLastLogin(LocalDateTime.now());
+			userRepository.save(user);
+		}
+	}
+
+
+	private AccountStatus getAccountStatus(String status) {
+		return switch (status) {
+			case "ACTIVE" -> AccountStatus.ACTIVE;
+			case "LOCKED" -> AccountStatus.LOCKED;
+			default -> AccountStatus.INACTIVE;
+		};
+	}
+
+	private Set<Role> getRolesByString(Set<String> strRoles) {
+		Set<Role> roles = new HashSet<>();
+		if (strRoles == null) {
+			Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+				.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+			roles.add(userRole);
+		} else {
+			strRoles.forEach(role -> {
+				switch (role) {
+					case "admin":
+						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+							.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
+						roles.add(adminRole);
+
+						break;
+					case "mod":
+						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
+							.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
+						roles.add(modRole);
+
+						break;
+					default:
+						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+							.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+						roles.add(userRole);
+				}
+			});
+		}
+		return roles;
+	}
 
 
 	private List<String> validateUser(SignupRequest user) {

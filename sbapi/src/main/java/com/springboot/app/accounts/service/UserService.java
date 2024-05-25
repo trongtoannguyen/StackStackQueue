@@ -1,11 +1,11 @@
 package com.springboot.app.accounts.service;
 
 import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -14,10 +14,15 @@ public interface UserService {
 	Optional<User> findByUsername(String username);
 	Optional<User> findByEmail(String email);
 
-	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection);
+	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection, String search);
+	ServiceResponse<String> getAvatarMember(String username);
 
 	ServiceResponse<User> createNewUser(SignupRequest signupRequest);
 
-	ServiceResponse<String> getAvatarMember(String username);
+	ServiceResponse<Void> deleteUser(User user);
+
+	ServiceResponse<User> updateStatusUser(Long id, String status);
+
+	void updateLastLogin(Long id);
 
 }

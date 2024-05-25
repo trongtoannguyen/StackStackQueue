@@ -12,6 +12,7 @@ import {
   registerStart,
   registerSuccess,
 } from "./authSlice";
+import { clearUserList } from './userSlice';
 
 import { toast } from 'react-toastify';
 
@@ -36,8 +37,6 @@ export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
     let res = await axios.post("/auth/signup", user);
-    // console.log(`Here is the response: ${JSON.stringify(res)}`);
-    // console.log(`Here is the status: ${+res?.status}`);
     if (+res?.status === 201) {
       dispatch(registerSuccess());
       navigate("/login");
@@ -58,12 +57,14 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
   try {
     await axiosJWT.post("/auth/signout", id, {
       headers: { Authorization: `Bearer ${accessToken}` },
+      withCredentials: true
     });
     dispatch(logOutSuccess());
+    dispatch(clearUserList());
     navigate("/login");
     toast.success("Logout Successfully!");
   } catch (err) {
-    console.log(`Here is the error: ${err}`);
+    console.log(`Logout error: ${err.message}`);
     toast.error("Log out failed!");
     dispatch(logOutFailed());
   }
@@ -79,8 +80,8 @@ export const getCurrentUser = async (dispatch, accessToken) => {
         Authorization: `Bearer ${accessToken}`
       },
     });
+
     if (res?.accessToken) {
-      // toast.success("Login successfully!");
       dispatch(loginSuccess(res));
     } else if (+res?.data?.status === 500) {
       toast.error(res.data?.message);

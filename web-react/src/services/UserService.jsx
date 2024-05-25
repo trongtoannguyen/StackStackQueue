@@ -1,11 +1,11 @@
-import axios from './customize-axios';
+// import axios from './customize-axios';
 
 import { pathParams } from '../utils/Helper';
 
 export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
   try {
     let path = pathParams(pageData);
-    let res = await axiosJWT.get(`admin/users?${path}`,{
+    let res = await axiosJWT.get(`admin/users?${path}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     return res.data;
@@ -15,21 +15,42 @@ export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
 }
 
 
-const fetchAllUser = async (page) => {
-  return await axios.get(`users?page=${page}`);
+export const patchUpdateStatusUser = async (id, status, axiosJWT, accessToken) => {
+  return await axiosJWT.patch(`admin/users/status/${id}`, { status }, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 }
 
-const postCreateUser = async (name, job) => {
-  return await axios.post("users", { name, job });
+export const deleteUser = async (accessToken, id, axiosJWT) => {
+  try {
+    let res = await axiosJWT.delete(`admin/users/delete/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-const putUpdateUser = async (id, name, job) => {
-  return await axios.put(`users/${id}`, { name, job });
+export const postFollow = async (accessToken, axiosJWT, data) => {
+  try {
+    let res = await axiosJWT.post(`admin/users/followed`, data, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-const deleteUser = async (id) => {
-  return await axios.delete(`users/${id}`);
+export const postUnFollow = async (accessToken, axiosJWT, data) => {
+  try {
+    let res = await axiosJWT.post(`admin/users/un-followed`, data, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-
-export { fetchAllUser, postCreateUser, putUpdateUser, deleteUser}

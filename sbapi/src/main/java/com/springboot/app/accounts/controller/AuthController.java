@@ -24,6 +24,8 @@ import com.springboot.app.security.service.RefreshTokenService;
 import com.springboot.app.security.userprinal.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -42,13 +44,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.rmi.server.LogStream.log;
 
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+	private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 	@Autowired
 	AuthenticationManager authenticationManager;
 
@@ -108,6 +110,8 @@ public class AuthController {
 		String imageUrl = refreshToken.getUser().getImageUrl();
 		String name = refreshToken.getUser().getName();
 
+		userService.updateLastLogin(userDetails.getId()); // update last login
+
 		return ResponseEntity.ok()
 //                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
 				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
@@ -125,43 +129,49 @@ public class AuthController {
 
 
 	@PostMapping("/signout")
-	public ResponseEntity<?> logoutUser() {
-		Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (!principle.toString().equals("anonymousUser")) {
-			Long userId = ((UserDetailsImpl) principle).getId();
-			refreshTokenService.deleteByUserId(userId);
+	public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
+
+		var sessionUser = JwtUtils.getSession();
+		log.info("User logout: {}", sessionUser.getId());
+
+		ServiceResponse<Void> response = refreshTokenService.deleteByToken(refreshToken, sessionUser.getId());
+		if (response.getAckCode() != AckCodeType.SUCCESS) {
+			String errorMessage = String.join(", ", response.getMessages());
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","User not logged out. "+errorMessage,null));
 		}
 		ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
 		ResponseCookie jwtRefreshCookie = jwtUtils.getCleanJwtRefreshCookie();
 
 		return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+//                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
 				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-				.body(new MessageResponse("You've been signed out!"));
+				.body(new ObjectResponse("200",sessionUser.getUsername()+" logged out successfully!",null));
 	}
 
 	@PostMapping("/refreshtoken")
 	public ResponseEntity<ObjectResponse> refreshtoken(HttpServletRequest request) {
 		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-		log("refreshToken: "+refreshToken);
-
+		log.info("Refresh token Action : {}", refreshToken);
 		if ((refreshToken != null) && (!refreshToken.isEmpty())) {
 			return refreshTokenService.findByToken(refreshToken)
 					.map(refreshTokenService::verifyExpiration)
 					.map(RefreshToken::getUser)
 					.map(user -> {
 						ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
-						log("New JWT generated: "+ jwtCookie.getValue());
-
+						RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
+						ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(newRefreshToken.getToken());
+						log.info("Refresh token Action, Jwt Cookie : {}", jwtCookie.toString());
+						log.info("Refresh token Action, Jwt refresh Cookie : {}", jwtRefreshCookie.toString());
 						return ResponseEntity.ok()
 //								.header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+								.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
 								.body(new ObjectResponse("200","Token is refreshed successfully!",jwtCookie.getValue()));
 					})
 					.orElseThrow(() -> new TokenRefreshException(refreshToken,
 							"Refresh token is not in database!"));
 		}
-		return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(new ObjectResponse(String.format("%d",HttpStatus.FORBIDDEN.value()),"Refresh Token is empty!",null));
-//		return ResponseEntity.badRequest().body(new ObjectResponse("400","Refresh Token is empty!",null));
+		return ResponseEntity.badRequest().body(new ObjectResponse("400","Refresh Token is empty!",null));
 	}
 
 

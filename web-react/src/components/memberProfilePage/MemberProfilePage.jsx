@@ -17,18 +17,17 @@ import ActivitiesProfile from "./ActivitiesProfile";
 
 const MemberProfile = () => {
 
-  // const [member, setMember] = useState({});
-
   const { username } = useParams();
-  console.log(`Check username`, username);
+  // const [member, setMember] = useState({});
 
   const bannerName = "";
   const breadcrumbs = [
-    { id: 1, name: `Profile - ${username}`, link: `/member-profile/${username}` }
+    { id: 1, name: 'Members', link: '/members' },
+    { id: 2, name: `Profile - ${username}`, link: `/member-profile/${username}` }
   ];
 
 
-  const [key, setKey] = useState('home');
+  const [key, setKey] = useState('home');  //for tabs, set tab default home
 
   return (
     <div className="content">
@@ -57,7 +56,7 @@ const MemberProfile = () => {
             </Card>
           </Tab>
           <Tab eventKey="activities" title="Activities">
-            <ActivitiesProfile />
+            <ActivitiesProfile username={username} />
           </Tab>
           <Tab eventKey="discussions" title="Posts in Forums">
             <Card>
@@ -69,7 +68,7 @@ const MemberProfile = () => {
           </Tab>
           <Tab eventKey="intro" title="Intro">
             <Card>
-              <IntroProfile />
+              <IntroProfile username={username} />
             </Card>
           </Tab>
 

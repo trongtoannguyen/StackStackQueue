@@ -1,5 +1,5 @@
 import { useState } from "react";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 // import { Link } from "react-router-dom";
 
 import {
@@ -19,8 +19,8 @@ const AccountInfo = (props) => {
 
   const { username } = props;
 
-  // const currentUser = useSelector(state => state.auth.login?.currentUser);
-  const currentUser = {
+  const userAuth = useSelector(state => state.auth.login?.currentUser);
+  const user = {
     username: username,
     bio: "I love my love",
     avatar: avatar,
@@ -28,6 +28,7 @@ const AccountInfo = (props) => {
     id: 1
   }
   const [showModal, setShowModal] = useState(false);
+  const [isFollow, setIsFollow] = useState(false);
 
 
   const handleClose = () => {
@@ -38,6 +39,10 @@ const AccountInfo = (props) => {
     alert(`Here is new info: ${newInfo}`);
   }
 
+  const handleFollow = () => {
+    console.log(`handleFollow action`);
+    setIsFollow(!isFollow);
+  }
 
   return (
     <div>
@@ -53,36 +58,39 @@ const AccountInfo = (props) => {
                 <img
                   alt="avatar"
                   className="avatar"
-                  src={currentUser.avatar || avatar}
+                  src={user.avatar || avatar}
                 />
-                <h5 className="title">{currentUser?.username}</h5>
+                <h5 className="title">{user?.username}</h5>
               </a>
-              <p className="description">{currentUser?.bio ?? "No thing gona change my love for you"}</p>
+              <p className="description">{user?.bio ?? "No thing gona change my love for you"}</p>
             </Col>
 
             <Col md="8" className='mb-3'>
-              <h5 className="title">{currentUser?.name ?? currentUser?.email}</h5>
+              <h5 className="title">{user?.name ?? user?.email}</h5>
               <div className="">
-                {currentUser?.badge || "Chicken"}
+                {user?.badge ? "Badge: " + user?.badge : "Badge: Chicken"}
               </div>
               <div className="">
-                Start from: {currentUser?.createdAt ?? "20-01-2024"}
+                Start from: {user?.createdAt ?? "20-01-2024"}
               </div>
               <p>Follower: </p>
               <div className="d-flex justify-content-end">
-                <Button className="btn btn-primary ml-auto"
-                  onClick={() => { setShowModal(true) }}>
-                  <i className="fa-solid fa-pen-to-square fa-xl"></i>
-                  <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
-                </Button>
-                <Button>
-                  <i className="fa-solid fa-plus fa-xl"></i>
-                  <span className="d-none d-lg-inline-block mx-2">Follow</span>
-                </Button>
-                <Button>
+                {username === userAuth?.username &&
+                  <Button className="btn btn-primary ml-auto"
+                    onClick={() => { setShowModal(true) }}>
+                    <i className="fa-solid fa-pen-to-square fa-xl"></i>
+                    <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
+                  </Button>
+                }
+                {isFollow ? <Button onClick={handleFollow}>
                   <i className="fa-solid fa-minus fa-xl"></i>
-                  <span className="d-none d-lf-inline-block mx-2">UnFollow</span>
-                </Button>
+                  <span className="d-none d-lg-inline-block mx-2">UnFollow</span>
+                </Button> :
+                  <Button onClick={handleFollow}>
+                    <i className="fa-solid fa-plus fa-xl"></i>
+                    <span className="d-none d-lg-inline-block mx-2">Follow</span>
+                  </Button>}
+
                 <Button>
                   <i className="fa-solid fa-message fa-xl"></i>
                   <span className="d-none d-lg-inline-block mx-2">Chat</span>
@@ -97,7 +105,7 @@ const AccountInfo = (props) => {
         show={showModal}
         handleClose={handleClose}
         handleUpdateInfo={handleUpdateInfo}
-        user={currentUser}
+        user={user}
       />
     </div>
 

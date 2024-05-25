@@ -7,6 +7,5 @@ import com.springboot.app.dto.response.ServiceResponse;
 public interface PasswordResetService {
 	ServiceResponse<Void> sendPasswordResetEmail(String email);
 
-
 	ServiceResponse<PasswordReset> verifyPasswordResetToken(String resetKey);
 }

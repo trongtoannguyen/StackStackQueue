@@ -11,9 +11,21 @@ import {
 
 import Avatar from "../../../avatar/Avatar";
 
+import { convertListNameRole } from '../../../../utils/Helper';
+
 
 const UserCardItem = (props) => {
-  const { user } = props;
+
+  const { user, handleUpdateStatusUser, handleShowHide, handleSetDeleteUser } = props;
+
+  const handleDelete = () => {
+    handleSetDeleteUser(user);
+    handleShowHide();
+  }
+
+  const handleUpdateStatus = () => {
+    handleUpdateStatusUser(user.id);
+  }
 
   return (
     <Col key={user.id} lg="4" md="6" sm="6">
@@ -29,9 +41,10 @@ const UserCardItem = (props) => {
             </Col>
             <Col md="8" xs="7">
               <div className="">
-                <Link to="/user-page/1" className='text-decoration-none'>
-                  <p className="card-category">{user.username}</p>
-                  <p className="card-category">{user.email}</p>
+                <Link to="/admin/user-profile/1" className='text-decoration-none'>
+                  <span className="card-category">Username: {user.username}</span> <br />
+                  <span className="card-category">Email: {user.email}</span> <br />
+                  <span className='card-category'>Role:  {convertListNameRole(user.roles.map(x => x.name))}</span>
                 </Link>
               </div>
             </Col>
@@ -40,18 +53,29 @@ const UserCardItem = (props) => {
         <hr />
         <CardFooter className='d-flex justify-content-around'>
           <span className="stats">
-            <i className="fas fa-sync-alt" /> {user.accountStatus}
+            <div
+              onClick={handleUpdateStatus}
+            ><i className="fas fa-sync-alt" /> {user.accountStatus}</div>
           </span>
-          <span className="stats mx-2">
-            <i className="fa-solid fa-delete-left"></i>  Delete
+          <span className="stats mx-2 text-danger">
+            <div className='d-block'
+              onClick={handleDelete}
+              onKeyDown={handleDelete}>
+              <i className="fa-solid fa-delete-left text-danger"
+              ></i>  Delete
+            </div>
           </span>
         </CardFooter>
       </Card>
     </Col>);
 }
 
+
 UserCardItem.propTypes = {
   user: PropTypes.object.isRequired,
+  handleUpdateStatusUser: PropTypes.func.isRequired,
+  handleShowHide: PropTypes.func.isRequired,
+  handleSetDeleteUser: PropTypes.func.isRequired
 };
 
 

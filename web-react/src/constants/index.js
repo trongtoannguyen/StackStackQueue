@@ -13,3 +13,9 @@ export const ROLES = {
   USER: 'ROLE_USER',
   MOD: 'ROLE_MOD'
 }
+
+export const ACCOUNT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  LOCKED: 'LOCKED'
+}
