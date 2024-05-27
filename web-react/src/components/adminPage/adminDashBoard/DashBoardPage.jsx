@@ -25,22 +25,25 @@ import LineChart from "./LineChart";
 const DashBoard = () => {
 
 
-
+  //<i class="fa-solid fa-building-columns"></i>
+  const handleUpdateNumber = () => {
+    alert(`Update now`);
+  }
 
   return (
     <article className="dashboard content">
       <Row>
         <Col lg="3" md="6" sm="6">
-          <CardInfo />
+          <CardInfo title={"users"} icon={"fa-solid fa-people-group text-success"} number={10} updateNumber={handleUpdateNumber} />
         </Col>
         <Col lg="3" md="6" sm="6">
-          <CardInfo />
+          <CardInfo title={"Discussions"} icon={"fa-solid fa-comments text-warning"} number={10} updateNumber={handleUpdateNumber} />
         </Col>
         <Col lg="3" md="6" sm="6">
-          <CardInfo />
+          <CardInfo title={"comments"} icon={"fa-solid fa-comment text-info"} number={30} updateNumber={handleUpdateNumber} />
         </Col>
         <Col lg="3" md="6" sm="6">
-          <CardInfo />
+          <CardInfo title={"users"} icon={"fa-solid fa-address-card"} number={1} updateNumber={handleUpdateNumber} />
         </Col>
       </Row>
       <Row>

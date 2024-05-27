@@ -8,7 +8,7 @@ const userSlice = createSlice({
             isFetching:false,
             error:false
         },
-        msg:"",
+        msg: "",
     },
     reducers:{
         getUsersStart: (state)=>{

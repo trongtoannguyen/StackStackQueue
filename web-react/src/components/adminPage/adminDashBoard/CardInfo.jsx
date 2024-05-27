@@ -3,9 +3,13 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import { Link } from "react-router-dom";
 
 const CardInFo = (props) => {
+  const { title, icon, number, updateNumber } = props;
+
+  const handleUpdateNow = () => {
+    updateNumber();
+  }
 
   return (
     <Card className="card-stats">
@@ -13,13 +17,13 @@ const CardInFo = (props) => {
         <Row>
           <Col md="4" xs="5">
             <div className="icon-big text-center icon-warning">
-              <i className="nc-icon nc-globe text-warning" />
+              <i className={icon} />
             </div>
           </Col>
           <Col md="8" xs="7">
             <div className="numbers">
-              <p className="card-category">Capacity</p>
-              <Card.Title tag="p">150GB</Card.Title>
+              <p className="card-category">{ title}</p>
+              <Card.Title tag="p">{ number}</Card.Title>
               <p />
             </div>
           </Col>
@@ -28,7 +32,7 @@ const CardInFo = (props) => {
       <Card.Footer>
         <hr />
         <div className="stats">
-          <i className="fas fa-sync-alt" /> Update Now
+          <i className="fas fa-sync-alt" onClick={handleUpdateNow} /> Update Now
         </div>
       </Card.Footer>
     </Card>

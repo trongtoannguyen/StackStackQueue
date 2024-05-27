@@ -1,4 +1,4 @@
-package com.springboot.app.utils;
+package com.springboot.app.emails;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -10,9 +10,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -152,8 +150,7 @@ public class EmailSender {
 			throws Exception{
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
-		prepareMimeTypeHelper(helper, fromAddress, toAddress, ccAddress, bccAddress,
-				subject, body, sendAsHtml);
+		prepareMimeTypeHelper(helper, fromAddress, toAddress, ccAddress, bccAddress, subject, body, sendAsHtml);
 		if(attachment!=null && attachmentName!=null){
 			helper.addAttachment(attachmentName, attachment);
 		}
@@ -171,9 +168,9 @@ public class EmailSender {
 	                                   boolean sendAsHtml)
 			throws MessagingException{
 		helper.setFrom(fromAddress);
-		toAddress=removeEmptyElements(toAddress);
-		ccAddress=removeEmptyElements(ccAddress);
-		bccAddress=removeEmptyElements(bccAddress);
+		toAddress=toAddress == null ? new String[0] : removeEmptyElements(toAddress);
+		ccAddress= ccAddress == null ? new String[0] : removeEmptyElements(ccAddress);
+		bccAddress= bccAddress == null ? new String[0] : removeEmptyElements(bccAddress);
 
 		if(toAddress.length>0){
 			helper.setTo(toAddress);
@@ -186,16 +183,13 @@ public class EmailSender {
 		if(bccAddress.length>0){
 			helper.setBcc(bccAddress);
 		}
+		helper.setSubject(subject);
+		helper.setText(body, sendAsHtml);
 	}
 
-	/**
-	 *
-	 * @param array
-	 * @return array without empty elements
-	 */
 	public String[] removeEmptyElements(String[] array) {
 		return Arrays.stream(array)
-				.filter(s -> (s != null && s.length() > 0))
+				.filter(s -> (s != null && !s.isEmpty()))
 				.toArray(String[]::new);
 	}
 

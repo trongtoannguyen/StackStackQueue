@@ -1,4 +1,4 @@
-package com.springboot.app.accounts.entity;
+package com.springboot.app.emails.entity;
 
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;
@@ -19,6 +19,7 @@ public class EmailOption extends BaseEntity {
 	public void prePersist() {
 		LocalDateTime now = LocalDateTime.now();
 		this.setCreatedAt(now);
+		this.setUpdatedAt(now);
 	}
 
 	@PreUpdate

@@ -152,7 +152,6 @@ public class AuthController {
 	@PostMapping("/refreshtoken")
 	public ResponseEntity<ObjectResponse> refreshtoken(HttpServletRequest request) {
 		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-		log.info("Refresh token Action : {}", refreshToken);
 		if ((refreshToken != null) && (!refreshToken.isEmpty())) {
 			return refreshTokenService.findByToken(refreshToken)
 					.map(refreshTokenService::verifyExpiration)
@@ -161,8 +160,6 @@ public class AuthController {
 						ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(user);
 						RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
 						ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(newRefreshToken.getToken());
-						log.info("Refresh token Action, Jwt Cookie : {}", jwtCookie.toString());
-						log.info("Refresh token Action, Jwt refresh Cookie : {}", jwtRefreshCookie.toString());
 						return ResponseEntity.ok()
 //								.header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
 								.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())

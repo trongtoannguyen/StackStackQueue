@@ -14,6 +14,16 @@ export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
   }
 }
 
+export const getUserInfoByUsername = async (username, axiosJWT, accessToken) => {
+  try {
+    let res = await axiosJWT.get(`admin/users/account/${username}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 export const patchUpdateStatusUser = async (id, status, axiosJWT, accessToken) => {
   return await axiosJWT.patch(`admin/users/status/${id}`, { status }, {

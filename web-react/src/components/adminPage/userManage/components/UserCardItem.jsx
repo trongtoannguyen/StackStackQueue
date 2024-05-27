@@ -16,16 +16,18 @@ import { convertListNameRole } from '../../../../utils/Helper';
 
 const UserCardItem = (props) => {
 
-  const { user, handleUpdateStatusUser, handleShowHide, handleSetDeleteUser } = props;
+  const { user, handleShowHideEdit, handleSetEditUser, handleShowHide, handleSetDeleteUser } = props;
 
   const handleDelete = () => {
     handleSetDeleteUser(user);
     handleShowHide();
   }
 
-  const handleUpdateStatus = () => {
-    handleUpdateStatusUser(user.id);
+  const handleUpdate = () => {
+    handleSetEditUser(user);
+    handleShowHideEdit();
   }
+
 
   return (
     <Col key={user.id} lg="4" md="6" sm="6">
@@ -54,7 +56,7 @@ const UserCardItem = (props) => {
         <CardFooter className='d-flex justify-content-around'>
           <span className="stats">
             <div
-              onClick={handleUpdateStatus}
+              onClick={handleUpdate}
             ><i className="fas fa-sync-alt" /> {user.accountStatus}</div>
           </span>
           <span className="stats mx-2 text-danger">
@@ -73,7 +75,8 @@ const UserCardItem = (props) => {
 
 UserCardItem.propTypes = {
   user: PropTypes.object.isRequired,
-  handleUpdateStatusUser: PropTypes.func.isRequired,
+  handleShowHideEdit: PropTypes.func.isRequired,
+  handleSetEditUser: PropTypes.func.isRequired,
   handleShowHide: PropTypes.func.isRequired,
   handleSetDeleteUser: PropTypes.func.isRequired
 };

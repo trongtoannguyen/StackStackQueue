@@ -4,11 +4,16 @@ import { Link } from 'react-router-dom';
 import { convertListNameRole } from '../../../../utils/Helper';
 
 const UserListItem = (props) => {
-  const { user, handleUpdateStatusUser, handleShowHide, handleSetDeleteUser } = props;
+  const { user, handleShowHideEdit, handleSetEditUser, handleShowHide, handleSetDeleteUser } = props;
 
   const handleDelete = () => {
     handleSetDeleteUser(user);
     handleShowHide();
+  }
+
+  const handleUpdate = () => {
+    handleSetEditUser(user);
+    handleShowHideEdit();
   }
 
 
@@ -16,11 +21,11 @@ const UserListItem = (props) => {
     <tr key={user.id}>
       <td>
         <div className='ml-0 me-auto'>
-          <Avatar src={user.imageUrl} username={user.username} height={50} width={50} />
+          <Avatar src={user?.imageUrl} username={user?.username} height={50} width={50} />
         </div>
       </td>
       <td>
-        <Link to='/my-profile/1'>
+        <Link to={`/admin/member-profile/${user?.username}`} state={{ user }}>
           <p>{user.email}</p>
         </Link>
       </td>
@@ -29,8 +34,7 @@ const UserListItem = (props) => {
       </td>
       <td>
         <i className="fas fa-sync-alt mx-2"
-          onClick={() => handleUpdateStatusUser(user.id)}
-          onKeyDown={() => { handleUpdateStatusUser(user.id) }}
+          onClick={handleUpdate}
         ></i>
         {user.accountStatus}
       </td>
@@ -51,7 +55,8 @@ const UserListItem = (props) => {
 
 UserListItem.propTypes = {
   user: PropTypes.object.isRequired,
-  handleUpdateStatusUser: PropTypes.func.isRequired,
+  handleShowHideEdit: PropTypes.func.isRequired,
+  handleSetEditUser: PropTypes.func.isRequired,
   handleShowHide: PropTypes.func.isRequired,
   handleSetDeleteUser: PropTypes.func.isRequired
 };

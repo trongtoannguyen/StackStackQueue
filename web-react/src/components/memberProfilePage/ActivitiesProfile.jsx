@@ -45,12 +45,12 @@ const ActivitiesProfile = (props) => {
             <tbody>
               {activities.map((activity) => (
                 <tr key={activity.id}>
-                  <td>
+                  <td className="col-1">
                     <p className={setColor(activity.color)}>
                       <Avatar src="" username="" height={50} width={50} />
                     </p>
                   </td>
-                  <td>
+                  <td className="col-auto">
                     <p className={setColor(activity.color)}>
                       <b>{activity?.name}</b> {activity?.action}
                     </p>

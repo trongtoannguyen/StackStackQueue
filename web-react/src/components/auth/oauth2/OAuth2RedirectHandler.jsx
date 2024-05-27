@@ -14,7 +14,7 @@ function OAuth2RedirectHandler() {
     const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
 
     let results = regex.exec(location.search);
-    console.log(`Check results`, results);
+    // console.log(`Check results`, results);
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 

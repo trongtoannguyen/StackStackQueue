@@ -1,13 +1,12 @@
 import ForumGroup from "../components/forumsPage/ForumGroupPage";
 import MemberList from "../components/memberPage/MemberListPage";
-import { MyProfile } from "components/profilePage/MyProfile";
 
 const routes = [
   {
     path: "/account/:accountId",
     name: "Account",
     icon: "fa-solid fa-house",
-    component: <MyProfile />,
+    component: <ForumGroup />,
     layout: ""
   },
   {

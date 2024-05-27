@@ -3,8 +3,9 @@ import DiscussionManage from "../components/adminPage/discussionManage/Discussio
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
 import TableUsers from "../components/adminPage/userManage/UsersListManagePage"
-import UserProfile from "../components/adminPage/userManage/UserProfile";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
+
+import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
 
 const routes = [
   {
@@ -19,13 +20,6 @@ const routes = [
     name: "manage users",
     icon: "fa-solid fa-people-group",
     component: <TableUsers />,
-    layout: "/admin"
-  },
-  {
-    path: "/user-page",
-    name: "profile",
-    icon: "fa-solid fa-user",
-    component: <UserProfile />,
     layout: "/admin"
   },
   {
@@ -54,6 +48,13 @@ const routes = [
     name: "manage tags",
     icon: "fa-solid fa-tags",
     component: <TagsStat />,
+    layout: "/admin"
+  },
+  {
+    path: "/email-option",
+    name: "Config email",
+    icon: "fa-solid fa-envelope",
+    component: <EmailOption />,
     layout: "/admin"
   }
 ];

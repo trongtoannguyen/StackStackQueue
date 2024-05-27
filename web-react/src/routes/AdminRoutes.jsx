@@ -3,13 +3,17 @@ import NotFound from "../components/errorPage/NotFound";
 import Layout from "../layouts/Layout";
 import DashBoard from "../components/adminPage/adminDashBoard/DashBoardPage";
 import UsersListManage from "../components/adminPage/userManage/UsersListManagePage";
+import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
+
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import UserProfile from "../components/adminPage/userManage/UserProfile";
 import RequireAuth from "../components/auth/RequireAuth";
 import '../assets/scss/paper-dashboard.scss?v=1.3.0';
+
+import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
+
 
 const ROLES = {
   ADMIN: 'ROLE_ADMIN',
@@ -32,7 +36,9 @@ function AdminRoutes() {
           <Route exact path="/tags" element={<TagsStat />} />
 
           <Route exact path="/users" element={<UsersListManage />} />
-          <Route exact path="/user-page" element={<UserProfile />} />
+          <Route path="/member-profile/:username" element={<MemberProfile />} />
+
+          <Route path="email-option" element={<EmailOption />} />
         </Route>
 
         <Route exact path="*" element={<NotFound />} />

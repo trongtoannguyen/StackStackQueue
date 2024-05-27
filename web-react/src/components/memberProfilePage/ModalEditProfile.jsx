@@ -9,12 +9,9 @@ import { Row } from 'reactstrap';
 const ModalEditProfile = (props) => {
   const { show, handleClose, handleUpdateInfo, user } = props;
 
-  ModalEditProfile.propTypes = {
-    show: PropTypes.bool.isRequired,
-    handleClose: PropTypes.func.isRequired,
-    handleUpdateInfo: PropTypes.func.isRequired,
-    user: PropTypes.object.isRequired,
-  };
+  console.log(`Check user`, user);
+
+
   const [username, setUsername] = useState(user?.username);
   const [name, setName] = useState(user?.name);
   const [address, setAddress] = useState(user?.address);
@@ -107,5 +104,12 @@ const ModalEditProfile = (props) => {
   );
 
 }
+
+ModalEditProfile.propTypes = {
+  show: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  handleUpdateInfo: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+};
 
 export default ModalEditProfile;

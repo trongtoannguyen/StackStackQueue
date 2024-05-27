@@ -14,10 +14,10 @@ import MemberList from "../components/memberPage/MemberListPage";
 import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
 
 import Layout from "../layouts/Layout";
-import ResetPassword from "../components/auth/ResetPassword";
+import ForgotPassword from "../components/auth/resetPassword/ForgotPassword";
+import UpdatePassword from "../components/auth/resetPassword/UpdatePassword";
 import Unauthorized from "../components/errorPage/Unauthorized";
 import RequireAuth from "../components/auth/RequireAuth";
-import { MyProfile } from "../components/profilePage/MyProfile";
 import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
@@ -36,8 +36,10 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />}></Route>
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<UpdatePassword />} />
+
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
 
       <Route path="/" element={<Layout route="routes1" />}>
         {/* public route */}
@@ -63,7 +65,6 @@ function AppRoutes() {
           <Route path="/redirect-to" element={<RedirectHandlerAfterLogin />} />
 
           <Route path="/users" element={<TableUsers />} />
-          <Route path="/my-profile/*" element={<MyProfile />} />
 
         </Route>
 

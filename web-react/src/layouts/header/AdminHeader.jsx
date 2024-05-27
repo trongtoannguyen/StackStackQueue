@@ -93,7 +93,8 @@ function AdminHeader() {
   };
 
   const handleProfile = () => {
-    navigate("/my-profile");
+    let url = `/member-profile/${currentUser?.username}`;
+    navigate(url);
   }
 
   function getNavbarClassName() {

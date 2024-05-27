@@ -1,3 +1,11 @@
+export function getUrlParameter(name, location) {
+  name = name.replace('[', '\\[').replace(']', '\\]');
+  const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+
+  let results = regex.exec(location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
 
 // set param url
 export function pathParams(data) {

@@ -149,7 +149,7 @@ const LoginForm = () => {
           Password must be 8-24 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character.
         </small>
         <div className="forgot-password">
-          <Link to="/reset-password" className='nav-link'>
+          <Link to="/forgot-password" className='nav-link'>
             <span>Forget password?</span>
           </Link>
         </div>

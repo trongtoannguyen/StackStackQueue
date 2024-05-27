@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.service.UserService;
 import com.springboot.app.dto.response.AckCodeType;
@@ -8,6 +9,8 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
 import com.springboot.app.security.jwt.JwtUtils;
+import com.springboot.app.utils.Validators;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,7 +47,6 @@ public class UserController {
 	}
 
 	@GetMapping("/account/{username}")
-	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ObjectResponse> getUserByUsername(@PathVariable String username) {
 		User user = userService.findByUsername(username).orElse(null);
 		if (user == null) {
@@ -84,5 +86,22 @@ public class UserController {
 		return ResponseEntity.ok(new ObjectResponse("500","Failed to update user status",null));
 	}
 
+	@PostMapping("role/update")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ObjectResponse> updateRoleUser(@Valid @RequestBody UpdateRoleRequest  updateRoleRequest) {
+		//check user has role admin
+		if(updateRoleRequest.getRoles().stream().anyMatch(role -> role.equals("ROLE_ADMIN"))) {
+			return ResponseEntity.status(400).body(new ObjectResponse("400","Cannot update user with role admin",null));
+		}
+		boolean isRoleValid = updateRoleRequest.getRoles().stream().allMatch(Validators::isValidRole);
+		if(!isRoleValid) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","Invalid role",null));
+		}
+		ServiceResponse<User> response = userService.updateRoleUser(updateRoleRequest);
+		if (response.getAckCode().equals(AckCodeType.SUCCESS)) {
+			return ResponseEntity.ok(new ObjectResponse("200","User role updated",response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("500","Failed to update user role",null));
+	}
 
 }

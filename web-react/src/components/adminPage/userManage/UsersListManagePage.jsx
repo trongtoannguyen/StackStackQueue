@@ -25,6 +25,7 @@ import UserCardItem from "./components/UserCardItem";
 import UserListItem from "./components/UserListItem";
 import Pagination from "../../pagination/Pagination";
 import ModalConfirmDeleteUser from "./components/ModalConfirmDelete";
+import ModalEditUser from "./components/ModalEditUser";
 import { toast } from "react-toastify";
 
 function UserListManage() {
@@ -46,9 +47,16 @@ function UserListManage() {
   const [userDelete, setUserDelete] = useState({});
   const [showModal, setShowModal] = useState(false);
 
-  const handleShowHide = () => setShowModal(!showModal);
+  const [userEdit, setUserEdit] = useState({});
+  const [showEdit, setShowEdit] = useState(false);
 
+
+  const handleShowHide = () => setShowModal(!showModal);
   const handleSetDeleteUser = (user) => setUserDelete(user);
+
+  const handleShowHideEdit = () => setShowEdit(!showEdit);
+  const handleSetEditUser = (user) => setUserEdit(user);
+
 
 
 
@@ -111,8 +119,8 @@ function UserListManage() {
     return true;
   };
 
-  const handleUpdateStatusUser = (id, accountStatus) => {
-    console.log(`handleUpdateStatusUser action`);
+  const handleUpdateStatus = (id, accountStatus) => {
+    alert(`handleUpdateStatusUser action`);
     // patchUpdateStatusUser(id, accountStatus, axiosJWT);
   }
 
@@ -212,9 +220,10 @@ function UserListManage() {
         </thead>
         <tbody>
           {users?.map((user) => <UserListItem key={user.id} user={user}
-            handleUpdateStatusUser={handleUpdateStatusUser}
             handleShowHide={handleShowHide}
             handleSetDeleteUser={handleSetDeleteUser}
+            handleShowHideEdit={handleShowHideEdit}
+            handleSetEditUser={handleSetEditUser}
           />)}
         </tbody>
       </Table>
@@ -227,13 +236,13 @@ function UserListManage() {
       <section>
         <h3>User List</h3>
         <Col className="my-3">
-          <div>
+          {!showAdd &&
             <div className="ml-auto me-0 col-md-4">
               <button to="/admin/user/add"
                 onClick={() => setShowAdd(!showAdd)}
                 className="btn btn-primary">{showAdd ? "Close" : "Add New"}</button>
             </div>
-          </div>
+          }
           {showAdd &&
             <div className="">
               <div className="card col-8 mx-auto p-3">
@@ -270,18 +279,20 @@ function UserListManage() {
                 </div>
 
                 <div>
-                  <button className="btn btn-secondary mx-2">Cancel</button>
+                  <button className="btn btn-secondary mx-2"
+                    onClick={() => setShowAdd(!showAdd)}
+                  >Cancel</button>
                   <button className="btn btn-primary">Create</button>
                 </div>
               </div>
               <hr />
             </div>
           }
-          <Row>
-            <div className="ml-0 me-auto col-md-2 d-flex align-items-center">
-              <label htmlFor="page" className="col-md-6">Page size:</label>
+          <Row className="d-flex">
+            <div className="ml-0 me-auto col-ms-2 d-flex align-items-center mb-3">
+              <label htmlFor="page" className="col-2">Page size:</label>
               <select id="page" name="page"
-                className="form-select col-auto"
+                className="form-input-select col-1"
                 onChange={(e) => setPageSize(e.currentTarget.value)}
               >
                 <option value="5">05</option>
@@ -291,7 +302,7 @@ function UserListManage() {
               </select>
             </div>
 
-            <div className="col-md-4">
+            <div className="col-ms-4 mb-3">
               <input className="mx-2 form-control col-10 p-3"
                 value={keyword}
                 onChange={handleChange}
@@ -304,12 +315,11 @@ function UserListManage() {
         </Col>
 
 
-        <Card>
+        <div>
           <Tabs
             id="controlled-tab-user"
             activeKey={key}
             onSelect={(k) => setKey(k)}
-            className="bg-dark"
             justify
           >
             <Tab eventKey="userList"
@@ -323,7 +333,7 @@ function UserListManage() {
             </Tab>
             <Tab eventKey="userGrid" title={<i className="fa-solid fa-grip fa-2x"></i>}>
               <Col>
-                <Row className="p-3">
+                <Row>
                   {
                     (userList.length === 0)
                       ? <div className="text-center">
@@ -334,9 +344,10 @@ function UserListManage() {
                         <h5>Loading...</h5>
                       </div>
                       : userList?.map((user) => <UserCardItem key={user.id} user={user}
-                        handleUpdateStatusUser={handleUpdateStatusUser}
                         handleShowHide={handleShowHide}
                         handleSetDeleteUser={handleSetDeleteUser}
+                        handleShowHideEdit={handleShowHideEdit}
+                        handleSetEditUser={handleSetEditUser}
                       />)
                   }
                   <Pagination
@@ -348,7 +359,7 @@ function UserListManage() {
               </Col>
             </Tab>
           </Tabs>
-        </Card>
+        </div>
 
 
       </section>
@@ -359,6 +370,13 @@ function UserListManage() {
         handleClose={handleShowHide}
         handleDelete={handleDelete}
         user={userDelete}
+      />
+
+      <ModalEditUser
+        show={showEdit}
+        handleClose={handleShowHideEdit}
+        handleUpdateStatus={handleUpdateStatus}
+        user={userEdit}
       />
 
 

@@ -7,7 +7,6 @@ import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import UserProfile from "../components/adminPage/userManage/UserProfile";
 import RequireAuth from "../components/auth/RequireAuth";
 import '../assets/scss/paper-dashboard.scss?v=1.3.0';
 
@@ -32,7 +31,6 @@ function AccountRoutes() {
           <Route exact path="/tags" element={<TagsStat />} />
 
           <Route exact path="/users" element={<TableUsers />} />
-          <Route exact path="/user-page" element={<UserProfile />} />
         </Route>
 
         <Route exact path="*" element={<NotFound />} />

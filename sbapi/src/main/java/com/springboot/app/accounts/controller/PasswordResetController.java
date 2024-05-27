@@ -1,11 +1,14 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.accounts.dto.request.PasswordRequest;
 import com.springboot.app.accounts.entity.PasswordReset;
+import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.repository.DeletedUserRepository;
+import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.PasswordResetService;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.security.dto.request.PasswordResetRequest;
 import com.springboot.app.security.service.RefreshTokenService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -25,55 +28,45 @@ public class PasswordResetController {
 
 	@Autowired
 	private PasswordResetService passwordResetService;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private DeletedUserRepository deletedUserRepository;
 
 	@PostMapping("/request")
-	public ResponseEntity<?> requestPasswordReset(@RequestParam("email") String email) {
-		logger.info(String.format("Reset password request for email '%s'", email));
-		ServiceResponse<Void> serviceResponse = passwordResetService.sendPasswordResetEmail(email);
-		if(serviceResponse.getAckCode() == AckCodeType.SUCCESS) {
-			return ResponseEntity.ok(new ObjectResponse("200","Password reset link sent to your email!",null));
+	public ResponseEntity<ObjectResponse> requestPasswordReset(@RequestParam("email") String email) {
+		logger.info("Reset password request for email {}", email);
+		boolean user = userRepository.existsByEmail(email);
+		if(!user) {
+			return ResponseEntity
+					.badRequest()
+					.body(new ObjectResponse("400","Error: Email not found!",null));
 		}
-		else {
+		boolean deleteUser = deletedUserRepository.existsByEmail(email);
+		if(deleteUser){
+			return ResponseEntity
+					.badRequest()
+					.body(new ObjectResponse("400","Please enter email another!",null));
+		}
+
+		ServiceResponse<Void> serviceResponse = passwordResetService.sendPasswordResetEmail(email);
+		if(serviceResponse.getAckCode() != AckCodeType.SUCCESS) {
 			return ResponseEntity
 					.badRequest()
 					.body(new ObjectResponse("400","Error: Password reset link could not be sent!",null));
 		}
-	}
-
-
-	@GetMapping("/verify")
-	public ResponseEntity<?> verifyResetKey(@RequestParam("key") String key) {
-		ServiceResponse<PasswordReset> serviceResponse = passwordResetService.verifyPasswordResetToken(key);
-		// Verify token, check expiration, and retrieve user ID
-		Long userId = null; ////refreshTokenService.verifyPasswordResetToken(token);
-		if (userId != null) {
-			// Return user ID in a secure way, such as JWT
-			// Redirect to reset password form
-			// ...
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.badRequest().build();
-		}
+		return ResponseEntity.ok(new ObjectResponse("200","Password reset link sent to your email!",null));
 	}
 
 	@PostMapping("/reset")
-	public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-		if(passwordResetRequest.getToken() == null || passwordResetRequest.getToken().isEmpty()) {
+	public ResponseEntity<ObjectResponse> resetPassword(@Valid @RequestBody PasswordRequest passwordRequest) {
+		logger.info("Reset password request for email {}", passwordRequest.getKey());
+		ServiceResponse<Void> response = passwordResetService.updatePassword(passwordRequest);
+		if(response.getAckCode() != AckCodeType.SUCCESS) {
 			return ResponseEntity
 					.badRequest()
-					.body(new ObjectResponse("400","Error: Token is required!",null));
+					.body(new ObjectResponse("400",response.getMessages().getFirst(),null));
 		}
-		if (!passwordResetRequest.getPassword().equals(passwordResetRequest.getConfirmPassword())) {
-			return ResponseEntity
-					.badRequest()
-					.body(new ObjectResponse("400","Error: Passwords do not match!",null));
-		}
-		if (!passwordResetRequest.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
-			return ResponseEntity
-					.badRequest()
-					.body(new ObjectResponse("400","Error: Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character!",null));
-		}
-		refreshTokenService.updatePassword(passwordResetRequest);
 		return ResponseEntity.ok(new ObjectResponse("200","Password reset successfully!",null));
 	}
 }

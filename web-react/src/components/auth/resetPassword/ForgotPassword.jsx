@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from 'react';
 
+import StyledInput from "../StyledInput";
 
-import StyledInput from "./StyledInput";
+import {
+  EMAIL_REGEX
+} from "../ConstRegex";
 
-const Email_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+import { forgotPassword } from "../../../redux/apiRequest";
+import { toast } from "react-toastify";
 
 
-const ResetPassword = () => {
+const ForgotPassword = () => {
 
   const [emailRP, setEmailRP] = useState("");
   const [validEmailRP, setValidEmailRP] = useState(false);
@@ -19,7 +23,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setValidEmailRP(Email_REGEX.test(emailRP));
+    setValidEmailRP(EMAIL_REGEX.test(emailRP));
   }, [emailRP]);
 
 
@@ -28,17 +32,25 @@ const ResetPassword = () => {
   }, [emailRP]);
 
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
+
+    setIsLoading(true);
+
     if (!validEmailRP) {
       return setErrMsg("Please enter a valid email address");
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    const res = await forgotPassword(emailRP);
+    if (+res?.status === 200) {
+      toast.success(res?.message);
       setSuccess(true);
-    }, 2000);
+    } else {
+      toast.error(res?.data?.message);
+      console.log(`Error: `, res?.data?.message);
+    }
 
+    setIsLoading(false);
+    return true;
   }
 
   const isAction = () => {
@@ -66,7 +78,7 @@ const ResetPassword = () => {
         aria-describedby="emailRP-err"
         onFocus={() => setEmailRPFocus(true)}
         onBlur={() => setEmailRPFocus(false)}
-        $valid={+(emailRP.length===0 || validEmailRP)}
+        $valid={+(emailRP.length === 0 || validEmailRP)}
       />
       <small id="emailRP-err" className={emailRPFocus && emailRP || !validEmailRP ? "text-danger" : "invalid-feedback"} role="alert" hidden={validEmailRP || !emailRPFocus}>
         <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
@@ -99,4 +111,4 @@ const ResetPassword = () => {
 }
 
 
-export default ResetPassword;
+export default ForgotPassword;

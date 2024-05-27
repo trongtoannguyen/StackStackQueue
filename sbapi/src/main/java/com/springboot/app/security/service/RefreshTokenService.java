@@ -139,14 +139,4 @@ public class RefreshTokenService {
 						"Refresh token was expired. Please make a new signin request"));
 	}
 
-	public void updatePassword(PasswordResetRequest passwordResetRequest) {
-		User user = refreshTokenRepository.findByToken(passwordResetRequest.getToken())
-				.map(RefreshToken::getUser)
-				.orElseThrow(() -> new TokenRefreshException(
-						passwordResetRequest.getToken(),
-						"Refresh token was expired. Please make a new signin request"));
-
-		user.setPassword(passwordEncoder.encode(passwordResetRequest.getPassword()));
-		userRepository.save(user);
-	}
 }

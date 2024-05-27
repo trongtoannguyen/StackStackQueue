@@ -94,3 +94,12 @@ export const getCurrentUser = async (dispatch, accessToken) => {
 
 };
 
+
+export const forgotPassword = async (email) => {
+  return await axios.post(`reset-password/request?email=${email}`);
+
+}
+
+export const resetPassword = async (passwordInfo) => {
+  return await axios.post('reset-password/reset', passwordInfo);
+}
