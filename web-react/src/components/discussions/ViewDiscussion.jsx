@@ -150,7 +150,7 @@ const ViewDiscussion = () => {
 										<section className="card mb-3 p-3" key={comments._id}>
 											<div className="card-header">
 												{comments.createdBy}
-
+												<br />
 												<div>{formatDate(comments.createdAt)}</div>
 											</div>
 											<div className="card-body">
