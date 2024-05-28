@@ -26,7 +26,7 @@ export const getUserInfoByUsername = async (username, axiosJWT, accessToken) => 
 }
 
 export const patchUpdateStatusUser = async (id, status, axiosJWT, accessToken) => {
-  return await axiosJWT.patch(`admin/users/status/${id}`, { status }, {
+  return await axiosJWT.patch(`admin/users/status/${id}?status=${status}`, { status }, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }

@@ -55,6 +55,33 @@ const AccountInfo = (props) => {
     setUserEdit(userInfo?.person);
   }, [userInfo])
 
+  function buttonFollow() {
+    if (username === userAuth.username) {
+      return (
+        <Button className="btn btn-primary ml-auto"
+          onClick={() => { setShowModal(true) }}>
+          <i className="fa-solid fa-pen-to-square fa-xl"></i>
+          <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
+        </Button>
+      )
+    }
+
+    if (isFollow) {
+      return (
+        <Button onClick={handleFollow}>
+          <i className="fa-solid fa-minus fa-xl"></i>
+          <span className="d-none d-lg-inline-block mx-2">UnFollow</span>
+        </Button>
+      )
+    }
+
+    return (
+      <Button onClick={handleFollow}>
+        <i className="fa-solid fa-plus fa-xl"></i>
+        <span className="d-none d-lg-inline-block mx-2">Follow</span>
+      </Button>
+    )
+  }
 
   return (
     <div>
@@ -65,30 +92,28 @@ const AccountInfo = (props) => {
         <CardBody>
           <Row className="py-0">
             <Col md="4" className="author mb-3 h-100">
-              <a href="#pablo" onClick={(e) => e.preventDefault()}>
                 <img
                   alt="avatar"
                   className="avatar"
                   src={userInfo?.imageUrl || userInfo?.avatar || avatar}
                 />
                 <h5 className="title">{username}</h5>
-              </a>
-              <p className="description">{userInfo?.person?.bio ?? "No thing gona change my love for you"}</p>
+              <p className="description">{userInfo?.person?.bio ?? "Introduce yourself"}</p>
             </Col>
 
             <Col md="8" className='mb-3'>
               <h5 className="title">{userInfo?.name ?? userInfo?.email}</h5>
               <div className="">
-                {user?.badge ? "Badge: " + user?.badge : "Badge: Chicken"}
+                {user?.badge ? "Badge: " + user?.badge : "Badge: ..."}
               </div>
               <div className="">
-                Start from: {userInfo?.createdAt ? formatDate(userInfo?.createdAt) : "20-01-2024"}
+                Start from: {userInfo?.createdAt ? formatDate(userInfo?.createdAt) : ""}
               </div>
 
               <div className="d-flex justify-content-between col-10">
-                <div>Birthday: {userInfo?.person?.birthDate ? formatDate(userInfo?.person?.birthDate) : ""}</div>
-                <div>Gender: {userInfo?.person?.gender ?? ""}</div>
-                <div>Address: {userInfo?.person?.address ?? ""}</div>
+                <div>Birthday: {userInfo?.person?.birthDate ? formatDate(userInfo?.person?.birthDate) : "Not update yet"}</div>
+                <div>Gender: {userInfo?.person?.gender ?? "Not update yet"}</div>
+                <div>Address: {userInfo?.person?.address ?? "Not update yet"}</div>
               </div>
 
               <div className="d-flex justify-content-between col-10 mt-3">
@@ -99,22 +124,7 @@ const AccountInfo = (props) => {
                 <strong className="text-center">Reputation:<br /> {userInfo?.stat?.reputation ?? 0}</strong>
               </div>
               <div className="d-flex justify-content-end mt-3">
-                {username === userAuth?.username &&
-                  <Button className="btn btn-primary ml-auto"
-                    onClick={() => { setShowModal(true) }}>
-                    <i className="fa-solid fa-pen-to-square fa-xl"></i>
-                    <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
-                  </Button>
-                }
-                {isFollow ? <Button onClick={handleFollow}>
-                  <i className="fa-solid fa-minus fa-xl"></i>
-                  <span className="d-none d-lg-inline-block mx-2">UnFollow</span>
-                </Button> :
-                  <Button onClick={handleFollow}>
-                    <i className="fa-solid fa-plus fa-xl"></i>
-                    <span className="d-none d-lg-inline-block mx-2">Follow</span>
-                  </Button>}
-
+                {buttonFollow()}
                 <Button>
                   <i className="fa-solid fa-message fa-xl"></i>
                   <span className="d-none d-lg-inline-block mx-2">Chat</span>

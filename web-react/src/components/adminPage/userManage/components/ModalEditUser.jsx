@@ -6,11 +6,19 @@ import {
 } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { ACCOUNT_STATUS } from "../../../../constants/index";
+import { useState } from 'react';
 
 
 const ModalEditUser = (props) => {
 
   const { show, handleClose, handleUpdateStatus, user } = props;
+
+  const [status, setStatus] = useState(user.accountStatus);
+
+  const handleEditStatus = () => {
+    console.log(`Status`, status);
+    handleUpdateStatus(user.id, status);
+  }
 
 
   return (
@@ -32,8 +40,9 @@ const ModalEditUser = (props) => {
             Email: {user.email}
           </FormGroup>
           <FormGroup>
-            <Label for="role">Account Status:</Label>
-            <Input type="select" name="accountStatus" id="accountStatus" value={user.accountStatus}>
+            <Label for="accountStatus">Account Status:</Label>
+            <Input type="select" name="accountStatus" id="accountStatus"
+              onChange={(e) => setStatus(e.target.value)} value={status}>
               <option value={ACCOUNT_STATUS.INACTIVE}>InActive</option>
               <option value={ACCOUNT_STATUS.ACTIVE}>Active</option>
               <option value={ACCOUNT_STATUS.LOCKED}>LOCKED</option>
@@ -44,7 +53,7 @@ const ModalEditUser = (props) => {
 
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>Close</Button>
-        <Button variant="primary" onClick={handleUpdateStatus}>Save Changes</Button>
+        <Button variant="primary" onClick={handleEditStatus}>Save Changes</Button>
       </Modal.Footer>
     </Modal>
   )

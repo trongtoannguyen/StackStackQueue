@@ -18,7 +18,7 @@ import { Tab, Tabs } from 'react-bootstrap';
 import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
-import { deleteUser } from "../../../services/UserService";
+import { deleteUser, patchUpdateStatusUser } from "../../../services/UserService";
 
 
 import UserCardItem from "./components/UserCardItem";
@@ -112,6 +112,7 @@ function UserListManage() {
     if (+res.status !== 500) {
       setShowModal(false);
       toast.success("Deleted successfully!");
+      setUserDelete({});
       getAllUsersData();
     } else {
       toast.error(res?.data?.message);
@@ -119,9 +120,19 @@ function UserListManage() {
     return true;
   };
 
-  const handleUpdateStatus = (id, accountStatus) => {
-    alert(`handleUpdateStatusUser action`);
-    // patchUpdateStatusUser(id, accountStatus, axiosJWT);
+  const handleUpdateStatus = async (id, accountStatus) => {
+    const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
+    let res = await patchUpdateStatusUser(id, accountStatus, axiosJWT);
+    if (+res.data.status === 200) {
+      toast.success("Update status successfully");
+      setShowEdit(false);
+      setUserEdit({});
+      getAllUsersData("");
+    } else {
+      toast.error(res?.data?.message);
+    }
+
+    return true;
   }
 
 
