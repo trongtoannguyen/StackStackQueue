@@ -1,12 +1,32 @@
 package com.springboot.app.forums.entity;
 
+import java.util.List;
+
 import com.springboot.app.model.BaseEntity;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -37,11 +57,9 @@ public class Comment extends BaseEntity {
 	@Column(name = "content", columnDefinition = "LONGTEXT")
 	private String content; // content of the comment
 
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "discussion_id", foreignKey = @ForeignKey(name = "FK_COMMENT_DISCUSSION"))
 	private Discussion discussion;
-
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "reply_to_id", foreignKey = @ForeignKey(name = "FK_COMMENT_REPLY_TO"))
@@ -51,35 +69,26 @@ public class Comment extends BaseEntity {
 	@OrderBy("id ASC")
 	private List<Comment> replies; // children of this comment
 
-
 	@Column(name = "IP_address", length = 80)
 	private String ipAddress;
 
 	/**
-	 * OK to eager fetch attachments as only a handful attachments are expected for each comment
+	 * OK to eager fetch attachments as only a handful attachments are expected for
+	 * each comment
 	 */
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "comment_attachment",
-			joinColumns = @JoinColumn(name = "comment_id"),
-			inverseJoinColumns = @JoinColumn(name = "file_info_id"),
-			foreignKey = @ForeignKey(name = "FK_COMMENT_ATTACHMENT"),
-			inverseForeignKey = @ForeignKey(name = "FK_ATTACHMENT_COMMENT"),
-			indexes = {@Index(name = "IDX_COMMENT_ATTACHMENT", columnList = "comment_id,file_info_id")}
-	)
+	@JoinTable(name = "comment_attachment", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_ATTACHMENT"), inverseForeignKey = @ForeignKey(name = "FK_ATTACHMENT_COMMENT"), indexes = {
+			@Index(name = "IDX_COMMENT_ATTACHMENT", columnList = "comment_id,file_info_id") })
 	@OrderColumn(name = "sort_order")
 	private List<FileInfo> attachments;
 
 	/**
-	 * OK to eager fetch attachments as only a handful thumbnails are expected for each comment
+	 * OK to eager fetch attachments as only a handful thumbnails are expected for
+	 * each comment
 	 */
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "comment_thumbnail",
-			joinColumns = @JoinColumn(name = "comment_id"),
-			inverseJoinColumns = @JoinColumn(name = "file_info_id"),
-			foreignKey = @ForeignKey(name = "FK_COMMENT_THUMBNAIL"),
-			inverseForeignKey = @ForeignKey(name = "FK_THUMBNAIL_COMMENT"),
-			indexes = {@Index(name = "IDX_COMMENT_THUMBNAIL", columnList = "comment_id,file_info_id")}
-	)
+	@JoinTable(name = "comment_thumbnail", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_THUMBNAIL"), inverseForeignKey = @ForeignKey(name = "FK_THUMBNAIL_COMMENT"), indexes = {
+			@Index(name = "IDX_COMMENT_THUMBNAIL", columnList = "comment_id,file_info_id") })
 	@OrderColumn(name = "sort_order")
 	private List<FileInfo> thumbnails;
 
@@ -89,8 +98,5 @@ public class Comment extends BaseEntity {
 	@OneToOne
 	@JoinColumn(name = "comment_vote_id", foreignKey = @ForeignKey(name = "FK_COMMENT_VOTE"))
 	private CommentVote commentVote;
-
-
-
 
 }

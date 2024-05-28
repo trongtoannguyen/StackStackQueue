@@ -1,18 +1,19 @@
 package com.springboot.app.forums.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.FileInfo;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 public interface CommentService {
 
-	ServiceResponse<Void> addReply(Comment reply, User user, List<UploadedFileData> thumbnailList, List<UploadedFileData> attachmentList);
+	ServiceResponse<Void> addReply(Comment reply, User user, List<UploadedFileData> thumbnailList,
+			List<UploadedFileData> attachmentList);
 
 	ServiceResponse<Comment> addCommentThumbnail(Comment comment, UploadedFileData uploadedFile);
 
@@ -27,4 +28,7 @@ public interface CommentService {
 	ServiceResponse<Map<String, Integer>> getMostCommentsUsers(Date since, Integer maxResult);
 
 	ServiceResponse<Boolean> isFirstComment(Comment comment);
+
+	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username,
+			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles);
 }

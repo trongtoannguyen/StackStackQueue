@@ -14,34 +14,29 @@ public class AppConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		WebMvcConfigurer.super.addResourceHandlers(registry);
-		registry.addResourceHandler("/resources/**")
-				.addResourceLocations("classpath:/static/");
+		registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/static/");
 	}
 
 	@Bean
 	ModelMapper modelMapper() {
 		ModelMapper mapper = new ModelMapper();
-		mapper.getConfiguration().setFieldMatchingEnabled(true)
-				.setMatchingStrategy(MatchingStrategies.STRICT)
+		mapper.getConfiguration().setFieldMatchingEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT)
 				.setAmbiguityIgnored(false);
 		return mapper;
 	}
 
 	private final long MAX_AGE_SECS = 3600;
-	@Value("${app.cors.allowed-origins}")
+	@Value("http://localhost:5173,http://localhost:8080")
 	private String[] allowedOrigins;
+
 	/**
-	 * CORS configuration
-	 * - Cross-Origin Resource Sharing
-	 * - allows web applications from different domains to make requests to the server API
+	 * CORS configuration - Cross-Origin Resource Sharing - allows web applications
+	 * from different domains to make requests to the server API
 	 */
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**") // All endpoints
 				.allowedOrigins(allowedOrigins) // React app URL
-				.allowedMethods("*")
-				.allowedHeaders("*")
-//				.allowCredentials(true)
-				.maxAge(MAX_AGE_SECS);
+				.allowedMethods("*").allowedHeaders("*").allowCredentials(true).maxAge(MAX_AGE_SECS);
 	}
 }

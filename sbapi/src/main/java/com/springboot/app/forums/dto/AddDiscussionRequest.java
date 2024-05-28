@@ -1,6 +1,5 @@
 package com.springboot.app.forums.dto;
 
-import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
 
 public class AddDiscussionRequest {
