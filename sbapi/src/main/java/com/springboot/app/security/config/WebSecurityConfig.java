@@ -86,11 +86,14 @@ public class WebSecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						.requestMatchers("/api/admin/**").permitAll().requestMatchers("/api/test/**").permitAll()
-						.requestMatchers("/api/discussions/**").permitAll().requestMatchers("/api/reset-password/**")
-						.permitAll().requestMatchers("/api/forums/**").permitAll().requestMatchers("/").permitAll()
-						.anyRequest().authenticated());
+				.authorizeHttpRequests(auth ->
+						auth.requestMatchers("/api/auth/**").permitAll()
+								.requestMatchers("/api/test/**").permitAll()
+								.requestMatchers("/api/reset-password/**").permitAll()
+								.requestMatchers("/api/user-stat").permitAll()
+								.requestMatchers("/").permitAll()
+								.anyRequest().authenticated()
+				);
 
 		http.authenticationProvider(authenticationProvider());
 

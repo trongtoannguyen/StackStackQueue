@@ -37,6 +37,9 @@ public class AppConfiguration implements WebMvcConfigurer {
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**") // All endpoints
 				.allowedOrigins(allowedOrigins) // React app URL
-				.allowedMethods("*").allowedHeaders("*").allowCredentials(true).maxAge(MAX_AGE_SECS);
+				.allowedMethods("*")
+				.allowedHeaders("*")
+				.allowCredentials(true)
+				.maxAge(MAX_AGE_SECS);
 	}
 }

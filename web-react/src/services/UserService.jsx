@@ -1,20 +1,66 @@
-import axios from './customize-axios';
+// import axios from './customize-axios';
 
-const fetchAllUser = async (page) => {
-  return await axios.get(`users?page=${page}`);
+import { pathParams } from '../utils/Helper';
+
+export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
+  try {
+    let path = pathParams(pageData);
+    let res = await axiosJWT.get(`admin/users?${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-const postCreateUser = async (name, job) => {
-  return await axios.post("users", { name, job });
+export const getUserInfoByUsername = async (username, axiosJWT, accessToken) => {
+  try {
+    let res = await axiosJWT.get(`admin/users/account/${username}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-const putUpdateUser = async (id, name, job) => {
-  return await axios.put(`users/${id}`, { name, job });
+export const patchUpdateStatusUser = async (id, status, axiosJWT, accessToken) => {
+  return await axiosJWT.patch(`admin/users/status/${id}?status=${status}`, { status }, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 }
 
-const deleteUser = async (id) => {
-  return await axios.delete(`users/${id}`);
+export const deleteUser = async (accessToken, id, axiosJWT) => {
+  try {
+    let res = await axiosJWT.delete(`admin/users/delete/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
+export const postFollow = async (accessToken, axiosJWT, data) => {
+  try {
+    let res = await axiosJWT.post(`admin/users/followed`, data, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
-export { fetchAllUser, postCreateUser, putUpdateUser, deleteUser}
+export const postUnFollow = async (accessToken, axiosJWT, data) => {
+  try {
+    let res = await axiosJWT.post(`admin/users/un-followed`, data, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+

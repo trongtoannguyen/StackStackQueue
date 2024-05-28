@@ -1,15 +1,19 @@
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
-import DashBoard from "../components/adminPage/adminDashBoard/DashBoard";
-import AdminLayout from "../layouts/AdminLayout";
-import TableUsers from "../components/adminPage/userManage/TableUsers";
+import Layout from "../layouts/Layout";
+import DashBoard from "../components/adminPage/adminDashBoard/DashBoardPage";
+import UsersListManage from "../components/adminPage/userManage/UsersListManagePage";
+import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
+
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
-import '../assets/scss/paper-dashboard.scss?v=1.3.0';
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import UserProfile from "../components/adminPage/userManage/UserProfile";
 import RequireAuth from "../components/auth/RequireAuth";
+import '../assets/scss/paper-dashboard.scss?v=1.3.0';
+
+import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
+
 
 const ROLES = {
   ADMIN: 'ROLE_ADMIN',
@@ -21,7 +25,7 @@ const ROLES = {
 function AdminRoutes() {
   return (
     <Routes>
-      <Route exact path="/" element={<AdminLayout />}>
+      <Route exact path="/" element={<Layout route="routesAdmin" />}>
         <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN, ROLES.MOD]} />}>
           <Route exact path="/" element={<DashBoard />} />
           <Route exact path="/dashboard" element={<DashBoard />} />
@@ -31,8 +35,10 @@ function AdminRoutes() {
 
           <Route exact path="/tags" element={<TagsStat />} />
 
-          <Route exact path="/users" element={<TableUsers />} />
-          <Route exact path="/user-page" element={<UserProfile />} />
+          <Route exact path="/users" element={<UsersListManage />} />
+          <Route path="/member-profile/:username" element={<MemberProfile />} />
+
+          <Route path="email-option" element={<EmailOption />} />
         </Route>
 
         <Route exact path="*" element={<NotFound />} />

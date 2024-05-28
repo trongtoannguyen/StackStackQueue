@@ -69,6 +69,7 @@ public class User extends BaseEntity {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role",
 			joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@OrderBy("name ASC")
 	Set<Role> roles = new HashSet<>();
 
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

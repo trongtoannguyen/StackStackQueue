@@ -2,6 +2,7 @@ package com.springboot.app.forums.entity;
 
 import java.util.List;
 
+import com.springboot.app.follows.entity.Bookmark;
 import com.springboot.app.model.BaseEntity;
 
 import jakarta.persistence.Basic;
@@ -98,5 +99,10 @@ public class Comment extends BaseEntity {
 	@OneToOne
 	@JoinColumn(name = "comment_vote_id", foreignKey = @ForeignKey(name = "FK_COMMENT_VOTE"))
 	private CommentVote commentVote;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.ALL)
+	@OrderBy("createdAt DESC")
+	private List<Bookmark> bookmarks;
+
 
 }

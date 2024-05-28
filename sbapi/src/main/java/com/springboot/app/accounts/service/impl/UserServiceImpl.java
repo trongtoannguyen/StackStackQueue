@@ -1,9 +1,8 @@
 package com.springboot.app.accounts.service.impl;
 
-import com.springboot.app.accounts.entity.DeletedUser;
-import com.springboot.app.accounts.entity.PasswordReset;
-import com.springboot.app.accounts.entity.Role;
-import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
+import com.springboot.app.accounts.entity.*;
+import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.accounts.repository.DeletedUserRepository;
@@ -15,8 +14,13 @@ import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.follows.repository.FollowUserRepository;
+import com.springboot.app.security.dto.request.PasswordResetRequest;
 import com.springboot.app.security.dto.request.SignupRequest;
+import com.springboot.app.security.entity.RefreshToken;
+import com.springboot.app.security.exception.TokenRefreshException;
 import com.springboot.app.security.jwt.JwtUtils;
+import com.springboot.app.security.service.RefreshTokenService;
 import com.springboot.app.utils.Validators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +35,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Autowired
 	private	UserRepository userRepository;
@@ -50,6 +56,11 @@ public class UserServiceImpl implements UserService {
 	private PasswordResetRepository passwordResetRepository;
 	@Autowired
 	private DeletedUserRepository deletedUserRepository;
+	@Autowired
+	private RefreshTokenService refreshTokenService;
+
+	@Autowired
+	private FollowUserRepository followUserRepository;
 
 	@Override
 	public Optional<User> findById(Long id) {
@@ -65,14 +76,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public PaginateResponse getAllUsers(int pageNo, int pageSize, String orderBy, String sortDir) {
+	public PaginateResponse getAllUsers(int pageNo, int pageSize, String orderBy, String sortDir,String keyword) {
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
 
 		// create Pageable instance
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
 		// get the list of users from the UserRepository and return it as a Page object
-		Page<User> usersPage = userRepository.findAll(pageable);
+		Page<User> usersPage = userRepository.searchByUsernameOrEmail(keyword, keyword, pageable);
 
 		return new PaginateResponse(
 				usersPage.getNumber()+1,
@@ -84,12 +95,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User save(SignupRequest signUpRequest) {
+	public ServiceResponse<User> createNewUser(SignupRequest signUpRequest) {
+		ServiceResponse<User> response = new ServiceResponse<>();
 		try{
 			List<String> errorMessages = validateUser(signUpRequest);
 			if(!errorMessages.isEmpty()) {
-				logger.error("Error: User not created. %s".formatted(errorMessages));
-				return null;
+				String err = "Error: User not created. %s".formatted(errorMessages);
+				logger.error(err);
+				response.setAckCode(AckCodeType.FAILURE);
+				response.addMessages(errorMessages);
+				return response;
 			}
 			// Create new user's account
 			User user = new User(
@@ -99,54 +114,24 @@ public class UserServiceImpl implements UserService {
 				AuthProvider.local);
 
 			Set<String> strRoles = signUpRequest.getRoles();
-			Set<Role> roles = new HashSet<>();
-			if (strRoles == null) {
-				Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-				roles.add(userRole);
-			} else {
-				strRoles.forEach(role -> {
-				switch (role) {
-					case "admin":
-						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(adminRole);
-						break;
-					case "mod":
-						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(modRole);
-						break;
-					default:
-						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-						roles.add(userRole);
-				}
-			});
-			}
+			Set<Role> roles = getRolesByString(strRoles);
 			user.setRoles(roles);
+			user.setCreatedBy(user.getUsername());
+
+			Person person = new Person();
+			user.setPerson(person);
+
+			UserStat userStat = new UserStat();
+			userStat.setCreatedBy(user.getUsername());
+			user.setStat(userStat);
+
 			userRepository.save(user);
-			return userRepository.save(user);
+			response.setDataObject(user);
+
 		}catch (Exception e){
 			logger.error("Error: User not created. %s".formatted(e.getMessage()));
-			return null;
-
-		}
-	}
-
-	@Transactional(readOnly = false)
-	public ServiceResponse<Void> passwordReset(PasswordReset passwordReset, String newPassword) {
-		ServiceResponse<Void> response = new ServiceResponse<>();
-		User user = userRepository.findByEmail(passwordReset.getEmail()).orElse(null);
-		if(user != null && !"".equals(newPassword)) {
-			user.setPassword(encoder.encode(newPassword));
-			userRepository.save(user);
-			passwordResetRepository.delete(passwordReset);
-		}
-		else {
 			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage(String.format(
-				"Unable to locate user with email %s", passwordReset.getEmail()));
+			response.addMessage(e.getMessage());
 		}
 		return response;
 	}
@@ -161,6 +146,13 @@ public class UserServiceImpl implements UserService {
 		// clear up relationships before deleting
 		user.setPerson(null);
 		user.setStat(null);
+		// delete refresh tokens
+		refreshTokenService.deleteByUserId(user.getId());
+		//delete followed users
+		followUserRepository.deleteBy(user.getId());
+
+
+		// delete user
 		userRepository.delete(user);
 
 		// save deletedUser
@@ -169,6 +161,87 @@ public class UserServiceImpl implements UserService {
 		return response;
 	}
 
+	@Transactional(readOnly=false)
+	public ServiceResponse<User> updateStatusUser(Long id, String status) {
+		ServiceResponse<User> response = new ServiceResponse<>();
+		User user = userRepository.findById(id).orElse(null);
+		if(user != null) {
+			AccountStatus accountStatus = getAccountStatus(status);
+			user.setAccountStatus(accountStatus);
+			userRepository.save(user);
+			response.setDataObject(user);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+		}
+		return response;
+	}
+
+	public void updateLastLogin(Long id) {
+		User user = userRepository.findById(id).orElse(null);
+		if(user != null) {
+			user.getStat().setLastLogin(LocalDateTime.now());
+			userRepository.save(user);
+		}
+	}
+
+	@Transactional(readOnly=false)
+	public ServiceResponse<User> updateRoleUser(UpdateRoleRequest updateRoleRequest) {
+		ServiceResponse<User> response = new ServiceResponse<>();
+		User user = userRepository.findById(updateRoleRequest.getUserId()).orElse(null);
+		if(user != null) {
+			Set<Role> roles = getRolesByString(updateRoleRequest.getRoles());
+			user.setRoles(roles);
+			userRepository.save(user);
+			response.setDataObject(user);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+		}
+		return response;
+	}
+
+
+	private AccountStatus getAccountStatus(String status) {
+		return switch (status) {
+			case "ACTIVE" -> AccountStatus.ACTIVE;
+			case "LOCKED" -> AccountStatus.LOCKED;
+			default -> AccountStatus.INACTIVE;
+		};
+	}
+
+	private Set<Role> getRolesByString(Set<String> strRoles) {
+		Set<Role> roles = new HashSet<>();
+		if (strRoles == null) {
+			Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+				.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+			roles.add(userRole);
+		} else {
+			strRoles.forEach(role -> {
+				switch (role) {
+					case "admin":
+						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+							.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
+						roles.add(adminRole);
+
+						break;
+					case "mod":
+						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
+							.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
+						roles.add(modRole);
+
+						break;
+					default:
+						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+							.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
+						roles.add(userRole);
+				}
+			});
+		}
+		return roles;
+	}
 
 
 	private List<String> validateUser(SignupRequest user) {
@@ -189,12 +262,75 @@ public class UserServiceImpl implements UserService {
 			messages.add("Email already exists in the system");
 		}
 
-		if(user.getPassword().length() < 5) {
-			messages.add("Password must be at least 5 characters");
+		if(user.getPassword().length() < 8) {
+			messages.add("Password must be at least 8 characters");
 		}
 
 		return messages;
 	}
+
+	public ServiceResponse<String> getAvatarMember(String username) {
+		ServiceResponse<String> response = new ServiceResponse<>();
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user != null && user.getImageUrl() != null) {
+			response.setDataObject(user.getImageUrl());
+		}
+		else if(user != null && user.getAvatar() != null) {
+			response.setDataObject(user.getAvatar());
+		}else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+		}
+		return response;
+	}
+
+	@Transactional(readOnly=false)
+	public ServiceResponse<Void> passwordReset(PasswordReset passwordReset, String newPassword) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		User user = userRepository.findByEmail(passwordReset.getEmail()).orElse(null);
+		if(user != null && !"".equals(newPassword)) {
+			user.setPassword(encoder.encode(newPassword));
+			userRepository.save(user);
+			passwordResetRepository.delete(passwordReset);
+		}
+		else {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage(String.format(
+				"Unable to locate user with email %s", passwordReset.getEmail()));
+		}
+		return response;
+	}
+
+	@Transactional(readOnly=false)
+	public ServiceResponse<Void> updatePasswordReset(String newPassword, User user) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		if("".equals(newPassword)) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("New Password must not be empty");
+		}else {
+			user.setPassword(encoder.encode(newPassword));
+			userRepository.save(user);
+		}
+		return response;
+	}
+
+	//Update user password with new password but verify the oldPassword with current user.password
+	@Transactional(readOnly=false)
+	public ServiceResponse<Void> updatePassword(String oldPassword,String newPassword, User user) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		if(!encoder.matches(oldPassword, user.getPassword())) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("Current password is incorrect");
+		}else if("".equals(newPassword)) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("New Password must not be empty");
+		}else {
+			user.setPassword(encoder.encode(newPassword));
+			userRepository.save(user);
+		}
+		return response;
+	}
+
 
 
 }

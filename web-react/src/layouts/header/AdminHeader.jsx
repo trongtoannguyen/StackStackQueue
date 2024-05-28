@@ -22,19 +22,21 @@ import {
 
 import avatar from "../../assets/img/default-avatar.png";
 
-import routes from "../../routes/routes";
+import routes from "../../routes/routesForAdmin";
 import SearchFormHeader from "../../components/search/SearchFormHeader";
 
 function AdminHeader() {
 
-  const currentUser = useSelector(state => state.auth.login?.currentUser);
+  let currentUser = useSelector(state => state.auth.login?.currentUser);
+  const accessToken = currentUser?.accessToken;
+  const id = currentUser?.id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
 
   const handleLogout = () => {
-    logOut(dispatch, currentUser?.id, navigate, currentUser?.accessToken, axiosJWT);
+    logOut(dispatch, id, navigate, accessToken, axiosJWT);
   }
 
   const [isOpen, setIsOpen] = React.useState(false);
@@ -68,7 +70,6 @@ function AdminHeader() {
   const getBrand = () => {
     let brandName = "Tech Forum";
     routes.map((prop) => {
-      console.log(`Here: ${(prop?.layout + prop?.path)}`);
       if (window.location.href.indexOf(prop?.layout + prop?.path) !== -1) {
         brandName = prop.name;
       }
@@ -92,7 +93,8 @@ function AdminHeader() {
   };
 
   const handleProfile = () => {
-    navigate("/my-profile");
+    let url = `/member-profile/${currentUser?.username}`;
+    navigate(url);
   }
 
   function getNavbarClassName() {

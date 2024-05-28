@@ -45,5 +45,19 @@ public class DiscussionStat extends BaseEntity {
 	@Column(name = "comment_count")
 	private Map<String, Integer> commentors;
 
+	public void addCommentCount(long number){
+		this.commentCount += number;
+	}
 
+	public void addViewCount(long number){
+		this.viewCount += number;
+	}
+
+	public void addThumbnailCount(long number){
+		this.thumbnailCount += number;
+	}
+
+	public void addAttachmentCount(long number){
+		this.attachmentCount += number;
+	}
 }

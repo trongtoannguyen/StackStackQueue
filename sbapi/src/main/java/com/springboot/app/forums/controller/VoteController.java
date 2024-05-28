@@ -24,7 +24,7 @@ public class VoteController {
 		if(username.equals("anonymousUser")) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400","Must login to vote",null));
 		}
-		ServiceResponse<Void> response = voteService.registerCommentVote(comment.getCommentVote(),username, (short)1);
+		ServiceResponse<Void> response = voteService.registerCommentVote(comment,username, (short)1);
 
 		if(response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok().body(new ObjectResponse("200","Vote registered",null));
@@ -40,7 +40,7 @@ public class VoteController {
 		if(username.equals("anonymousUser")) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400","Must login to vote",null));
 		}
-		ServiceResponse<Void> response = voteService.registerCommentVote(comment.getCommentVote(),username, (short)-1);
+		ServiceResponse<Void> response = voteService.registerCommentVote(comment,username, (short)-1);
 
 		if(response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok().body(new ObjectResponse("200","Vote registered",null));

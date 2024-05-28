@@ -12,17 +12,18 @@ import {
   registerStart,
   registerSuccess,
 } from "./authSlice";
+import { clearUserList } from './userSlice';
 
 import { toast } from 'react-toastify';
 
 export const loginUser = async (user, dispatch) => {
   dispatch(loginStart());
   try {
-    let res = await axios.post('auth/signin', user);
+    let res = await axios.post('auth/signin', user, { withCredentials: true });
     if (res?.accessToken) {
       toast.success("Login successfully!");
       dispatch(loginSuccess(res));
-    } else if (+res?.data?.status === 500) {
+    } else if (+res?.status !== 200) {
       toast.error("Username or password incorrect!");
       dispatch(loginFailed());
     }
@@ -36,8 +37,6 @@ export const registerUser = async (user, dispatch, navigate) => {
   dispatch(registerStart());
   try {
     let res = await axios.post("/auth/signup", user);
-    console.log(`Here is the response: ${JSON.stringify(res)}`);
-    console.log(`Here is the status: ${+res?.status}`);
     if (+res?.status === 201) {
       dispatch(registerSuccess());
       navigate("/login");
@@ -57,13 +56,15 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
   dispatch(logOutStart());
   try {
     await axiosJWT.post("/auth/signout", id, {
-      headers: { token: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
+      withCredentials: true
     });
     dispatch(logOutSuccess());
+    dispatch(clearUserList());
     navigate("/login");
     toast.success("Logout Successfully!");
   } catch (err) {
-    console.log(`Here is the error: ${err}`);
+    console.log(`Logout error: ${err.message}`);
     toast.error("Log out failed!");
     dispatch(logOutFailed());
   }
@@ -79,8 +80,8 @@ export const getCurrentUser = async (dispatch, accessToken) => {
         Authorization: `Bearer ${accessToken}`
       },
     });
+
     if (res?.accessToken) {
-      // toast.success("Login successfully!");
       dispatch(loginSuccess(res));
     } else if (+res?.data?.status === 500) {
       toast.error(res.data?.message);
@@ -93,3 +94,12 @@ export const getCurrentUser = async (dispatch, accessToken) => {
 
 };
 
+
+export const forgotPassword = async (email) => {
+  return await axios.post(`reset-password/request?email=${email}`);
+
+}
+
+export const resetPassword = async (passwordInfo) => {
+  return await axios.post('reset-password/reset', passwordInfo);
+}

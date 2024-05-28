@@ -1,5 +1,6 @@
 package com.springboot.app.exception;
 
+import com.springboot.app.security.exception.ResourceNotFoundException;
 import com.springboot.app.security.exception.TokenRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,6 +34,19 @@ public class ControllerExceptionHandler {
 	public ErrorMessage globalExceptionHandler(Exception ex, WebRequest request) {
 		return new ErrorMessage(
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				new Date(),
+				ex.getMessage(),
+				request.getDescription(false));
+	}
+
+	/**
+	 * Handle Resource Not Found Exception
+	 */
+	@ExceptionHandler(ResourceNotFoundException.class)
+	@ResponseStatus(value = HttpStatus.NOT_FOUND)
+	public ErrorMessage handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+		return new ErrorMessage(
+				HttpStatus.NOT_FOUND.value(),
 				new Date(),
 				ex.getMessage(),
 				request.getDescription(false));

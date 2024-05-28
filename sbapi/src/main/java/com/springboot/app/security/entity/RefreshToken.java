@@ -14,6 +14,7 @@ public class RefreshToken extends BaseEntity {
 	public void prePersist() {
 		LocalDateTime now = LocalDateTime.now();
 		this.setCreatedAt(now);
+		this.setUpdatedAt(now);
 	}
 
 	@PreUpdate
@@ -26,8 +27,8 @@ public class RefreshToken extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne
-	@JoinColumn(name = "user_id",referencedColumnName = "id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_REFRESH_TOKEN_USER"))
 	private User user;
 
 	@Column(nullable = false, unique = true)

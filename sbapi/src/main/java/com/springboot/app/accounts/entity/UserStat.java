@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="user_stats")
@@ -16,8 +17,9 @@ public class UserStat extends BaseEntity {
 
 	@PrePersist
 	public void prePersist() {
-		this.setCreatedAt(java.time.LocalDateTime.now());
-		this.setUpdatedAt(java.time.LocalDateTime.now());
+		LocalDateTime now = LocalDateTime.now();
+		this.setCreatedAt(now);
+		this.setUpdatedAt(now);
 	}
 
 	@PreUpdate
@@ -47,6 +49,41 @@ public class UserStat extends BaseEntity {
 
 	@Column(name="last_login")
 	private LocalDateTime lastLogin;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+			name="user_badges",
+			joinColumns = {@JoinColumn(name="user_id", foreignKey = @ForeignKey(name="FK_USER_BADGES_USER_ID"))},
+			inverseJoinColumns = {@JoinColumn(name="badge_id", foreignKey = @ForeignKey(name="FK_USER_BADGES_BADGE_ID"))},
+			indexes = {@Index(name="IDX_USER_BADGES", columnList = "USER_ID,BADGE_ID")})
+	private List<Badge> badges;
+
+
+	public void addReputation(long value) {
+		this.reputation += value;
+	}
+
+	public void addCommentCount(long value) {
+		this.commentCount += value;
+	}
+
+	public void addDiscussionCount(long value) {
+		this.discussionCount += value;
+	}
+
+	public void addProfileViewed(long value) {
+		this.profileViewed += value;
+	}
+
+	public void addBadge(Badge badge) {
+		this.badges.add(badge);
+	}
+
+	public void removeBadge(Badge badge) {
+		this.badges.remove(badge);
+	}
+
+
 
 
 

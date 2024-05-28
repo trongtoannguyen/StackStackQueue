@@ -31,7 +31,7 @@ public class Vote extends BaseEntity {
 	private Long id;
 
 	@Column(name="vote_name", length=50)
-	private String voterName;
+	private String voterName; //username of the user who voted
 
 	@Column(name="vote_value")
 	private short voteValue;

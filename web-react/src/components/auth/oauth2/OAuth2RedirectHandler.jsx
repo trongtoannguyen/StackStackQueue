@@ -14,10 +14,11 @@ function OAuth2RedirectHandler() {
     const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
 
     let results = regex.exec(location.search);
+    // console.log(`Check results`, results);
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 
-  const token = getUrlParameter('token');
+  const token = getUrlParameter('token'); //access token
   const error = getUrlParameter('error');
 
   useEffect(() => {
@@ -29,7 +30,6 @@ function OAuth2RedirectHandler() {
   let navigateTo;
   if (token) {
     navigateTo = <Navigate to="/" state={{ from: location }} replace />;
-    console.log(`Here is your location: ${JSON.stringify(location)}`);
   } else {
     navigateTo = <Navigate to="/login" state={{ from: location, error: error }} replace />;
   }

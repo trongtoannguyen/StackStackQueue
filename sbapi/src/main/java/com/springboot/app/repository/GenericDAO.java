@@ -1,18 +1,17 @@
 package com.springboot.app.repository;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+import com.springboot.app.search.SortSpec;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
-
-import com.springboot.app.search.SortSpec;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
@@ -23,6 +22,7 @@ import jakarta.persistence.criteria.Root;
 
 @Repository
 public class GenericDAO {
+	private static final Logger log = LoggerFactory.getLogger(GenericDAO.class);
 	@PersistenceContext
 	protected EntityManager entityManager;
 
@@ -116,7 +116,8 @@ public class GenericDAO {
 				Comparable value2 = valuePair.getValue();
 
 				predicate = builder.between(getPathGeneric(root, paramName), value1, value2);
-			} else {
+			}
+			else if(value !=null) {
 				predicate = builder.equal(getPathGeneric(root, paramName), value);
 			}
 
@@ -231,14 +232,26 @@ public class GenericDAO {
 			Predicate[] predicates = buildPredicates(builder, root, filters);
 			query.where(predicates);
 			var result = entityManager.createQuery(query).getSingleResult();
-			if (result == null) {
+			if(result == null) {
 				return 0;
 			}
 			return result;
-		} catch (Exception e) {
+		}catch (Exception e) {
 			log.error("Error in getMaxNumber", e);
 			return 0;
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

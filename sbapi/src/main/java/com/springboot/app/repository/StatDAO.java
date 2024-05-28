@@ -1,5 +1,6 @@
 package com.springboot.app.repository;
 
+import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.Discussion;
@@ -82,6 +83,17 @@ public class StatDAO {
 
 		return resultList.isEmpty() ? null : resultList.get(0);
 	}
+
+	public UserStat getUserStat(String username) {
+
+		TypedQuery<UserStat> typedQuery = entityManager.createQuery("SELECT u.stat FROM User u where u.username = :username", UserStat.class);
+		typedQuery.setParameter("username", username);
+
+		List<UserStat> resultList = typedQuery.setMaxResults(1).getResultList();
+
+		return resultList.isEmpty() ? null : resultList.get(0);
+	}
+
 
 	public Number countCommentByDiscussion(Discussion discussion) {
 		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(c) FROM Comment c WHERE c.discussion = :discussion", Number.class);

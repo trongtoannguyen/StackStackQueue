@@ -2,11 +2,15 @@ package com.springboot.app.security.service;
 
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.dto.response.AckCodeType;
+import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.PasswordResetRequest;
 import com.springboot.app.security.entity.RefreshToken;
 import com.springboot.app.security.exception.ResourceNotFoundException;
 import com.springboot.app.security.exception.TokenRefreshException;
 import com.springboot.app.security.repository.RefreshTokenRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,11 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
+
+	private static final int MAX_TOKENS = 3;
+	private static final Logger log = LoggerFactory.getLogger(RefreshTokenService.class);
 	@Value("${springboot.app.jwtRefreshExpirationMs}")
 	private Long refreshTokenDurationMs;
 
@@ -54,9 +63,12 @@ public class RefreshTokenService {
 	}
 
 	private RefreshToken generateRefreshTokenByUser(User user) {
-		RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
-				.orElse(new RefreshToken());
+		List<RefreshToken> userTokens = refreshTokenRepository.findByUser(user);
 
+		if(userTokens.size() >= MAX_TOKENS) {
+			refreshTokenRepository.delete(userTokens.getFirst());  // delete the oldest token
+		}
+		RefreshToken refreshToken = new RefreshToken();
 		refreshToken.setUser(user);
 		refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
 		refreshToken.setToken(UUID.randomUUID().toString());
@@ -72,18 +84,51 @@ public class RefreshTokenService {
 			refreshTokenRepository.delete(token);
 			throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signin request");
 		}
+		if(!token.isAvailable()) {
+			refreshTokenRepository.delete(token);
+			throw new TokenRefreshException(token.getToken(), "Refresh token was used. Please make a new signin request");
+		}
 
 		return token;
 	}
 
 	@Transactional
 	public int deleteByUserId(Long userId) {
-		return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
+		User user = userRepository.findById(userId).orElse(null);
+		if(user == null) {
+			return 0;
+		}
+		return refreshTokenRepository.deleteByUser(user);
 	}
 
 	@Transactional
-	public int deleteByToken(String token) {
-		return refreshTokenRepository.deleteByToken(token);
+	public ServiceResponse<Void> deleteByToken(String token, Long userId) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElse(null);
+		if(refreshToken == null) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("Token not found");
+			return response;
+		}
+		if(!Objects.equals(refreshToken.getUser().getId(), userId)) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("Token not found for this user");
+			return response;
+		}
+		refreshTokenRepository.delete(refreshToken);
+		return response;
+	}
+
+	public ServiceResponse<Void> updateAvailableByToken(String token, boolean available) {
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElse(null);
+		if(refreshToken == null) {
+			response.setAckCode(AckCodeType.FAILURE);
+			return response;
+		}
+		refreshToken.setAvailable(available);
+		refreshTokenRepository.save(refreshToken);
+		return response;
 	}
 
 	public User getUserByRefreshToken(String token) {
@@ -94,14 +139,4 @@ public class RefreshTokenService {
 						"Refresh token was expired. Please make a new signin request"));
 	}
 
-	public void updatePassword(PasswordResetRequest passwordResetRequest) {
-		User user = refreshTokenRepository.findByToken(passwordResetRequest.getToken())
-				.map(RefreshToken::getUser)
-				.orElseThrow(() -> new TokenRefreshException(
-						passwordResetRequest.getToken(),
-						"Refresh token was expired. Please make a new signin request"));
-
-		user.setPassword(passwordEncoder.encode(passwordResetRequest.getPassword()));
-		userRepository.save(user);
-	}
 }

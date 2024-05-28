@@ -3,8 +3,11 @@ package com.springboot.app.config;
 import com.springboot.app.accounts.entity.*;
 import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.RoleName;
+import com.springboot.app.emails.entity.RegistrationOption;
+import com.springboot.app.emails.repository.EmailOptionRepository;
 import com.springboot.app.accounts.repository.RoleRepository;
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.emails.entity.EmailOption;
 import com.springboot.app.forums.entity.*;
 import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.forums.service.ForumService;
@@ -40,6 +43,9 @@ public class DatabaseInit {
 
 	@Autowired
 	private GenericService genericService;
+
+	@Autowired
+	private EmailOptionRepository emailOptionRepository;
 
 	@Bean
 	CommandLineRunner initDatabase(RoleRepository roleRepository, UserRepository userRepository) {
@@ -97,6 +103,10 @@ public class DatabaseInit {
 
 		ad.setPerson(p);
 
+		UserStat userStat = new UserStat();
+		userStat.setCreatedBy(ad.getUsername());
+		ad.setStat(userStat);
+
 		userRepository.save(ad);
 		logger.info("Account of admin added to th database.");
 
@@ -153,12 +163,11 @@ public class DatabaseInit {
 
 
 	private void createEmailOption(){
-		EmailOption emailOption = genericService.getEntity(EmailOption.class, 1L).getDataObject();
+		try{
+		EmailOption emailOption = emailOptionRepository.findById(1L).orElse(null);
 		if(emailOption !=null){
 			logger.info("Email option already exists.");
 		}else {
-			logger.info("Email option created.");
-
 			emailOption = new EmailOption();
 			emailOption.setId(1L);
 			emailOption.setCreatedBy("admin");
@@ -167,8 +176,13 @@ public class DatabaseInit {
 			emailOption.setUsername("techforum1368@gmail.com");
 			emailOption.setPassword("hqsjdkrlaujgcxrk");
 			emailOption.setTlsEnable(true);
+			emailOption.setAuthentication(true);
 
-			genericService.saveEntity(emailOption);
+			emailOptionRepository.save(emailOption);
+			logger.info("Email option created.");
+		}
+		}catch (Exception e){
+			logger.error("Error creating email option: "+e.getMessage());
 		}
 	}
 
