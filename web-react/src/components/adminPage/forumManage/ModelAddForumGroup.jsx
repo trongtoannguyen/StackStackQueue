@@ -2,12 +2,17 @@ import { useState } from "react";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { addForumGroup } from "../../../services/ForumService";
-import { logOutSuccess } from "../../../redux/authSlice";
-import { ChromePicker } from "react-color";
-// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../../services/createInstance";
+
+//Service
+import { addForumGroup } from "../../../services/forum/ForumGroup";
+import { logOutSuccess } from "../../../redux/authSlice";
+
+//Color Picker
+import { ChromePicker } from "react-color";
+
+//Icon
 import {
 	FaBeer,
 	FaCoffee,

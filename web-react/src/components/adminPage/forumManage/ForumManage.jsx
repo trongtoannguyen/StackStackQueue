@@ -1,16 +1,23 @@
 import { useState, useEffect } from "react";
-import { getAllForumGroup } from "../../../services/ForumService";
-import { getAllForum } from "../../../services/ForumService";
+import _ from "lodash";
+
+//Service
+import { getAllForumGroup } from "../../../services/forum/ForumGroup";
+import { getAllForum } from "../../../services/forum/Forum";
+
+//Modal
 import ModelAddForumGroup from "./ModelAddForumGroup";
 import ModelUpdateForumGroup from "./ModelUpdateForumGroup";
 import ModelUpdateForum from "./ModelUpdateForum";
 import ModelUpdateActiveForum from "./ModelUpdateActiveForum";
 import ModelDeleteForumGroup from "./ModelDeleteForumGroup";
 import ModelAddForum from "./ModelAddForum";
-import _ from "lodash";
-// import _, { debounce } from "lodash";
+
+//Css
 import "./ForumManage.scss";
 import { Container, Col, Row, Card, ListGroup, Badge } from "react-bootstrap";
+
+//Icon
 import {
 	FaBeer,
 	FaCoffee,
@@ -81,7 +88,6 @@ const ForumManage = () => {
 		let res = await getAllForum();
 		if (res && res.data) {
 			setForum(res.data);
-			console.log(res.data);
 		}
 	};
 
@@ -133,7 +139,6 @@ const ForumManage = () => {
 		let index = cloneListForum.findIndex((forum) => forum.id === listForum.id);
 		cloneListForum[index] = listForum;
 		setForum(cloneListForum);
-		console.log(cloneListForum);
 		listForums();
 	};
 

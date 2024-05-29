@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import ForumInfo from "./ForumInfo";
 import { Link } from "react-router-dom";
-// import ReactPaginate from "react-paginate";
 import BannerTop from "../bannerTop/BannerTop";
-import { getAllForumGroup } from "../../services/ForumService";
-import { getAllForum } from "../../services/ForumService";
 import { Col, Row, Card, ListGroup } from "react-bootstrap";
+
+//Service
+import { getAllForumGroup } from "../../services/forum/ForumGroup";
+import { getAllForum } from "../../services/forum/Forum";
+
+//Page
+import ForumInfo from "./ForumInfo";
+
+//Icon
 import {
 	FaBeer,
 	FaCoffee,
@@ -47,7 +52,6 @@ const ForumGroup = () => {
 		let res = await getAllForum();
 		if (res && res.data) {
 			setForum(res.data);
-			console.log(res.data);
 		}
 	};
 	const renderIcon = (iconName) => {

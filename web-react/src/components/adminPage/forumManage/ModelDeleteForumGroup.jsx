@@ -1,11 +1,12 @@
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { deleteForumGroup } from "../../../services/ForumService";
-import { logOutSuccess } from "../../../redux/authSlice";
-// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
+//Service
+import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
+import { deleteForumGroup } from "../../../services/forum/ForumGroup";
 
 const ModelDeleteForumGroup = (props) => {
 	const {

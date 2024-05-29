@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
 import Home from "../components/homePage/Home";
-import ForumGroup from "../components/forumsPage/ForumGroupPage";
+import ForumGroup from "../components/forumsPage/ForumGroup";
 import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import OAuth2RedirectHandler from "../components/auth/oauth2/OAuth2RedirectHandler";
@@ -49,7 +49,7 @@ function AppRoutes() {
 				<Route path="/term" element={<TermsAndConditions />} />
 				<Route path="/policy" element={<PrivacyPolicy />} />
 
-				<Route path="/forums" element={<ForumGroup />} />
+				<Route path="/forumGroup" element={<ForumGroup />} />
 
 				<Route path="/forum/:forumId" element={<Discussion />} />
 				<Route path="/discussion/:discussionId" element={<ViewDiscussion />} />

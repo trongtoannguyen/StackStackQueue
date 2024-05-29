@@ -1,16 +1,23 @@
 import Table from "react-bootstrap/Table";
-import ForumInfo from "../forumsPage/ForumInfo";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import BannerTop from "../bannerTop/BannerTop";
-import ModalAddDiscussion from "./ModalAddDiscussion";
-import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getForumById } from "../../services/ForumService";
-import { getAllDiscussion } from "../../services/ForumService";
 import { useSelector } from "react-redux";
+import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
 import _ from "lodash";
+
+//Model
+import ForumInfo from "../forumsPage/ForumInfo";
+import ModalAddDiscussion from "./ModalAddDiscussion";
+import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
+
+//Services
+import { getForumById } from "../../services/forum/Forum";
+import { getAllDiscussion } from "../../services/forum/Discussion";
+
+//Scss
 import "./Discussion.scss";
 
 import { Card, Row, Col } from "reactstrap";
@@ -44,9 +51,16 @@ const Discussion = () => {
 		}
 	};
 	const listDiscussionsByForum = async () => {
-		let res = await getAllDiscussion();
-		if (res && res.data) {
-			setListDiscussions(res.data);
+		try {
+			let res = await getAllDiscussion(); // Ensure this service filters by forumId
+			if (res && res.data) {
+				const filteredDiscussions = res.data.filter(
+					(discussion) => discussion.forum.id === parseInt(forumId)
+				);
+				setListDiscussions(filteredDiscussions);
+			}
+		} catch (error) {
+			console.error("Error fetching discussions:", error);
 		}
 	};
 
@@ -70,7 +84,8 @@ const Discussion = () => {
 	};
 
 	useEffect(() => {
-		listDiscussionsByForum();
+		if (listDiscussions.length === 0) listDiscussionsByForum();
+		// listDiscussionsByForum();
 		listForums();
 	}, []);
 	const formatDate = (dateString) => {
@@ -120,50 +135,33 @@ const Discussion = () => {
 								</thead>
 								<tbody>
 									{listDiscussions?.map((item) => {
-										if (item.forum && item.forum.id === parseInt(forumId)) {
-											if ((item.createdBy = currentUser.username)) {
-												return (
-													<tr key={item.id} className="m-2">
-														<td>
-															<h4>
-																<Link to={`/discussion/${item.id}`}>
-																	{item.title}
-																</Link>
-																<button
-																	onClick={() => handleEditDiscussion(item)}
-																>
-																	<i className="fa-solid fa-pencil"></i>
-																</button>
-															</h4>
-															<span>{item.createdBy} </span>
-															<span>{formatDate(item.createdAt)}</span>
-															<span>{item.tags}</span>
-														</td>
-														<td> {item.stat.commentCount}</td>
-														<td> {item.stat.viewCount}</td>
-														<td> {item.stat.lastComment.commenter}</td>
-													</tr>
-												);
-											} else {
-												return (
-													<tr key={item.id} className="m-2">
-														<td>
-															<h4>
-																<Link to={`/discussion/${item.id}`}>
-																	{item.title}
-																</Link>
-															</h4>
-															<span>{item.createdBy} </span>
-															<span>{formatDate(item.createdAt)}</span>
-															<span>{item.tags}</span>
-														</td>
-														<td> {item.stat.commentCount}</td>
-														<td> {item.stat.viewCount}</td>
-														<td> {item.stat.lastComment.commenter}</td>
-													</tr>
-												);
-											}
-										}
+										console.log(item);
+										return (
+											<tr key={item.id} className="m-2">
+												<td>
+													<h4>
+														<Link to={`/discussion/${item.id}`}>
+															{item.title}
+														</Link>
+														{item.createdBy === currentUser.username && (
+															<button
+																onClick={() => handleEditDiscussion(item)}
+															>
+																<i className="fa-solid fa-pencil"></i>
+															</button>
+														)}
+													</h4>
+													<span>{item.createdBy} </span>
+													<span>{formatDate(item.createdAt)}</span>
+													<span>{item.tags}</span>
+												</td>
+												<td>{item.stat.commentCount}</td>
+												<td>{item.stat.viewCount}</td>
+												<td>
+													<LastCommentInfo comment={item.stat.lastComment} />
+												</td>
+											</tr>
+										);
 									})}
 								</tbody>
 							</Table>

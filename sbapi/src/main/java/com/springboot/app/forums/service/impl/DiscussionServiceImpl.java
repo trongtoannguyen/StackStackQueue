@@ -131,12 +131,15 @@ public class DiscussionServiceImpl implements DiscussionService {
 		lastComment.setCommentId(comment.getId());
 
 		DiscussionStat discussionStat = discussion.getStat();
+		discussionStat.setCreatedBy(username);
+		discussionStat.setCreatedAt(LocalDateTime.now());
 		discussionStat.setCommentors(new java.util.HashMap<>());
 		discussionStat.setCommentCount(1);
 		discussionStat.setLastComment(lastComment);
 		discussionStat.getCommentors().put(username, 1);
 		discussionStat.setThumbnailCount(comment.getThumbnails().size());
 		discussionStat.setAttachmentCount(comment.getAttachments().size());
+
 		// note: no need to merge in case of update
 		return discussionStat;
 	}
@@ -288,7 +291,6 @@ public class DiscussionServiceImpl implements DiscussionService {
 	public ServiceResponse<List<DiscussionDTO>> getAllDiscussions() {
 		ServiceResponse<List<DiscussionDTO>> response = new ServiceResponse<>();
 		List<Discussion> discussions = discussionRepository.findAll();
-		log.info("Discussions found: {}", discussions.size());
 		List<DiscussionDTO> dtos = new ArrayList<>();
 		for (Discussion d : discussions) {
 			dtos.add(modelMapper.map(d, DiscussionDTO.class));
@@ -297,11 +299,4 @@ public class DiscussionServiceImpl implements DiscussionService {
 		return response;
 	}
 
-//	@Override
-//	@Transactional(readOnly = true)
-//	public ServiceResponse<Void> updateDiscussion(Discussion discussion) {
-//		ServiceResponse<Void> response = new ServiceResponse<>();
-//		discussionRepository.save(discussion);
-//		return response;
-//	}
 }

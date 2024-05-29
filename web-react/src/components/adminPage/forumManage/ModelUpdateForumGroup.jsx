@@ -2,12 +2,17 @@ import { useState, useEffect } from "react";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { updateForumGroup } from "../../../services/ForumService";
-import { logOutSuccess } from "../../../redux/authSlice";
-import { ChromePicker } from "react-color";
-// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
+//Service
+import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
+import { updateForumGroup } from "../../../services/forum/ForumGroup";
+
+//Color Picker
+import { ChromePicker } from "react-color";
+
+//Icon
 import {
 	FaBeer,
 	FaCoffee,
@@ -60,8 +65,6 @@ const ModelUpdateForumGroup = (props) => {
 		color: color,
 		sortOrder: dataEditForumGroup.sortOrder,
 	};
-
-	// console.log(dataEditForumGroup);
 
 	const handleSaveForumGroup = async () => {
 		let res = await updateForumGroup(

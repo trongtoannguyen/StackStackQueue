@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { createDiscussion } from "../../services/ForumService";
-import { loginSuccess } from "../../redux/authSlice";
 import ReactQuill from "react-quill";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
+//Service
+import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
+import { createDiscussion } from "../../services/forum/Discussion";
 
 const ModalAddDiscussion = (props) => {
 	const { show, handleClose, handleUpdateAddDiscussion } = props;

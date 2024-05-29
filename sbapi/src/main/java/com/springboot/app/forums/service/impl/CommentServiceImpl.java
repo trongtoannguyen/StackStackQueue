@@ -17,12 +17,16 @@ import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.CommentVote;
 import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.DiscussionStat;
 import com.springboot.app.forums.entity.FileInfo;
+import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
+import com.springboot.app.forums.repository.ForumRepository;
 import com.springboot.app.forums.service.CommentService;
 import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.repository.CommentDAO;
@@ -30,6 +34,9 @@ import com.springboot.app.repository.GenericDAO;
 import com.springboot.app.service.FileInfoHelper;
 import com.springboot.app.service.FileService;
 import com.springboot.app.utils.JSFUtils;
+
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.TextExtractor;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -52,6 +59,9 @@ public class CommentServiceImpl implements CommentService {
 
 	@Autowired
 	private DiscussionRepository discussionRepository;
+
+	@Autowired
+	private ForumRepository forumRepository;
 
 	@Autowired
 	private DiscussionService discussionService;
@@ -223,8 +233,6 @@ public class CommentServiceImpl implements CommentService {
 		comment.setThumbnails(fileInfoHelper.createThumbnails(thumbnailFiles));
 		comment.setAttachments(fileInfoHelper.createAttachments(attachmentFiles));
 
-//		discussionEntity.getComments().add(comment); 
-
 		CommentVote commentVote = new CommentVote();
 		commentVote.setCreatedBy(username);
 		commentVote.setCreatedAt(LocalDateTime.now());
@@ -232,13 +240,45 @@ public class CommentServiceImpl implements CommentService {
 
 		comment.setCommentVote(commentVote);
 
-//		discussionRepository.save(discussionEntity); // Save the Discussion
-
 		comment.setDiscussion(discussionEntity); // Save the Discussion
 
 		commentRepository.save(comment);
+
+		// Update the Discussion Stat
+		updateDiscussionLastComment(discussionEntity, comment, username);
+
+		// Save the Forum
+		Forum forum = discussionEntity.getForum();
+		forum.getDiscussions().add(discussionEntity);
+		forumRepository.save(forum);
+
 		response.setDataObject(comment);
 		return response;
+	}
+
+	private DiscussionStat updateDiscussionLastComment(Discussion discussion, Comment comment, String username) {
+		DiscussionStat discussionStat = discussion.getStat();
+
+		CommentInfo lastComment = discussionStat.getLastComment();
+		String contentAbbreviation = new TextExtractor(new Source(comment.getContent())).toString();
+		String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..."
+				: contentAbbreviation;
+
+		lastComment.setUpdatedBy(username);
+		lastComment.setUpdatedAt(LocalDateTime.now());
+		lastComment.setCommentId(comment.getId());
+		lastComment.setCommenter(username);
+		lastComment.setTitle(comment.getTitle());
+		lastComment.setCommentDate(comment.getCreatedAt());
+		lastComment.setContentAbbr(contentAbbr);
+
+		// Set the last comment
+		discussionStat.setUpdatedAt(LocalDateTime.now());
+		discussionStat.setUpdatedBy(username);
+		discussionStat.setLastComment(lastComment);
+
+		return discussionStat;
+
 	}
 
 }

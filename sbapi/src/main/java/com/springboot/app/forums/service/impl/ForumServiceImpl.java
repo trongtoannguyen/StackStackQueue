@@ -1,5 +1,6 @@
 package com.springboot.app.forums.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
@@ -120,19 +121,25 @@ public class ForumServiceImpl implements ForumService {
 	}
 
 	@Override
-	public ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup) {
+	public ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup, String username) {
 		ServiceResponse<ForumDTO> response = new ServiceResponse<>();
 
 		Integer maxSortOrder = forumRepository.findTopBySortOrderForForum(forumGroup.getId());
 
 		newForum.setSortOrder(maxSortOrder + 1);
 		newForum.setActive(true);
-		newForum.setStat(new ForumStat());
+
+		ForumStat forumStat = new ForumStat();
+		forumStat.setCreatedAt(LocalDateTime.now());
+		forumStat.setCreatedBy(username);
+		newForum.setStat(forumStat);
+
 		newForum.setForumGroup(forumGroup);
 
 		newForum = genericDAO.merge(newForum);
 		// map newForum to ForumDTO
 		ForumDTO newForumDTO = convertToDTO(newForum);
+
 		response.setDataObject(newForumDTO);
 		return response;
 	}
@@ -161,9 +168,6 @@ public class ForumServiceImpl implements ForumService {
 	public ServiceResponse<ForumGroup> addForumGroup(ForumGroup newForumGroup, ForumGroup parent) {
 
 		ServiceResponse<ForumGroup> response = new ServiceResponse<>();
-//		Integer maxSortOrder = forumGroupRepository.findMaxSortOrderByParent(parent);
-//		Integer maxSortOrder = genericDAO
-//				.getMaxNumber(ForumGroup.class, "sortOrder", Collections.singletonMap("parent", parent)).intValue();
 
 		Integer maxSortOrder = forumRepository.findTopBySortOrder();
 		newForumGroup.setSortOrder(maxSortOrder + 1);

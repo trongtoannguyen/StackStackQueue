@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { updateForum } from "../../../services/ForumService";
-import { logOutSuccess } from "../../../redux/authSlice";
-// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
+//Service
+import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
+import { updateForum } from "../../../services/forum/Forum";
 
 const ModelUpdateActiveForum = (props) => {
 	const {
@@ -44,7 +45,6 @@ const ModelUpdateActiveForum = (props) => {
 			currentUser?.accessToken,
 			axiosJWT
 		);
-		console.log(res.data);
 
 		if (res && +res.data?.status === 200) {
 			handleClose();

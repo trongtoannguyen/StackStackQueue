@@ -1,7 +1,6 @@
 package com.springboot.app.forums.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,16 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.app.dto.response.ObjectResponse;
-import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.ForumDTO;
 import com.springboot.app.forums.dto.ForumGroupDTO;
 import com.springboot.app.forums.entity.Forum;
-import com.springboot.app.forums.entity.ForumGroup;
 import com.springboot.app.forums.service.ForumService;
 import com.springboot.app.repository.GenericDAO;
 
 @RestController
-@RequestMapping("/api/forums")
+@RequestMapping("/api/view/forums")
 public class ForumController {
 
 	@Autowired
@@ -29,24 +26,13 @@ public class ForumController {
 	@Autowired
 	private GenericDAO genericDAO;
 
-	@RequestMapping("/get-child-forums-and-forum")
-	public ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> getChildForumsAndForumGroups(
-			ForumGroup forumGroup) {
-		return forumService.getChildForumsAndForumGroups(forumGroup);
-	}
-
-	@RequestMapping("/get-child-forums-and-forum-groups")
+	@GetMapping("/get-child-forums-and-forum-groups")
 	public ResponseEntity<ObjectResponse> getChildForumsAndForumGroups() {
 		List<ForumGroupDTO> response = forumService.getChildForumsAndForumGroups();
 		return ResponseEntity.ok(new ObjectResponse("200", "Data list", response));
 	}
 
-	@RequestMapping("/delete-forum-group")
-	public ServiceResponse<Void> deleteForumGroup(ForumGroup forumGroup) {
-		return forumService.deleteForumGroup(forumGroup);
-	}
-
-	@RequestMapping("/get-all-forum")
+	@GetMapping("/get-all-forum")
 	public ResponseEntity<ObjectResponse> getAllForumGroups() {
 		List<ForumDTO> response = forumService.getAllForum();
 		return ResponseEntity.ok(new ObjectResponse("200", "Data list", response));

@@ -132,9 +132,10 @@ public class ForumManagementController {
 
 	@PostMapping("/forums")
 	public ResponseEntity<ObjectResponse> createForum(@RequestBody ForumDTO newForum) {
+		String username = null;
 		try {
 			var userSession = JwtUtils.getSession();
-			String username = userSession.getUsername();
+			username = userSession.getUsername();
 			newForum.setCreatedBy(username);
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
@@ -153,7 +154,7 @@ public class ForumManagementController {
 
 		ForumGroup forumGroup = genericService.findEntity(ForumGroup.class, newForum.getIdForumGroup()).getDataObject();
 
-		ServiceResponse<ForumDTO> response = forumService.addForum(newForumEntity, forumGroup);
+		ServiceResponse<ForumDTO> response = forumService.addForum(newForumEntity, forumGroup, username);
 		if (response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok(new ObjectResponse("201",
 					String.format("Created Forum %s successfully", newForum.getTitle()), response.getDataObject()));

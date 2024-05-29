@@ -17,7 +17,7 @@ public interface ForumService {
 
 	ServiceResponse<Void> deleteForumGroup(ForumGroup forumGroup);
 
-	ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup);
+	ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup, String username);
 
 	ServiceResponse<Void> deleteForum(Forum forum);
 

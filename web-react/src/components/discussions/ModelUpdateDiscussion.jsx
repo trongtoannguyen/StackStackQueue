@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { updateDiscussion } from "../../services/ForumService";
-import { loginSuccess } from "../../redux/authSlice";
 import ReactQuill from "react-quill";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+
+//Service
 import { createAxios } from "../../services/createInstance";
+import { loginSuccess } from "../../redux/authSlice";
+import { updateDiscussion } from "../../services/forum/Discussion";
 
 const ModalUpdateDiscussion = (props) => {
 	const {
@@ -36,9 +38,7 @@ const ModalUpdateDiscussion = (props) => {
 		sticky: false,
 		important: false,
 	};
-	console.log(dataUpdateDiscussion);
 
-	// const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);

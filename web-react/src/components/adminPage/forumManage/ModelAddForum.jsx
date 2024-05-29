@@ -2,12 +2,17 @@ import { useState } from "react";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
-import { addForum } from "../../../services/ForumService";
-import { loginSuccess } from "../../../redux/authSlice";
-import { ChromePicker } from "react-color";
-// import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../../services/createInstance";
+
+//Service
+import { addForum } from "../../../services/forum/Forum";
+import { loginSuccess } from "../../../redux/authSlice";
+
+//Color Picker
+import { ChromePicker } from "react-color";
+
+//Icon
 import {
 	FaBeer,
 	FaCoffee,
@@ -66,7 +71,6 @@ const ModelAddForum = (props) => {
 			axiosJWT
 		);
 		if (res && +res.data?.status === 201) {
-			console.log(res.data);
 			handleClose();
 			setTitle("");
 			setIcon(null);

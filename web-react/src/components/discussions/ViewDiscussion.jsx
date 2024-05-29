@@ -1,15 +1,19 @@
-import DiscussionInfo from "./DiscussionInfo";
 import BannerTop from "../bannerTop/BannerTop";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getDiscussionById } from "../../services/ForumService";
 import ReactQuill from "react-quill";
-import { createComment } from "../../services/ForumService";
 import { useSelector, useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/authSlice";
-import { createAxios } from "../../services/createInstance";
 import { toast } from "react-toastify";
 import { Card, Row, Col, Button } from "reactstrap";
+
+//Service
+import { loginSuccess } from "../../redux/authSlice";
+import { createAxios } from "../../services/createInstance";
+import { getDiscussionById } from "../../services/forum/Discussion";
+import { createComment } from "../../services/forum/Comment";
+
+//Modal
+import DiscussionInfo from "./DiscussionInfo";
 
 const ViewDiscussion = () => {
 	const { discussionId } = useParams();
@@ -55,7 +59,6 @@ const ViewDiscussion = () => {
 				currentUser?.accessToken,
 				axiosJWT
 			);
-			console.log(res);
 			if (res && +res.data?.status === 201) {
 				setIsShowAddNewComment(false);
 				setContent("");
