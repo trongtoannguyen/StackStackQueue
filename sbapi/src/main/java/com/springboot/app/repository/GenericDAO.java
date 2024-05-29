@@ -4,7 +4,6 @@ import com.springboot.app.search.SortSpec;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -12,6 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 @Repository
 public class GenericDAO {
@@ -31,20 +38,20 @@ public class GenericDAO {
 	public <E> E merge(E entity) {
 		return entityManager.merge(entity);
 	}
+
 	public void refresh(Object entity) {
 		entityManager.refresh(entity);
 	}
-
 
 	public <E> E find(Class<E> entityClass, Object id) {
 		return entityManager.find(entityClass, id);
 	}
 
 	public <E> List<E> findAll(Class<E> entityClass) {
-		TypedQuery<E> query = entityManager.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e", entityClass);
+		TypedQuery<E> query = entityManager.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e",
+				entityClass);
 		return query.getResultList();
 	}
-
 
 	public <E> List<E> findAll(Class<E> entityClass, List<String> joinFetchProperties) {
 
@@ -54,7 +61,7 @@ public class GenericDAO {
 		Root<E> entity = criteriaQuery.from(entityClass);
 
 		// fetch specified properties
-		for(String property : joinFetchProperties) {
+		for (String property : joinFetchProperties) {
 			entity.fetch(property, JoinType.LEFT);
 		}
 
@@ -63,15 +70,13 @@ public class GenericDAO {
 		return typedQuery.getResultList();
 	}
 
-
 	public <E> Number countEntities(Class<E> entityClass) {
-		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT count(e) FROM " + entityClass.getSimpleName() + " e", Number.class);
+		TypedQuery<Number> typedQuery = entityManager
+				.createQuery("SELECT count(e) FROM " + entityClass.getSimpleName() + " e", Number.class);
 		return typedQuery.getSingleResult();
 	}
 
-
-	public <E> E getEntity(Class<E> entityClass,
-	                       Map<String, Object> filters) {
+	public <E> E getEntity(Class<E> entityClass, Map<String, Object> filters) {
 
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<E> query = builder.createQuery(entityClass);
@@ -87,7 +92,7 @@ public class GenericDAO {
 
 		List<E> resultList = typedQuery.getResultList();
 
-		if(resultList.isEmpty()) {
+		if (resultList.isEmpty()) {
 			return null;
 		}
 
@@ -102,7 +107,7 @@ public class GenericDAO {
 
 			Predicate predicate = null;
 
-			if(value instanceof Map.Entry) {
+			if (value instanceof Map.Entry) {
 				@SuppressWarnings("rawtypes")
 				Map.Entry<Comparable, Comparable> valuePair = (Map.Entry<Comparable, Comparable>) value;
 				@SuppressWarnings("rawtypes")
@@ -128,9 +133,9 @@ public class GenericDAO {
 	private <E> Path<E> getPathGeneric(Root<?> root, String pathExpression) {
 
 		String[] paths = pathExpression.split("\\.");
-		if(paths.length > 1) {
-			Join<?,?> join = root.join(paths[0], JoinType.LEFT);
-			for(int i = 1; i < paths.length - 1; i++) {
+		if (paths.length > 1) {
+			Join<?, ?> join = root.join(paths[0], JoinType.LEFT);
+			for (int i = 1; i < paths.length - 1; i++) {
 				join = join.join(paths[i], JoinType.LEFT);
 			}
 
@@ -140,9 +145,8 @@ public class GenericDAO {
 		return root.<E>get(pathExpression);
 	}
 
-
-	public <T, R> List<T> getEntities(Class<T> targetClass, String targetPath,
-	                                  Class<R> entityClass, Map<String, Object> filters) {
+	public <T, R> List<T> getEntities(Class<T> targetClass, String targetPath, Class<R> entityClass,
+			Map<String, Object> filters) {
 
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<T> query = builder.createQuery(targetClass);
@@ -156,8 +160,7 @@ public class GenericDAO {
 		return entityManager.createQuery(query).getResultList();
 	}
 
-	public <E> List<E> getEntities(Class<E> entityClass,
-	                               Map<String, Object> filters) {
+	public <E> List<E> getEntities(Class<E> entityClass, Map<String, Object> filters) {
 
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<E> query = builder.createQuery(entityClass);
@@ -171,8 +174,7 @@ public class GenericDAO {
 		return entityManager.createQuery(query).getResultList();
 	}
 
-	public <E> List<E> getEntities(Class<E> entityClass,
-	                               Map<String, Object> filters, SortSpec sortSpec) {
+	public <E> List<E> getEntities(Class<E> entityClass, Map<String, Object> filters, SortSpec sortSpec) {
 
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<E> query = builder.createQuery(entityClass);
@@ -183,16 +185,16 @@ public class GenericDAO {
 		Predicate[] predicates = buildPredicates(builder, root, filters);
 		query.where(predicates);
 
-		query.orderBy(sortSpec.dir == SortSpec.Direction.ASC ?
-				builder.asc(getPathGeneric(root, sortSpec.field)) : builder.desc(getPathGeneric(root, sortSpec.field)));
+		query.orderBy(sortSpec.dir == SortSpec.Direction.ASC ? builder.asc(getPathGeneric(root, sortSpec.field))
+				: builder.desc(getPathGeneric(root, sortSpec.field)));
 
 		TypedQuery<E> typedQuery = entityManager.createQuery(query);
 
 		return typedQuery.getResultList();
 	}
 
-	public <E> List<E> getEntities(Class<E> entityClass,
-	                               Map<String, Object> filters, int startPosition, int maxResult, SortSpec sortSpec) {
+	public <E> List<E> getEntities(Class<E> entityClass, Map<String, Object> filters, int startPosition, int maxResult,
+			SortSpec sortSpec) {
 
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<E> query = builder.createQuery(entityClass);
@@ -203,8 +205,8 @@ public class GenericDAO {
 		Predicate[] predicates = buildPredicates(builder, root, filters);
 		query.where(predicates);
 
-		query.orderBy(sortSpec.dir == SortSpec.Direction.ASC ?
-				builder.asc(getPathGeneric(root, sortSpec.field)) : builder.desc(getPathGeneric(root, sortSpec.field)));
+		query.orderBy(sortSpec.dir == SortSpec.Direction.ASC ? builder.asc(getPathGeneric(root, sortSpec.field))
+				: builder.desc(getPathGeneric(root, sortSpec.field)));
 
 		TypedQuery<E> typedQuery = entityManager.createQuery(query);
 
@@ -213,7 +215,6 @@ public class GenericDAO {
 
 		return typedQuery.getResultList();
 	}
-
 
 	public <E> Number getMaxNumber(Class<E> entityClass, String targetPath, Map<String, Object> filters) {
 		try {
