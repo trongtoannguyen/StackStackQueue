@@ -1,10 +1,28 @@
 package com.springboot.app.forums.service.impl;
 
-import com.springboot.app.accounts.entity.User;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
-import com.springboot.app.forums.entity.*;
+import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.CommentInfo;
+import com.springboot.app.forums.entity.CommentVote;
+import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.DiscussionStat;
+import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.repository.CommentRepository;
+import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
 import com.springboot.app.forums.repository.ForumRepository;
 import com.springboot.app.forums.service.DiscussionService;
@@ -12,19 +30,13 @@ import com.springboot.app.repository.CommentDAO;
 import com.springboot.app.repository.DiscussionDAO;
 import com.springboot.app.service.FileInfoHelper;
 import com.springboot.app.service.FileService;
+
+import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
-@Service
+@Service("discussionService")
+@Slf4j
 public class DiscussionServiceImpl implements DiscussionService {
 
 	@Autowired
@@ -47,48 +59,61 @@ public class DiscussionServiceImpl implements DiscussionService {
 	@Autowired
 	private FileService fileService;
 
+	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
+	private CommentVoteRepository commentVoteRepository;
+
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Discussion> addDiscussion(
-			Discussion newDiscussion, Comment comment, String username,
-			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles
-	) {
+	public ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username,
+			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
 		ServiceResponse<Discussion> response = new ServiceResponse<>();
-
 		comment.setTitle(newDiscussion.getTitle());
 		comment.setCreatedBy(username);
-		comment.setUpdatedBy(username);
 
 		newDiscussion.setCreatedBy(username);
-		newDiscussion.setUpdatedBy(username);
 
-		//comment thumbnails
+		// comment thumbnails
 		comment.setThumbnails(fileInfoHelper.createThumbnails(thumbnailFiles));
-		//comment attachments
+		// comment attachments
 		comment.setAttachments(fileInfoHelper.createAttachments(attachmentFiles));
 
-		comment.setCommentVote(new CommentVote());
+		CommentVote commentVote = new CommentVote();
+		commentVote.setCreatedBy(username);
+		commentVote.setCreatedAt(LocalDateTime.now());
+		commentVote = commentVoteRepository.save(commentVote);
+
+		// Save the CommentVote
+		comment.setCommentVote(commentVote); //
 
 		newDiscussion.setComments(new ArrayList<>(List.of(comment)));
 
 		discussionRepository.save(newDiscussion);
-
 		comment.setDiscussion(newDiscussion);
 		commentRepository.save(comment);
-
 		// important, make sure to call this after comment is persisted
+
 		// so all DB managed fields (id, createDate, ect) are available
 		populateDiscussionStat(comment, newDiscussion, username);
 
 		Forum forum = newDiscussion.getForum();
 		forum.getDiscussions().add(newDiscussion);
 		forumRepository.save(forum);
-
-
 		response.setDataObject(newDiscussion);
 		return response;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public ServiceResponse<DiscussionDTO> getById(Long id) {
+		ServiceResponse<DiscussionDTO> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(id).orElse(null);
+		DiscussionDTO dto = modelMapper.map(discussion, DiscussionDTO.class);
+		response.setDataObject(dto);
+		return response;
+	}
 
 	private DiscussionStat populateDiscussionStat(Comment comment, Discussion discussion, String username) {
 		// populate discussion stat
@@ -99,24 +124,27 @@ public class DiscussionServiceImpl implements DiscussionService {
 		lastComment.setTitle(comment.getTitle());
 
 		String contentAbbreviation = new TextExtractor(new Source(comment.getContent())).toString();
-		String contentAbbr= contentAbbreviation.length() > 100
-				? contentAbbreviation.substring(0, 97)+"..."
+		String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..."
 				: contentAbbreviation;
 
 		lastComment.setContentAbbr(contentAbbr);
 		lastComment.setCommentId(comment.getId());
 
 		DiscussionStat discussionStat = discussion.getStat();
+		discussionStat.setCreatedBy(username);
+		discussionStat.setCreatedAt(LocalDateTime.now());
 		discussionStat.setCommentors(new java.util.HashMap<>());
 		discussionStat.setCommentCount(1);
 		discussionStat.setLastComment(lastComment);
 		discussionStat.getCommentors().put(username, 1);
 		discussionStat.setThumbnailCount(comment.getThumbnails().size());
 		discussionStat.setAttachmentCount(comment.getAttachments().size());
-		//note: no need to merge in case of update
+
+		// note: no need to merge in case of update
 		return discussionStat;
 	}
 
+	@Override
 	@Transactional(readOnly = false)
 	public ServiceResponse<Void> deleteDiscussion(Discussion discussion) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
@@ -131,16 +159,17 @@ public class DiscussionServiceImpl implements DiscussionService {
 		List<String> thumbnailPaths = commentDAO.getThumbnailPathsForDiscussion(discussion);
 
 		/*
-		 * add a hook to transaction callback to remove files if transaction success (committed)
+		 * add a hook to transaction callback to remove files if transaction success
+		 * (committed)
 		 */
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 			@Override
 			public void afterCompletion(int status) {
-				if(status == TransactionSynchronization.STATUS_COMMITTED) {
-					for(String path : thumbnailPaths) {
+				if (status == TransactionSynchronization.STATUS_COMMITTED) {
+					for (String path : thumbnailPaths) {
 						fileService.deleteCommentThumbnail(path);
 					}
-					for(String path : attachmentPaths) {
+					for (String path : attachmentPaths) {
 						fileService.deleteCommentAttachment(path);
 					}
 				}
@@ -163,7 +192,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 		toForum.getDiscussions().add(discussion);
 		forumRepository.save(toForum);
 
-		if(fromForum != null) {
+		if (fromForum != null) {
 			fromForum.getDiscussions().remove(discussion);
 //			fromForum.getStat().setLastComment(null);
 			forumRepository.save(fromForum);
@@ -182,6 +211,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 
 		return response;
 	}
+
 	@Transactional(readOnly = true)
 //	@Cacheable(value=CachingConfig.DISCCUSIONS, key="{'discussionService.getMostViewsDiscussions', #daysBack, #maxResult}")
 	public ServiceResponse<List<Discussion>> getMostViewsDiscussions(Integer daysBack, Integer maxResult) {
@@ -223,7 +253,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
 
 		List<Long> discussionIds = new ArrayList<>();
-		for(Discussion d : discussions) {
+		for (Discussion d : discussions) {
 			discussionIds.add(d.getId());
 		}
 
@@ -242,10 +272,31 @@ public class DiscussionServiceImpl implements DiscussionService {
 		return response;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public ServiceResponse<List<DiscussionDTO>> getDiscussionsByForum(Long id) {
+		ServiceResponse<List<DiscussionDTO>> response = new ServiceResponse<>();
+		List<Discussion> discussions = discussionRepository.findDiscussionByForumId(id);
+		log.info("Discussions found: {}", discussions.size());
+		List<DiscussionDTO> dtos = new ArrayList<>();
+		for (Discussion d : discussions) {
+			dtos.add(modelMapper.map(d, DiscussionDTO.class));
+		}
+		response.setDataObject(dtos);
+		return response;
+	}
 
-
-
-
-
+	@Override
+	@Transactional(readOnly = true)
+	public ServiceResponse<List<DiscussionDTO>> getAllDiscussions() {
+		ServiceResponse<List<DiscussionDTO>> response = new ServiceResponse<>();
+		List<Discussion> discussions = discussionRepository.findAll();
+		List<DiscussionDTO> dtos = new ArrayList<>();
+		for (Discussion d : discussions) {
+			dtos.add(modelMapper.map(d, DiscussionDTO.class));
+		}
+		response.setDataObject(dtos);
+		return response;
+	}
 
 }

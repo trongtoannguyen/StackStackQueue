@@ -1,28 +1,38 @@
 package com.springboot.app.forums.controller;
 
-import com.springboot.app.dto.response.AckCodeType;
-import com.springboot.app.dto.response.ObjectResponse;
-import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.dto.AddDiscussionRequest;
-import com.springboot.app.forums.dto.UploadedFileData;
-import com.springboot.app.forums.entity.*;
-import com.springboot.app.forums.service.DiscussionService;
-import com.springboot.app.security.jwt.JwtUtils;
-import com.springboot.app.service.GenericService;
-import com.springboot.app.service.SystemConfigService;
-import com.springboot.app.utils.JSFUtils;
-import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.springboot.app.dto.response.AckCodeType;
+import com.springboot.app.dto.response.ObjectResponse;
+import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.AddDiscussionRequest;
+import com.springboot.app.forums.dto.DiscussionDTO;
+import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.DiscussionStat;
+import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.repository.CommentRepository;
+import com.springboot.app.forums.service.DiscussionService;
+import com.springboot.app.security.jwt.JwtUtils;
+import com.springboot.app.service.GenericService;
+import com.springboot.app.utils.JSFUtils;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/discussions")
@@ -32,36 +42,36 @@ public class DiscussionController {
 
 	@Autowired
 	private DiscussionService discussionService;
+
 	@Autowired
 	private GenericService genericService;
 
 	@Autowired
-	private SystemConfigService systemConfigService;
+	private ModelMapper modelMapper;
+
+	@Autowired
+	private CommentRepository commentRepository;
 
 	@PostMapping("/add")
-	public ResponseEntity<ObjectResponse> addDiscussion(@Valid @RequestBody AddDiscussionRequest newDiscussion){
+	public ResponseEntity<ObjectResponse> addDiscussion(@Valid @RequestBody AddDiscussionRequest newDiscussion) {
+
 		Forum forum = genericService.getEntity(Forum.class, newDiscussion.getForumId()).getDataObject();
-		if(forum == null){
-			return ResponseEntity.ok(new ObjectResponse(
-					"404",
-					String.format("Forum with id %d not found", newDiscussion.getForumId()),
-					null));
+		if (forum == null) {
+			return ResponseEntity.ok(new ObjectResponse("404",
+					String.format("Forum with id %d not found", newDiscussion.getForumId()), null));
 		}
-		if(!forum.isActive()){
-			return ResponseEntity.ok(new ObjectResponse(
-					"400",
-					String.format("Forum %s is not active", forum.getTitle()),
-					null));
+		if (!forum.isActive()) {
+			return ResponseEntity
+					.ok(new ObjectResponse("400", String.format("Forum %s is not active", forum.getTitle()), null));
 		}
 //		CommentOption commentOption = systemConfigService.getCommentOption().getDataObject();
 		String username = null;
-		try{
+		try {
 			var userSession = JwtUtils.getSession();
 			username = userSession.getUsername();
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
-
 
 		Discussion discussion = newDiscussion.getDiscussion();
 		discussion.setStat(new DiscussionStat());
@@ -73,24 +83,94 @@ public class DiscussionController {
 
 		comment.setIpAddress(JSFUtils.getRemoteIPAddress());
 
-		//note: uploaded files are not supported, so we pass empty lists
-		ServiceResponse<Discussion> response = discussionService.addDiscussion(
-				discussion,
-				comment,
-				username,
-				Collections.emptyList(),
-				Collections.emptyList()
-		);
+		// note: uploaded files are not supported, so we pass empty lists
+		ServiceResponse<Discussion> response = discussionService.addDiscussion(discussion, comment, username,
+				Collections.emptyList(), Collections.emptyList());
 
-		if(response.getAckCode() == AckCodeType.SUCCESS) {
-			return ResponseEntity.ok(new ObjectResponse(
-					"201",
-					String.format("Created Discussion %s successfully", discussion.getTitle()),
-					response.getDataObject()));
+		DiscussionDTO discussionDTO = modelMapper.map(response.getDataObject(), DiscussionDTO.class);
+
+		if (response.getAckCode() == AckCodeType.SUCCESS) {
+			return ResponseEntity.ok(new ObjectResponse("201",
+					String.format("Created Discussion %s successfully", discussion.getTitle()), discussionDTO));
 		}
-		return ResponseEntity.ok(new ObjectResponse(
-				"400",
-				String.format("Could not create Discussion: %s", discussion.getTitle()),
-				null));
+		return ResponseEntity.ok(new ObjectResponse("400",
+				String.format("Could not create Discussion: %s", discussion.getTitle()), null));
 	}
+
+	@GetMapping("/byId/{id}")
+	public ResponseEntity<ObjectResponse> getDiscussionById(@PathVariable Long id) {
+		ServiceResponse<DiscussionDTO> response = discussionService.getById(id);
+		if (response.getDataObject() != null && response.getDataObject().getId() != null) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Discussion found", response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("404", "Discussion not found", null));
+	}
+
+	@GetMapping("/byFourm/{id}")
+	public ResponseEntity<ObjectResponse> getDiscussionsByForum(Long id) {
+		ServiceResponse<List<DiscussionDTO>> response = discussionService.getDiscussionsByForum(id);
+		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Discussions found", response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("404", "Discussions not found", null));
+	}
+
+	@GetMapping("/all")
+	public ResponseEntity<ObjectResponse> getAllDiscussions() {
+		ServiceResponse<List<DiscussionDTO>> response = discussionService.getAllDiscussions();
+		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Discussions found", response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("404", "Discussions not found", null));
+	}
+
+	@PutMapping("/update/{id}")
+	public ResponseEntity<ObjectResponse> updateDiscussion(@PathVariable Long id,
+			@Valid @RequestBody AddDiscussionRequest newDiscussion) {
+		try {
+			LocalDateTime now = LocalDateTime.now();
+			var userSession = JwtUtils.getSession();
+			String username = userSession.getUsername();
+			newDiscussion.getDiscussion().setUpdatedBy(username);
+			newDiscussion.getDiscussion().setUpdatedAt(now);
+		} catch (Exception e) {
+			logger.error("Error getting user session: {}", e.getMessage());
+		}
+
+		Discussion oldDiscussion = genericService.findEntity(Discussion.class, id).getDataObject();
+		if (oldDiscussion == null || oldDiscussion.getId() == null) {
+			return ResponseEntity
+					.ok(new ObjectResponse("404", String.format("Discussion with id %d not found", id), null));
+		}
+
+		Comment comment = commentRepository.findCommentByDiscussionTitle(oldDiscussion.getTitle());
+		if (comment == null || comment.getId() == null) {
+			return ResponseEntity
+					.ok(new ObjectResponse("404", String.format("Comment with id %d not found", id), null));
+		}
+
+		ServiceResponse<Discussion> response = genericService.updateEntity(newDiscussion.getDiscussion());
+
+		comment.setId(comment.getId());
+		comment.setDiscussion(newDiscussion.getDiscussion());
+		comment.setTitle(newDiscussion.getDiscussion().getTitle());
+		comment.setContent(newDiscussion.getContent());
+		comment.setUpdatedAt(LocalDateTime.now());
+		comment.setUpdatedBy(newDiscussion.getDiscussion().getUpdatedBy());
+		comment.setIpAddress(JSFUtils.getRemoteIPAddress());
+		comment.setCommentVote(comment.getCommentVote());
+		commentRepository.save(comment);
+
+		// map discussion to discussionDTO
+		DiscussionDTO discussionDTO = modelMapper.map(response.getDataObject(), DiscussionDTO.class);
+
+		if (response.getAckCode() != AckCodeType.FAILURE) {
+			return ResponseEntity.ok(new ObjectResponse("200",
+					String.format("Updated Discussion %s successfully", newDiscussion.getDiscussion().getTitle()),
+					discussionDTO));
+		}
+		return ResponseEntity.ok(new ObjectResponse("400",
+				String.format("Could not update Discussion: %s", newDiscussion.getDiscussion().getTitle()), null));
+	}
+
 }

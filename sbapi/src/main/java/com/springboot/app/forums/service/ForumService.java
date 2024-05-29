@@ -1,11 +1,13 @@
 package com.springboot.app.forums.service;
 
-import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.entity.Forum;
-import com.springboot.app.forums.entity.ForumGroup;
-
 import java.util.List;
 import java.util.Map;
+
+import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.ForumDTO;
+import com.springboot.app.forums.dto.ForumGroupDTO;
+import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.entity.ForumGroup;
 
 public interface ForumService {
 
@@ -15,8 +17,13 @@ public interface ForumService {
 
 	ServiceResponse<Void> deleteForumGroup(ForumGroup forumGroup);
 
-	ServiceResponse<Forum> addForum(Forum newForum, ForumGroup forumGroup);
+	ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup, String username);
 
 	ServiceResponse<Void> deleteForum(Forum forum);
 
+	List<ForumGroupDTO> getChildForumsAndForumGroups();
+
+	List<ForumDTO> getAllForum();
+
+	ServiceResponse<ForumDTO> getById(Forum forum);
 }
