@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.accounts.dto.request.AccountInfo;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.service.UserService;
 import com.springboot.app.dto.response.ObjectResponse;
@@ -27,10 +28,22 @@ public class AccountInfoController {
 		return ResponseEntity.ok(new ObjectResponse("200", "Success user", user));
 	}
 
-	@PostMapping("/update-info")
-	public ResponseEntity<?> updatePersonInfo(@RequestBody User user) {
-		return ResponseEntity.ok("Account Info Updated");
+	@GetMapping("/account/{username}")
+	public ResponseEntity<ObjectResponse> getAccountInfoByUsername(@PathVariable String username) {
+		User user = userService.findByUsername(username).orElse(null);
+		if (user == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "User not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Success user", user));
 	}
+
+	@PutMapping("/update-info/{username}")
+	public ResponseEntity<ObjectResponse> updateAccountInfo(@PathVariable String username, @RequestBody AccountInfo accountInfo) {
+		User user = userService.findByUsername(username).orElse(null);
+		if (user == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "User not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Success user", user));}
 
 	@PostMapping("/update-password")
 	public ResponseEntity<?> updatePassword() {

@@ -60,7 +60,7 @@ public class PasswordResetController {
 
 	@PostMapping("/reset")
 	public ResponseEntity<ObjectResponse> resetPassword(@Valid @RequestBody PasswordRequest passwordRequest) {
-		logger.info("Reset password request for email {}", passwordRequest.getKey());
+//		logger.info("Reset password request for email {}", passwordRequest.getKey());
 		ServiceResponse<Void> response = passwordResetService.updatePassword(passwordRequest);
 		if(response.getAckCode() != AckCodeType.SUCCESS) {
 			return ResponseEntity
