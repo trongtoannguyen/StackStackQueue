@@ -84,14 +84,14 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "user_stat_id", foreignKey = @ForeignKey(name = "FK_USER_USER_STAT"))
 	private UserStat stat;
 
-	@Column(name = "provider_id")
+	@Column(name = "provider_id",length=100)
 	private String providerId;
 
-	@Column(name = "provider_name")
+	@Column(name = "provider_name",length=100)
 	@Enumerated(EnumType.STRING)
 	private AuthProvider provider;
 
-	@Column(name = "name")
+	@Column(name = "name",length=100)
 	private String name;
 
 	@Column(name = "image_url")

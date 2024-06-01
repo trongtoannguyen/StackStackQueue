@@ -269,21 +269,6 @@ public class UserServiceImpl implements UserService {
 		return messages;
 	}
 
-	public ServiceResponse<String> getAvatarMember(String username) {
-		ServiceResponse<String> response = new ServiceResponse<>();
-		User user = userRepository.findByUsername(username).orElse(null);
-		if(user != null && user.getImageUrl() != null) {
-			response.setDataObject(user.getImageUrl());
-		}
-		else if(user != null && user.getAvatar() != null) {
-			response.setDataObject(user.getAvatar());
-		}else {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("User not found");
-		}
-		return response;
-	}
-
 	@Transactional(readOnly=false)
 	public ServiceResponse<Void> passwordReset(PasswordReset passwordReset, String newPassword) {
 		ServiceResponse<Void> response = new ServiceResponse<>();

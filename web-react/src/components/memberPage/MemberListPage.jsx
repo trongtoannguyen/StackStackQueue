@@ -1,26 +1,20 @@
 import { Link } from "react-router-dom";
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import BannerTop from "../bannerTop/BannerTop";
 
-import { getAllUserStats } from "../../services/UserStatService";
+import { getAllUserStats, getAvatarByUsername } from "../../services/UserStatService";
 import { formatDifferentUpToNow } from "../../utils/FormatHelper";
 
 import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Table,
   Row,
-  Col,
 } from "reactstrap";
-
-
-import Avatar from "../avatar/Avatar";
-import { useEffect, useState } from "react";
-
 import Pagination from "../pagination/Pagination";
+
+import { fetchAvatarByUsername } from "../../services/UserService";
+import noAvatar from '../../assets/img/default-avatar.png';
+import Avatar from "../avatar/Avatar";
+
 
 
 
@@ -55,6 +49,16 @@ const MemberList = () => {
     return true;
   }
 
+  const getAvatar = async (username) => {
+    let res = await getAvatarByUsername(username);
+    if (res?.data && +res?.status === 200) {
+      const img = res?.data;
+      console.log(`img`, img);
+      return img
+    }
+    return noAvatar;
+  }
+
 
 
   const getDataUserStat = useCallback(async () => {
@@ -73,7 +77,7 @@ const MemberList = () => {
       setTotalUsers(totalItems);
     }
     return true;
-  }, [page, pageSize, orderBy, sortBy])
+  }, [page, pageSize, orderBy, sortBy]);
 
 
   useEffect(() => {
@@ -95,7 +99,7 @@ const MemberList = () => {
       );
     }
     return (
-      <Table responsive>
+      <table className="table responsive">
         <thead className="text-primary">
           <tr>
             <th>
@@ -113,7 +117,7 @@ const MemberList = () => {
                 ></i>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Discussion&nbsp;</span>
               <span className="d-inline-block">
                 <i
@@ -128,7 +132,7 @@ const MemberList = () => {
                 ></i>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
 
               <span>Comments&nbsp;</span>
               <span className="d-inline-block">
@@ -144,7 +148,7 @@ const MemberList = () => {
                 ></i>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Join Forum&nbsp;</span>
               <span className="d-inline-block">
                 <i
@@ -159,7 +163,7 @@ const MemberList = () => {
                 ></i>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Reputation&nbsp;</span>
               <span className="d-inline-block">
                 <i
@@ -183,18 +187,18 @@ const MemberList = () => {
               <tr key={item?.id}>
                 <td>
                   <Link to={"/member-profile/" + item.createdBy} className="text-decoration-none">
-                    <Avatar username={item?.createdBy} height={50} width={50} />
+                    <Avatar src={fetchAvatarByUsername(item?.createdBy) ?? noAvatar} username={item?.createdBy} height={50} width={50} />
                   </Link>
                 </td>
-                <td className="text-right">{item?.discussionCount}</td>
-                <td className="text-right">{item?.commentCount}</td>
-                <td className="text-right">{item?.createdAt ? formatDifferentUpToNow(item.createdAt) : ""}</td>
-                <td className="text-right"> {item?.reputation}</td>
+                <td style={{ textAlign: "right" }}>{item?.discussionCount}</td>
+                <td style={{textAlign:"right"}}>{item?.commentCount}</td>
+                <td style={{ textAlign: "right" }}>{item?.createdAt ? formatDifferentUpToNow(item.createdAt) : ""}</td>
+                <td style={{ textAlign: "right" }}> {item?.reputation}</td>
               </tr>
             )
           })}
         </tbody>
-      </Table>
+      </table>
     );
   }
 
@@ -203,39 +207,36 @@ const MemberList = () => {
   return (
     <section className="members-container content">
       <Row>
-        <Col md="12">
+        <div className="col-12">
           <BannerTop
             bannerName={bannerName}
             breadcrumbs={breadcrumbs}
           />
-        </Col>
-        <Col md="12">
+        </div>
+        <div className="col-12">
           <Row className="px-2">
-            <Card>
-              <CardHeader>
-                <Row>
+            <div className="card">
+              <div className="card-header">
+                <div className="row d-flex justify-content-around">
                   <span className="col-md-4 mb-2 mb-lg-0">
-                    <CardTitle tag="h4">Total: {totalUsers} user(s)/page{ page}</CardTitle>
+                    <h4>Total: {totalUsers} user(s)/page{ page}</h4>
                   </span>
 
                   <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
-                  </span>
-
-                  <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
-                    <label htmlFor="page" className="col-8">Page size:</label>
+                    <label htmlFor="page" className="col-auto">Page size:</label>
                     <select id="page" name="page"
-                      className="form-select col-4"
+                      className="form-select"
                       onChange={(e) => setPageSize(e.currentTarget.value)}
                     >
-                      <option value="5">05</option>
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
+                      <option value="5">05 per page</option>
+                      <option value="10">10 per page</option>
+                      <option value="20">20 per page</option>
+                      <option value="50">50 per page</option>
                     </select>
                   </span>
-                </Row>
-              </CardHeader>
-              <CardBody>
+                </div>
+              </div>
+              <div className="card-body">
                 {tableList(userStatList)}
 
                 <Pagination
@@ -244,10 +245,10 @@ const MemberList = () => {
                   totalPages={totalPages}
                 />
 
-              </CardBody>
-            </Card>
+              </div>
+            </div>
           </Row>
-        </Col>
+        </div>
       </Row>
     </section>
   );

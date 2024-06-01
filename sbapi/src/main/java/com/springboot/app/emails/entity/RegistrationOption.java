@@ -14,7 +14,7 @@ public class RegistrationOption extends BaseEntity {
 	public void prePersist() {
 		LocalDateTime now = LocalDateTime.now();
 		this.setCreatedAt(now);
-
+		this.setUpdatedAt(now);
 	}
 
 	@PreUpdate
@@ -41,7 +41,7 @@ public class RegistrationOption extends BaseEntity {
 	private String passwordResetEmailSubject;
 
 	@Lob @Basic
-	@Column(name="password_reset_email_template")
+	@Column(name="password_reset_email_template",columnDefinition = "LONGTEXT")
 	private String passwordResetEmailTemplate;
 
 }

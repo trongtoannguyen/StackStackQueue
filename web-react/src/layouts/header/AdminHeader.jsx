@@ -5,6 +5,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logOut } from "../../redux/apiRequest";
 import { createAxios } from "../../services/createInstance";
 import { logOutSuccess } from "../../redux/authSlice";
+import { fetchImage } from "../../services/UserService";
+
 
 import {
   Collapse,
@@ -21,6 +23,7 @@ import {
 } from "reactstrap";
 
 import avatar from "../../assets/img/default-avatar.png";
+import Avatar from "../../components/avatar/Avatar";
 
 import routes from "../../routes/routesForAdmin";
 import SearchFormHeader from "../../components/search/SearchFormHeader";
@@ -34,11 +37,11 @@ function AdminHeader() {
   const dispatch = useDispatch();
   let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
+  let avatarUser = useSelector(state => state.users.avatar);
 
   const handleLogout = () => {
     logOut(dispatch, id, navigate, accessToken, axiosJWT);
   }
-
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
@@ -47,6 +50,7 @@ function AdminHeader() {
   const [color, setColor] = React.useState("transparent");
   const sidebarToggle = React.useRef();
   const location = useLocation();
+
   const toggle = () => {
     if (isOpen) {
       setColor("transparent");
@@ -107,6 +111,19 @@ function AdminHeader() {
     }
   }
 
+  function getAvatar() {
+    if (avatarUser && avatarUser!==null) {
+      return fetchImage(avatarUser);
+    }
+    if (currentUser?.imageUrl !== null) {
+      return currentUser.imageUrl;
+    }
+    if (currentUser.avatar !== null) {
+      return fetchImage(currentUser.avatar);
+    }
+    return avatar;
+  }
+
 
   React.useEffect(() => {
     window.addEventListener("resize", updateColor.bind(this));
@@ -120,6 +137,7 @@ function AdminHeader() {
       sidebarToggle.current.classList.toggle("toggled");
     }
   }, [location]);
+
 
   return (
     // add or remove classes depending if we are on full-screen-maps page or not
@@ -193,7 +211,7 @@ function AdminHeader() {
                 toggle={(e) => dropdownToggleAccount(e)}
               >
                 <DropdownToggle caret nav>
-                  <img src={(currentUser?.avatar ?? currentUser?.imageUrl) ?? avatar} alt="avatar" className="avatar d-lg-inline-block d-none" style={{ height: "25px", width: "25px", borderRadius: "50%", }} />
+                  <Avatar src={getAvatar()} username={currentUser?.username} height={25} width={25} />
                   <p>
                     <span className="d-lg-none d-md-block text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
                   </p>
@@ -237,16 +255,6 @@ function AdminHeader() {
                   </Link>
                 </NavItem>
               </>
-            }
-
-            {currentUser?.username &&
-              <NavItem className="d-lg-inline-block d-none">
-                <Link to="/my-profile" className="nav-link btn-rotate">
-                  <p>
-                    <span className="text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
-                  </p>
-                </Link>
-              </NavItem>
             }
 
           </Nav>

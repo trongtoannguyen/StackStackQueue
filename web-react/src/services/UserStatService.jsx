@@ -77,3 +77,7 @@ export const getBadgeOfUser = async (username) => {
   }
 }
 
+export const getAvatarByUsername = async (username) => {
+  return await axios.get(`user-stat/images/avatar-name/${username}`);
+}
+

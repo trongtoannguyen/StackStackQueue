@@ -15,7 +15,7 @@ const BannerTop = (props) => {
     <div className="banner-top-container my-3">
       {breadcrumbs && breadcrumbs.length > 0 &&
         <Breadcrumb className="col-12" aria-label='breadcrumb'>
-          <Breadcrumb.Item href="#">
+          <Breadcrumb.Item href="/">
             <i className="fa-solid fa-house"></i>
           </Breadcrumb.Item>
 

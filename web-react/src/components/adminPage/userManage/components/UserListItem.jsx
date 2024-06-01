@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import Avatar from '../../../avatar/Avatar';
 import { Link } from 'react-router-dom';
 import { convertListNameRole } from '../../../../utils/Helper';
+import { fetchImage } from '../../../../services/UserService';
+import noAvatar from "../../../../assets/img/default-avatar.png";
 
 const UserListItem = (props) => {
   const { user, handleShowHideEdit, handleSetEditUser, handleShowHide, handleSetDeleteUser } = props;
@@ -21,7 +23,7 @@ const UserListItem = (props) => {
     <tr key={user.id}>
       <td>
         <div className='ml-0 me-auto'>
-          <Avatar src={user?.imageUrl} username={user?.username} height={50} width={50} />
+          <Avatar src={user?.imageUrl ?? (user?.avatar ? fetchImage(user?.avatar) : noAvatar )} username={user?.username} height={50} width={50} />
         </div>
       </td>
       <td>

@@ -37,13 +37,13 @@ public class JwtUtils {
 	private String jwtSecret;
 
 	@Value("${springboot.app.jwtExpirationMs}")
-	private int jwtExpirationMs;
+	private long jwtExpirationMs;
 
 	@Value("${springboot.app.jwtCookieName}")
 	private String jwtCookie;
 
 	@Value("${springboot.app.jwtRefreshExpirationMs}")
-	private int jwtRefreshExpirationMs;
+	private long jwtRefreshExpirationMs;
 
 	@Value("${springboot.app.jwtRefreshCookieName}")
 	private String jwtRefreshCookie;

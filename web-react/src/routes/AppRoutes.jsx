@@ -22,7 +22,6 @@ import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
 
-import TableUsers from "../components/adminPage/userManage/UsersListManagePage";
 
 const ROLES = {
 	ADMIN: "ROLE_ADMIN",
@@ -57,7 +56,6 @@ function AppRoutes() {
 				<Route path="/list-discussion" element={<ListDiscussions />} />
 
 				<Route path="/members" element={<MemberList />} />
-				<Route path="/member-profile/:username" element={<MemberProfile />} />
 
 				<Route
 					element={
@@ -65,8 +63,8 @@ function AppRoutes() {
 					}
 				>
 					<Route path="/redirect-to" element={<RedirectHandlerAfterLogin />} />
+					<Route path="/member-profile/:username" element={<MemberProfile />} />
 
-					<Route path="/users" element={<TableUsers />} />
 				</Route>
 
 				{/* catch all */}

@@ -16,7 +16,6 @@ public interface UserService {
 	Optional<User> findByEmail(String email);
 
 	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection, String search);
-	ServiceResponse<String> getAvatarMember(String username);
 
 	ServiceResponse<User> createNewUser(SignupRequest signupRequest);
 

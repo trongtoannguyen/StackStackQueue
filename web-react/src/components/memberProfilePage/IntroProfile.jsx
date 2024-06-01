@@ -99,32 +99,6 @@ const IntroProfile = () => {
 
   return (
     <section className='w-100 px-3'>
-      <h4>Intro <i className="fa-solid fa-pen-to-square"></i></h4>
-      <Row className='w-100 d-flex justify-content-around'>
-        {/* <Col md="3" className=' card m-2 p-3 d-flex justify-content-center'>
-          <div className='d-flex flex-column'>
-            <img src={avatar} alt="..." className="img-circle img-no-padding img-responsive" />
-            <Button color="primary">Download .pdf</Button>
-          </div>
-        </Col> */}
-        <Col md="12" className='m-2 p-3'>
-          <Row>
-            <Col sm="6">
-              Full Name: John Doe
-            </Col>
-            <Col sm="6">
-              Date of Birth: 05/08/1999
-            </Col>
-            <Col sm="6">
-              Gender: Male
-            </Col>
-            <Col sm="6">
-              Address: American
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      <hr />
       <h4>Following</h4>
       <Row className='w-100 d-flex justify-content-around'>
         {cardUser()}

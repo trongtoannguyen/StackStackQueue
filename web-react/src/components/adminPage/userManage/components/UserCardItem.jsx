@@ -12,6 +12,8 @@ import {
 import Avatar from "../../../avatar/Avatar";
 
 import { convertListNameRole } from '../../../../utils/Helper';
+import { fetchImage } from '../../../../services/UserService';
+import noAvatar from "../../../../assets/img/default-avatar.png";
 
 
 const UserCardItem = (props) => {
@@ -30,7 +32,7 @@ const UserCardItem = (props) => {
 
 
   return (
-    <Col key={user.id} lg="4" md="6" sm="6">
+    <Col key={user.id} lg="4" md="6" sm="6" className='my-3'>
       <Card
         color={user.active ? 'primary' : ''}
         className="card-stats text-dark">
@@ -38,7 +40,7 @@ const UserCardItem = (props) => {
           <Row>
             <Col md="4" xs="5">
               <div className="icon-big text-center icon-warning">
-                <Avatar src={user?.imageUrl} username="" height={100} width={100} />
+                <Avatar src={user?.imageUrl ?? (user?.avatar ? fetchImage(user?.avatar) : noAvatar)} username="" height={100} width={100} />
               </div>
             </Col>
             <Col md="8" xs="7">

@@ -24,6 +24,7 @@ const EmailOption = () => {
   const [authentication, setAuthentication] = useState(true);
 
   const [show, setShow] = useState(false);
+  // const [showTest, setShowTest] = useState(false);
 
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
@@ -105,7 +106,6 @@ const EmailOption = () => {
           </div>
         }
 
-        <hr />
         {!show &&
           <Row className="d-flex justify-content-end">
             <Button className="col-md-2 me-3" variant="secondary" onClick={() => setShow(!show)}>{show ? "Close" : "Update"}</Button>
@@ -144,8 +144,8 @@ const EmailOption = () => {
           </Card>
         }
 
-
       </Col>
+      <h3></h3>
 
     </div>
   )

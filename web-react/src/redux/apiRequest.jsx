@@ -67,6 +67,7 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
     console.log(`Logout error: ${err.message}`);
     toast.error("Log out failed!");
     dispatch(logOutFailed());
+    navigate("/login");
   }
 };
 
@@ -103,3 +104,4 @@ export const forgotPassword = async (email) => {
 export const resetPassword = async (passwordInfo) => {
   return await axios.post('reset-password/reset', passwordInfo);
 }
+

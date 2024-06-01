@@ -5,11 +5,13 @@ import {
 } from "reactstrap";
 
 import Avatar from "../avatar/Avatar";
+import { fetchAvatarByUsername, fetchImage } from "../../services/UserService";
 
 
 const ActivitiesProfile = (props) => {
 
-  const { username } = props;
+  const { username, userInfo } = props;
+
 
 
   const activities = [
@@ -36,6 +38,18 @@ const ActivitiesProfile = (props) => {
     }
   }
 
+
+  const urlAvatarUser = () => {
+    if (userInfo.imageUrl) {
+      return userInfo.imageUrl;
+    }
+    if (userInfo.avatar) {
+      return fetchImage(userInfo.avatar);
+    }
+
+    return null;
+  }
+
   return (
     <Card className="card-activities">
       <CardHeader>Activities History</CardHeader>
@@ -47,7 +61,7 @@ const ActivitiesProfile = (props) => {
                 <tr key={activity.id}>
                   <td className="col-1">
                     <p className={setColor(activity.color)}>
-                      <Avatar src="" username="" height={50} width={50} />
+                      <Avatar src={urlAvatarUser()} username="" height={50} width={50} />
                     </p>
                   </td>
                   <td className="col-auto">
@@ -78,8 +92,11 @@ const ActivitiesProfile = (props) => {
   )
 }
 
+
 ActivitiesProfile.propTypes = {
   username: PropTypes.string.isRequired,
+  userInfo: PropTypes.object.isRequired,
 };
+
 
 export default ActivitiesProfile;

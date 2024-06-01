@@ -5,6 +5,9 @@ import {
   getUsersFailed,
   getUsersStart,
   getUsersSuccess,
+  uploadAvatarStart,
+  uploadAvatarSuccess,
+  uploadAvatarFailed
 } from "./userSlice";
 
 import { pathParams } from '../utils/Helper';
@@ -33,7 +36,25 @@ export const deleteUser = async (accessToken, dispatch, id, axiosJWT) => {
     });
     dispatch(deleteUsersSuccess(res.data));
   } catch (err) {
-    dispatch(deleteUserFailed(err.response.data));
+    dispatch(deleteUserFailed(err.message));
   }
 };
 
+
+export const uploadAvatar = async (dispatch, accessToken, axiosJWT, data, username) => {
+  dispatch(uploadAvatarStart());
+  try {
+    const res = await axiosJWT.post(`account-info/update-avatar/${username}`, data, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log(`Check up res data`, res.data.data);
+    dispatch(uploadAvatarSuccess(res.data.data));
+    return res.data;
+  } catch (err) {
+    dispatch(uploadAvatarFailed());
+    console.error("Error upload avatar", JSON.stringify(err.message));
+  }
+}
