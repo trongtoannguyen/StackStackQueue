@@ -9,8 +9,6 @@ import { GENDER, EMAIL_REGEX } from '../../constants';
 const ModalEditProfile = (props) => {
   const { show, handleClose, handleUpdateInfo, user } = props;
 
-  console.log(`Check user`, user);
-
 
   const [username, setUsername] = useState(user?.username);
 
@@ -34,7 +32,12 @@ const ModalEditProfile = (props) => {
   const [bio, setBio] = useState(user?.bio);
 
 
+  // const [errMsg, setErrMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+
   const handleEditProfile = () => {
+    setIsLoading(true);
     if (!validName || !validEmail || !validAddress || !validBirth || !validPhone) {
       toast.error('Please enter valid information');
       return null;
@@ -51,6 +54,8 @@ const ModalEditProfile = (props) => {
     };
     console.log(`Check dataEdit `, dataEdit);
     handleUpdateInfo(dataEdit);
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -205,7 +210,8 @@ const ModalEditProfile = (props) => {
           Close
         </Button>
         <Button variant="primary" onClick={handleEditProfile} className='ml-auto me-0'>
-          Save change
+          {isLoading && <i className="fas fa-sync fa-spin"></i>}
+          &nbsp;Save change
         </Button>
       </Modal.Footer>
 

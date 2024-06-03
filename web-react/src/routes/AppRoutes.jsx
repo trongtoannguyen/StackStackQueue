@@ -12,7 +12,7 @@ import ListDiscussions from "../components/discussions/ListDiscussions";
 
 import MemberList from "../components/memberPage/MemberListPage";
 import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
-
+import ChangePassword from "../components/memberProfilePage/ChangePasswordPage";
 import Layout from "../layouts/Layout";
 import ForgotPassword from "../components/auth/resetPassword/ForgotPassword";
 import UpdatePassword from "../components/auth/resetPassword/UpdatePassword";
@@ -64,6 +64,7 @@ function AppRoutes() {
 				>
 					<Route path="/redirect-to" element={<RedirectHandlerAfterLogin />} />
 					<Route path="/member-profile/:username" element={<MemberProfile />} />
+					<Route path="/change-password/:username" element={<ChangePassword />} />
 
 				</Route>
 

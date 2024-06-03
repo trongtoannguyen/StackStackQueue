@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
 import NoAvatar from "../../assets/img/default-avatar.png";
-import { fetchImage } from "../../services/UserService";
+import { fetchImage } from "../../services/userService/UserService";
 
 
 const ModalEditImage = (props) => {
@@ -14,7 +14,7 @@ const ModalEditImage = (props) => {
 
   const [file, setFile] = useState(null);
   const [img, setImg] = useState(null);
-  let avatarUser = useSelector(state => state.users.avatar);
+  let avatarUser = useSelector(state => state.avatar.avatar?.name);
   let currentUser = useSelector(state => state.auth.login?.currentUser);
 
   const reader = new FileReader();
@@ -48,13 +48,13 @@ const ModalEditImage = (props) => {
   }
 
   function getAvatar() {
-    if (avatarUser!==null) {
+    if (avatarUser) {
       return fetchImage(avatarUser);
     }
-    if (currentUser.imageUrl !==null) {
+    if (currentUser.imageUrl) {
       return currentUser.imageUrl;
     }
-    if (currentUser.avatar !==null) {
+    if (currentUser.avatar) {
       return fetchImage(currentUser.avatar);
     }
     return NoAvatar;

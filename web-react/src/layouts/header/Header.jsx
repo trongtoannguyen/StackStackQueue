@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logOut } from "../../redux/apiRequest";
 import { createAxios } from "../../services/createInstance";
 import { logOutSuccess } from "../../redux/authSlice";
-import { fetchImage } from "../../services/UserService";
+import { fetchImage } from "../../services/userService/UserService";
 
 
 import {
@@ -28,7 +28,7 @@ import Avatar from "../../components/avatar/Avatar";
 import routes from "../../routes/routesForAdmin";
 import SearchFormHeader from "../../components/search/SearchFormHeader";
 
-function AdminHeader() {
+function Header() {
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
   const accessToken = currentUser?.accessToken;
@@ -37,7 +37,7 @@ function AdminHeader() {
   const dispatch = useDispatch();
   let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
-  let avatarUser = useSelector(state => state.users.avatar);
+  let avatarUser = useSelector(state => state.avatar?.avatar?.name);
 
   const handleLogout = () => {
     logOut(dispatch, id, navigate, accessToken, axiosJWT);
@@ -101,6 +101,11 @@ function AdminHeader() {
     navigate(url);
   }
 
+  const handleRedirectToChangePassword = () => {
+    let url = `/change-password/${currentUser?.username}`;
+    navigate(url);
+  }
+
   function getNavbarClassName() {
     if (location.pathname.indexOf("full-screen-maps") !== -1) {
       return "navbar-absolute fixed-top";
@@ -112,7 +117,7 @@ function AdminHeader() {
   }
 
   function getAvatar() {
-    if (avatarUser && avatarUser!==null) {
+    if (avatarUser && avatarUser !== null) {
       return fetchImage(avatarUser);
     }
     if (currentUser?.imageUrl !== null) {
@@ -211,7 +216,7 @@ function AdminHeader() {
                 toggle={(e) => dropdownToggleAccount(e)}
               >
                 <DropdownToggle caret nav>
-                  <Avatar src={getAvatar()} username={currentUser?.username} height={25} width={25} />
+                  <Avatar src={getAvatar()} height={25} width={25} />
                   <p>
                     <span className="d-lg-none d-md-block text-three-dot">{currentUser?.name ?? currentUser?.username}</span>
                   </p>
@@ -225,7 +230,12 @@ function AdminHeader() {
                       <span className="d-block">My profile</span>
                     </p>
                   </DropdownItem>
-                  <DropdownItem tag="a">Activities</DropdownItem>
+                  <DropdownItem tag="a" onClick={handleRedirectToChangePassword}>
+                    <i className="fa-solid fa-key fa-xl d-inline-block d-none"></i>
+                    <p>
+                      <span className="d-block">Change password</span>
+                    </p>
+                  </DropdownItem>
                   <DropdownItem divider />
                   <DropdownItem tag="a" onClick={() => handleLogout()}>
                     <i className="fa-solid fa-right-from-bracket fa-xl d-inline-block d-none"></i>
@@ -264,4 +274,4 @@ function AdminHeader() {
   );
 }
 
-export default AdminHeader;
+export default Header;

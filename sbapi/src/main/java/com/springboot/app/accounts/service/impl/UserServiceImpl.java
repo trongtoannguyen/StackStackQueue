@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
 import com.springboot.app.accounts.entity.*;
 import com.springboot.app.accounts.enumeration.AccountStatus;
@@ -301,16 +302,16 @@ public class UserServiceImpl implements UserService {
 
 	//Update user password with new password but verify the oldPassword with current user.password
 	@Transactional(readOnly=false)
-	public ServiceResponse<Void> updatePassword(String oldPassword,String newPassword, User user) {
+	public ServiceResponse<Void> updateNewPassword(NewPasswordRequest newPasswordRequest, User user) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
-		if(!encoder.matches(oldPassword, user.getPassword())) {
+		if(!encoder.matches(newPasswordRequest.getOldPassword(), user.getPassword())) {
 			response.setAckCode(AckCodeType.FAILURE);
 			response.addMessage("Current password is incorrect");
-		}else if("".equals(newPassword)) {
+		}else if("".equals(newPasswordRequest.getNewPassword())) {
 			response.setAckCode(AckCodeType.FAILURE);
 			response.addMessage("New Password must not be empty");
 		}else {
-			user.setPassword(encoder.encode(newPassword));
+			user.setPassword(encoder.encode(newPasswordRequest.getNewPassword()));
 			userRepository.save(user);
 		}
 		return response;

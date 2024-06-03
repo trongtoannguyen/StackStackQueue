@@ -1,6 +1,7 @@
 package com.springboot.app.accounts.controller;
 
 import com.springboot.app.accounts.dto.request.AccountInfo;
+import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.repository.UserRepository;
@@ -11,6 +12,7 @@ import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.jwt.JwtUtils;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +70,17 @@ public class AccountInfoController {
 		return ResponseEntity.ok(new ObjectResponse("200", "Update account info successfully", user));}
 
 	@PostMapping("/update-password")
-	public ResponseEntity<?> updatePassword() {
-		return ResponseEntity.ok("Account Info Deleted");
+	public ResponseEntity<ObjectResponse> updateNewPassword(@Valid @RequestBody NewPasswordRequest newPasswordRequest) {
+		logger.info("Update password for user {}", newPasswordRequest.getUsername());
+		User user = userService.findByUsername(newPasswordRequest.getUsername()).orElse(null);
+		if (user == null) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("404", "User not found", null));
+		}
+		ServiceResponse<Void> response = userService.updateNewPassword(newPasswordRequest, user);
+		if (response.getAckCode() != AckCodeType.SUCCESS) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("400", response.getMessages().getFirst(), null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Update password successfully", null));
 	}
 
 

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { Button, Col, Row, Card } from "react-bootstrap";
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import { getEmailOptionById, putUpdateEmailOption } from "../../../services/EmailOptionService";
+import { getEmailOptionById, putUpdateEmailOption } from "../../../services/emailService/EmailOptionService";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
 

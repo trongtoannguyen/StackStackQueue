@@ -18,7 +18,7 @@ import { Tab, Tabs } from 'react-bootstrap';
 import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
-import { deleteUser, patchUpdateStatusUser } from "../../../services/UserService";
+import { deleteUser, patchUpdateStatusUser } from "../../../services/userService/UserService";
 
 
 import UserCardItem from "./components/UserCardItem";

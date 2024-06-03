@@ -1,6 +1,6 @@
 
-import { API_BASE_URL } from "../constants";
-import { pathParams } from '../utils/Helper';
+import { API_BASE_URL } from "../../constants";
+import { pathParams } from '../../utils/Helper';
 
 export const getAllUsers = async (pageData, axiosJWT, accessToken) => {
   try {
@@ -56,6 +56,20 @@ export const getAccountInfoByUsername = async (username, axiosJWT, accessToken) 
   }
 }
 
+//use in profilePage: update new password
+export const postUpdatePassword = async (pwdData, axiosJWT, accessToken) => {
+  try {
+    let res = await axiosJWT.post(`account-info/update-password`, pwdData, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+
+}
+
+
 //use in profilePage: edit info
 export const postUpdateInfo = async (accessToken, axiosJWT, data) => {
   try {
@@ -106,7 +120,7 @@ export const postUploadAvatar = async (accessToken, axiosJWT, data, username) =>
   }
 }
 
-export const fetchImage = (filename)=> {
+export const fetchImage = (filename) => {
   return `${API_BASE_URL}/api/user-stat/images/${filename}`;
 }
 

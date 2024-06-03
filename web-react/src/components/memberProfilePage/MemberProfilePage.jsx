@@ -14,7 +14,7 @@ import IntroProfile from './IntroProfile';
 import BannerTop from '../bannerTop/BannerTop';
 import ActivitiesProfile from "./ActivitiesProfile";
 
-import { getUserInfoByUsername, postUpdateInfo, fetchImage } from '../../services/UserService';
+import { getUserInfoByUsername, postUpdateInfo, fetchImage } from '../../services/userService/UserService';
 import { createAxios } from '../../services/createInstance';
 import { loginSuccess } from '../../redux/authSlice';
 import noAvatar from "../../assets/img/default-avatar.png";
@@ -95,7 +95,7 @@ const MemberProfile = () => {
     return null;
   }
 
-  const handleUpdateInfo = async(newInfo) => {
+  const handleUpdateInfo = async (newInfo) => {
     console.log(`Here is new info: `, newInfo);
     let res = await postUpdateInfo(currentUser.accessToken, axiosJWT, newInfo);
     if (res && +res?.status === 200) {
@@ -104,7 +104,7 @@ const MemberProfile = () => {
       setUserInfo(res?.data);
     } else {
       toast.error("Update info user failed");
-      console.log(`Update Error`,res.message);
+      console.log(`Update Error`, res.message);
     }
     return null;
   }
@@ -117,18 +117,12 @@ const MemberProfile = () => {
   function buttonFollow() {
     if (username === currentUser.username) {
       return (
-        <>
-          <button className="btn ml-auto"
-            onClick={() => { setShowModal(true) }}>
-            <i className="fa-solid fa-pen-to-square fa-xl"></i>
-            <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
-          </button>
-          <button className="btn ml-auto">
-            <i className="fa-solid fa-key fa-xl"></i>
-            <span className='mx-2 d-none d-lg-inline-block'>Change Password</span>
-          </button>
-        </>
-      )
+        <button className="btn ml-auto"
+          onClick={() => { setShowModal(true) }}>
+          <i className="fa-solid fa-pen-to-square fa-xl"></i>
+          <span className='mx-2 d-none d-lg-inline-block'>Edit Profile</span>
+        </button>
+      );
     }
 
     if (isFollow) {

@@ -5,11 +5,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 const BannerTop = (props) => {
   const { bannerName, breadcrumbs } = props;
-  // Rest of the component code...
-  BannerTop.propTypes = {
-    bannerName: PropTypes.string.isRequired,
-    breadcrumbs: PropTypes.array.isRequired,
-  };
+
 
   return (
     <div className="banner-top-container my-3">
@@ -38,5 +34,11 @@ const BannerTop = (props) => {
     </div>
   );
 }
+
+// Rest of the component code...
+BannerTop.propTypes = {
+  bannerName: PropTypes.string.isRequired,
+  breadcrumbs: PropTypes.array.isRequired,
+};
 
 export default BannerTop;

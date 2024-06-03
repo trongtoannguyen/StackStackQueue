@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 
-function AdminFooter(props) {
+function Footer(props) {
 
   return (
     <footer className={+(props.default) ? "footer footer-default" : "footer"}>
@@ -38,9 +38,9 @@ function AdminFooter(props) {
   );
 }
 
-AdminFooter.propTypes = {
+Footer.propTypes = {
   default: PropTypes.bool,
   fluid: PropTypes.bool,
 };
 
-export default AdminFooter;
+export default Footer;

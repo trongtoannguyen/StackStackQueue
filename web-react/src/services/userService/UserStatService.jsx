@@ -1,5 +1,5 @@
-import axios from './customize-axios';
-import { pathParams } from '../utils/Helper';
+import axios from '../customize-axios';
+import { pathParams } from '../../utils/Helper';
 
 export const getAllUserStats = async (pageData) => {
   try {

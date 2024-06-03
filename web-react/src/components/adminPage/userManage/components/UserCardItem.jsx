@@ -12,7 +12,7 @@ import {
 import Avatar from "../../../avatar/Avatar";
 
 import { convertListNameRole } from '../../../../utils/Helper';
-import { fetchImage } from '../../../../services/UserService';
+import { fetchImage } from '../../../../services/userService/UserService';
 import noAvatar from "../../../../assets/img/default-avatar.png";
 
 

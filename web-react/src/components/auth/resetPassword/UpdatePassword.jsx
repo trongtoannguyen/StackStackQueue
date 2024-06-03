@@ -159,7 +159,7 @@ const UpdatePassword = () => {
       </small>
 
       <button
-        className={isAction() ? "active" : ""}
+        className={isAction() ? "active mx-auto" : "mx-auto"}
         disabled={isAction() ? +false : +true}
         onClick={() => handleUpdatePassword()}
       >

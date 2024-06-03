@@ -5,10 +5,13 @@ import {
   getUsersFailed,
   getUsersStart,
   getUsersSuccess,
+} from "./userSlice";
+
+import {
   uploadAvatarStart,
   uploadAvatarSuccess,
   uploadAvatarFailed
-} from "./userSlice";
+} from "./avatarSlice";
 
 import { pathParams } from '../utils/Helper';
 

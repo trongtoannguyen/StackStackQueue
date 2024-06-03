@@ -9,8 +9,6 @@ const userSlice = createSlice({
             error: false
         },
         msg: "",
-        avatar: null,
-
     },
     reducers: {
         getUsersStart: (state) => {
@@ -39,17 +37,7 @@ const userSlice = createSlice({
         clearUserList: (state) => {
             state.users.allUsers = null;
             state.msg = null;
-            state.avatar = null;
         },
-        uploadAvatarStart: (state) => {
-            state.avatar = null;
-        },
-        uploadAvatarSuccess: (state, action) => {
-            state.avatar = action.payload;
-        },
-        uploadAvatarFailed: (state) => {
-            state.avatar = null;
-        }
 
     }
 })
@@ -62,9 +50,6 @@ export const {
     deleteUsersSuccess,
     deleteUserFailed,
     clearUserList,
-    uploadAvatarStart,
-    uploadAvatarSuccess,
-    uploadAvatarFailed
 } = userSlice.actions;
 
 export default userSlice.reducer;

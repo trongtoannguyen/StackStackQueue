@@ -150,7 +150,6 @@ const RegisterForm = () => {
           placeholder="Password (*)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e)}
           required
           aria-invalid={!validPwd}
           aria-describedby="password-err"
@@ -210,7 +209,7 @@ const RegisterForm = () => {
       </small>
 
       <button
-        className={isAction() ? "active" : ""}
+        className={isAction() ? "active mx-auto" : "mx-auto"}
         disabled={isAction() ? +false : +true}
         onClick={() => handleRegister()}
       >

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import BannerTop from "../bannerTop/BannerTop";
 
-import { getAllUserStats, getAvatarByUsername } from "../../services/UserStatService";
+import { getAllUserStats, getAvatarByUsername } from "../../services/userService/UserStatService";
 import { formatDifferentUpToNow } from "../../utils/FormatHelper";
 
 import {
@@ -11,7 +11,7 @@ import {
 } from "reactstrap";
 import Pagination from "../pagination/Pagination";
 
-import { fetchAvatarByUsername } from "../../services/UserService";
+import { fetchAvatarByUsername } from "../../services/userService/UserService";
 import noAvatar from '../../assets/img/default-avatar.png';
 import Avatar from "../avatar/Avatar";
 
@@ -187,11 +187,13 @@ const MemberList = () => {
               <tr key={item?.id}>
                 <td>
                   <Link to={"/member-profile/" + item.createdBy} className="text-decoration-none">
-                    <Avatar src={fetchAvatarByUsername(item?.createdBy) ?? noAvatar} username={item?.createdBy} height={50} width={50} />
+                    <Avatar src={fetchAvatarByUsername(item?.createdBy) ?? noAvatar}
+                      username={item?.createdBy}
+                      height={50} width={50} />
                   </Link>
                 </td>
                 <td style={{ textAlign: "right" }}>{item?.discussionCount}</td>
-                <td style={{textAlign:"right"}}>{item?.commentCount}</td>
+                <td style={{ textAlign: "right" }}>{item?.commentCount}</td>
                 <td style={{ textAlign: "right" }}>{item?.createdAt ? formatDifferentUpToNow(item.createdAt) : ""}</td>
                 <td style={{ textAlign: "right" }}> {item?.reputation}</td>
               </tr>
@@ -219,7 +221,7 @@ const MemberList = () => {
               <div className="card-header">
                 <div className="row d-flex justify-content-around">
                   <span className="col-md-4 mb-2 mb-lg-0">
-                    <h4>Total: {totalUsers} user(s)/page{ page}</h4>
+                    <h4>Total: {totalUsers} user(s)/page{page}</h4>
                   </span>
 
                   <span className="ml-auto me-0 col-md-2 d-flex align-items-center">

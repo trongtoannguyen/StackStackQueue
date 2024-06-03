@@ -5,7 +5,7 @@ import {
 } from "reactstrap";
 
 import Avatar from "../avatar/Avatar";
-import { fetchAvatarByUsername, fetchImage } from "../../services/UserService";
+import { fetchAvatarByUsername, fetchImage } from "../../services/userService/UserService";
 
 
 const ActivitiesProfile = (props) => {
@@ -70,7 +70,7 @@ const ActivitiesProfile = (props) => {
                     </p>
                     <small className="text-muted">{activity?.time}</small>
                   </td>
-                  <td className={"td-actions "+ setColor(activity.color)}>
+                  <td className={"td-actions " + setColor(activity.color)}>
                     <Button
                       className="btn-link"
                       color="info"

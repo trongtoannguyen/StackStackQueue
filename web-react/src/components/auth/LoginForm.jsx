@@ -155,7 +155,7 @@ const LoginForm = () => {
         </div>
 
         <button type="submit"
-          className={username && password ? "active" : ""}
+          className={username && password ? "active mx-auto" : "mx-auto"}
           disabled={username && password ? "" : "disabled"}
         >
           {isLoading && <i className="fas fa-sync fa-spin"></i>}

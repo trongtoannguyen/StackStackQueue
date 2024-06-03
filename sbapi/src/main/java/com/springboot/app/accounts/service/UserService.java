@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service;
 
+import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.enumeration.AccountStatus;
@@ -26,5 +27,7 @@ public interface UserService {
 	void updateLastLogin(Long id);
 
 	ServiceResponse<User> updateRoleUser(UpdateRoleRequest updateRoleRequest);
+
+	ServiceResponse<Void> updateNewPassword(NewPasswordRequest newPasswordRequest, User user);
 
 }

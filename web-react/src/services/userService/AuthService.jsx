@@ -1,4 +1,4 @@
-import axios from "./customize-axios";
+import axios from "../customize-axios";
 
 const loginApi = async (loginInfo) => {
   return await axios.post('auth/signin', loginInfo);
