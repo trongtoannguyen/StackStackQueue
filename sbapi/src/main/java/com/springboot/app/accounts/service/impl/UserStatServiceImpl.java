@@ -1,7 +1,10 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
+import com.springboot.app.accounts.dto.responce.UserStatResponse;
 import com.springboot.app.accounts.entity.Badge;
 import com.springboot.app.accounts.entity.Person;
+import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.repository.UserStatRepository;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserStatServiceImpl implements UserStatService {
@@ -29,6 +34,9 @@ public class UserStatServiceImpl implements UserStatService {
 
 	@Autowired
 	private UserStatRepository userStatRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public PaginateResponse getAllUserStats(int pageNo, int pageSize, String orderBy, String sortDir,String search) {
@@ -59,7 +67,8 @@ public class UserStatServiceImpl implements UserStatService {
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
 
 		// get the list of users from the UserRepository and return it as a Page object
-		Page<UserStat> usersPage = userStatRepository.findAllByUsernameWithIgnoreAdmin(search,pageable);
+		Page<UserStatResponse> usersPage = userRepository.searchByUsernameOrNameWithIgnoreAdmin(search,pageable)
+				.map(User::toUserStatResponse);
 
 		return new PaginateResponse(
 				usersPage.getNumber()+1,
@@ -71,13 +80,6 @@ public class UserStatServiceImpl implements UserStatService {
 	}
 
 
-	public void updateLastLogin(Long id) {
-		UserStat userStat = userStatRepository.findById(id).orElse(null);
-		if(userStat != null) {
-			userStat.setLastLogin(LocalDateTime.now());
-			userStatRepository.save(userStat);
-		}
-	}
 
 	@Override
 	public PaginateResponse getCommentByUsername(int page, int size, String orderBy, String sortDirection, String username) {

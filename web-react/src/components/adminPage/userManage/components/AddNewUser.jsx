@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import {useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import PropTypes from 'prop-types';
 import {
   ROLES
@@ -56,8 +56,8 @@ const AddNewUser = (props) => {
   const [validConfirm, setValidConfirm] = useState(false);
   const [confirmFocus, setConfirmFocus] = useState(false);
 
-  const [role, setRole] = useState("USER");
-  const [roles, setRoles] = useState([]);
+  const [role, setRole] = useState(null);
+  // const [roles, setRoles] = useState([]);
 
   const [isShowPassword, setIsShowPassword] = useState(false);
 
@@ -89,14 +89,20 @@ const AddNewUser = (props) => {
       setErrMsg('Please enter valid information');
       return;
     }
-    setRoles(convertRoleToArray(role));
     const registerInfo = {
       username,
       email,
       password,
-      roles
+      roles: convertRoleToArray(role)
     }
-    registerUser(registerInfo);
+    console.log(`Check role`,JSON.stringify(registerInfo));
+    let result = await registerUser(registerInfo);
+    if (result) {
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setConfirm("");
+    }
   }
 
 
@@ -110,17 +116,6 @@ const AddNewUser = (props) => {
     return validName && validEmail && validPwd && validConfirm;
   }
 
-  const rolesPassword = `<i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-            Password must be 8-24 characters long. <br />
-            <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-            And contain at least one lowercase letter, one uppercase letter, one number. <br />
-            <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-            And one special character (
-            <span aria-label="exclamation mark">! </span>
-            <span aria-label="at symbol">@ </span>
-            <span aria-label="hashtag"># </span>
-            <span aria-label="dollar sign">$ </span>
-            <span aria-label="percent">%</span>)`
 
 
   return (
@@ -164,11 +159,11 @@ const AddNewUser = (props) => {
         </div>
 
         <div className='row col-md-4'>
-            <select className="form-control" id="role" data-placeholder="Choose roles" value={role} onChange={(e) => setRole(e.currentTarget.value)}>
-              <option value={ROLES.ADMIN}>Role - Admin</option>
-              <option value={ROLES.MOD}>Role - Mod</option>
-              <option value={ROLES.USER}>Role - User</option>
-            </select>
+          <select className="form-control" id="role" data-placeholder="Choose role" onChange={(e) => setRole(e.target.value)}>
+            <option value={ROLES.ADMIN}>Role - Admin</option>
+            <option value={ROLES.MOD}>Role - Mod</option>
+            <option value={ROLES.USER}>Role - User</option>
+          </select>
         </div>
       </div>
 
@@ -185,7 +180,7 @@ const AddNewUser = (props) => {
               setValue={setPassword}
               validate={validatePassword}
               placeholder="Password (*)"
-              errorMsg={rolesPassword}
+              errorMsg="Password is not valid"
             />
             <button
               className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
@@ -198,7 +193,7 @@ const AddNewUser = (props) => {
         <div className='form-group col-md-6'>
           <div className="input-password-eye">
             <FormInput
-              id="password"
+              id="confirm"
               type={isShowPassword ? "text" : "password"}
               value={confirm}
               valid={validConfirm}

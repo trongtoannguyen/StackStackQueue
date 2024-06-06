@@ -46,7 +46,8 @@ export const deleteUser = async (accessToken, id, axiosJWT) => {
     let res = await axiosJWT.delete(`admin/users/delete/${id}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res.data;
+    console.log(`Here api`, JSON.stringify(res));
+    return res;
   } catch (err) {
     console.log(err);
   }

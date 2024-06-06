@@ -6,4 +6,23 @@ export const validateEmail = (email) => EMAIL_REGEX.test(email);
 export const validatePassword = (password) => PWD_REGEX.test(password);
 export const validateConfirm = (password, confirm) => password === confirm;
 
-
+export const errorPasswordItem = (password) => {
+  if (validatePassword(password)) {
+    return null;
+  }
+  let errorMsg = [];
+  if (password.length < 8 || password.length > 24) {
+    errorMsg.push("Password must be 8-24 characters long");
+  }
+  //And contain at least one lowercase letter, one uppercase letter, one number.
+  const PWD_1_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{3,}$/;
+  if (!PWD_1_REGEX.test(password)) {
+    errorMsg.push("Password must contain at least one lowercase letter, one uppercase letter, one number");
+  }
+  //And contain at least one special character(@#$%)
+  const PWD_2_REGEX = /^(?=.*[@#$%!]).+$/;
+  if (!PWD_2_REGEX.test(password)) {
+    errorMsg.push("Password must contain at least one special character(@#$%!)");
+  }
+  return errorMsg;
+}

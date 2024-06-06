@@ -8,11 +8,41 @@ const StyledInput = styled.input(props => ({
   maxWidth: "700px!important",
 }));
 
+import { errorPasswordItem } from '../../utils/validUtils';
+
 
 
 const FormInput = ({ id, type, value, valid, focus, setFocus, setValue, validate, placeholder, errorMsg }) => {
+
+
+  const showErrMsg = () => {
+    let errors = [];
+    if (id !== "password") {
+      errors.push(
+        <div key={id}>
+          <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+          {errorMsg}
+        </div>
+      );
+    } else {
+      const passwordErrors = errorPasswordItem(value);
+      if (passwordErrors) {
+        passwordErrors.forEach((error, index) => {
+          errors.push(
+            <div key={index + "_1"}>
+              <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
+              <span>{error}</span>
+            </div>
+          );
+        });
+      }
+    }
+    return errors;
+  }
+
   useEffect(() => {
     validate(value);
+    showErrMsg();
   }, [value, validate]);
 
   return (
@@ -33,8 +63,7 @@ const FormInput = ({ id, type, value, valid, focus, setFocus, setValue, validate
       />
       <br />
       <small id={`${id}-err`} className={focus && value || !valid ? "text-danger" : "invalid-feedback"} role="alert" hidden={valid || !focus}>
-        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-        {errorMsg}
+        {showErrMsg()}
       </small>
     </>
   );

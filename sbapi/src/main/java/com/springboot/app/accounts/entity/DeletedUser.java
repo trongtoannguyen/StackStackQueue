@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "deleted_users")
@@ -59,7 +61,9 @@ public class DeletedUser extends BaseEntity {
 		deletedUser.setCreatedAt(user.getCreatedAt());
 		deletedUser.setUpdatedBy(user.getUpdatedBy());
 		deletedUser.setUpdatedAt(user.getUpdatedAt());
-		deletedUser.setRole(user.getRoles().stream().findFirst().get().getName());
+
+		Set<String> roles = user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
+		deletedUser.setRole(RoleName.valueOf(roles.iterator().next()));
 
 		LocalDateTime now=LocalDateTime.now();
 		deletedUser.setDeletedAt(now);

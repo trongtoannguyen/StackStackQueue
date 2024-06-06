@@ -17,7 +17,7 @@ import { Tab, Tabs } from 'react-bootstrap';
 import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
-import { deleteUser, updateStatusUser } from "../../../services/userService/UserService";
+import { deleteUser, updateStatusUser, createNewUser } from "../../../services/userService/UserService";
 import { registerUser } from "../../../redux/apiRequest";
 
 
@@ -103,14 +103,16 @@ function UserListManage() {
     return true;
   }
 
-  const handleAddUser =async (registerInfo) => {
-    let res = await registerUser(registerInfo, dispatch, navigator);
-    if (+res?.data?.status === 200) {
+  const handleAddUser = async (registerInfo) => {
+    let res = await createNewUser(registerInfo);
+    if (+res?.status === 201) {
       setShowAdd(false);
       toast.success("Added successfully!");
       getAllUsersData();
+      return true;
     } else {
       toast.error(res?.data?.message);
+      return false;
     }
   }
 
@@ -123,13 +125,14 @@ function UserListManage() {
       return toast.error("Can't delete admin");
     }
     let res = await deleteUser(currentUser?.accessToken, user.id, axiosJWT);
-    if (+res.status !== 500) {
+    console.log(`Checlo dele`, JSON.stringify(res));
+    if (+res?.status ===200 || +res?.data?.status === 200) {
       setShowModal(false);
       toast.success("Deleted successfully!");
       setUserDelete({});
       getAllUsersData();
     } else {
-      toast.error(res?.data?.message);
+      toast.error(res?.message);
     }
   };
 
@@ -332,8 +335,8 @@ function UserListManage() {
           </Tabs>
           <Pagination
             handlePageClick={handlePageClick}
-            pageSize={pageSize}
-            totalPages={totalPages}
+            pageSize={+pageSize}
+            totalPages={+totalPages}
           />
         </div>
 

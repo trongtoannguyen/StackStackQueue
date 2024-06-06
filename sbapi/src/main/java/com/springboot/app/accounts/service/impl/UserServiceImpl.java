@@ -215,19 +215,19 @@ public class UserServiceImpl implements UserService {
 
 	private Set<Role> getRolesByString(Set<String> strRoles) {
 		Set<Role> roles = new HashSet<>();
-		if (strRoles == null) {
-			roles.add(findRoleByName("ROLE_USER"));
+		if (strRoles == null || strRoles.isEmpty()) {
+			roles.add(findRoleByName(RoleName.ROLE_USER));
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
 					case "admin":
-						roles.add(findRoleByName("ROLE_ADMIN"));
+						roles.add(findRoleByName(RoleName.ROLE_ADMIN));
 						break;
 					case "mod":
-						roles.add(findRoleByName("ROLE_MODERATOR"));
+						roles.add(findRoleByName(RoleName.ROLE_MODERATOR));
 						break;
 					default:
-						roles.add(findRoleByName("ROLE_USER"));
+						roles.add(findRoleByName(RoleName.ROLE_USER));
 						break;
 				}
 			});
@@ -235,18 +235,16 @@ public class UserServiceImpl implements UserService {
 		return roles;
 	}
 
-	private Role findRoleByName(String roleName) {
-		return roleRepository.findByName(RoleName.valueOf(roleName))
-			.orElseThrow(() -> new RuntimeException("Error: Role %s is not found.".formatted(roleName)));
+	private Role findRoleByName(RoleName roleName) {
+		return roleRepository.findByName(roleName).orElse(null);
 	}
 
 
 	private List<String> validateUser(SignupRequest user) {
 
 		List<String> messages = new ArrayList<>();
-
-		if(user.getUsername().length() < 5) {
-			messages.add("Username must be at least 5 characters");
+		if(!Validators.isUsernameValid(user.getUsername())) {
+			messages.add("Invalid Username Format");
 		}
 		else if(userRepository.existsByUsername(user.getUsername()) || deletedUserRepository.existsByUsername(user.getUsername())) {
 			messages.add("Username already exists in the system");
@@ -259,8 +257,8 @@ public class UserServiceImpl implements UserService {
 			messages.add("Email already exists in the system");
 		}
 
-		if(user.getPassword().length() < 8) {
-			messages.add("Password must be at least 8 characters");
+		if(!Validators.isPasswordValid(user.getPassword())) {
+			messages.add("Invalid Password Format");
 		}
 
 		return messages;
@@ -303,13 +301,22 @@ public class UserServiceImpl implements UserService {
 		if(!encoder.matches(newPasswordRequest.getOldPassword(), user.getPassword())) {
 			response.setAckCode(AckCodeType.FAILURE);
 			response.addMessage("Current password is incorrect");
-		}else if("".equals(newPasswordRequest.getNewPassword())) {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("New Password must not be empty");
-		}else {
-			user.setPassword(encoder.encode(newPasswordRequest.getNewPassword()));
-			userRepository.save(user);
+			return response;
 		}
+		if(!Validators.isPasswordValid(newPasswordRequest.getNewPassword())) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("Invalid Password Format");
+			return response;
+		}
+
+		if(newPasswordRequest.getOldPassword().equals(newPasswordRequest.getNewPassword())) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("New Password must be different from the old password");
+			return response;
+		}
+
+		user.setPassword(encoder.encode(newPasswordRequest.getNewPassword()));
+		userRepository.save(user);
 		return response;
 	}
 

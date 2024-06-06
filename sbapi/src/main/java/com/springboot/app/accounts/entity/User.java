@@ -1,6 +1,8 @@
 package com.springboot.app.accounts.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
+import com.springboot.app.accounts.dto.responce.UserStatResponse;
 import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.AuthProvider;
 import com.springboot.app.model.BaseEntity;
@@ -16,6 +18,7 @@ import org.hibernate.annotations.NaturalId;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -145,6 +148,45 @@ public class User extends BaseEntity {
 			this.email = this.email.toLowerCase();
 		}
 	}
+
+
+	public static AccountInfoResponse toAccountInfoResponse(User user) {
+		AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
+		accountInfoResponse.setId(user.getId());
+		accountInfoResponse.setUsername(user.getUsername());
+		accountInfoResponse.setEmail(user.getEmail());
+		accountInfoResponse.setPerson(user.getPerson());
+		accountInfoResponse.setUserStat(user.getStat());
+		accountInfoResponse.setName(user.getName());
+		accountInfoResponse.setImageUrl(user.getImageUrl());
+		accountInfoResponse.setAvatar(user.getAvatar());
+
+		accountInfoResponse.setStatus(user.getAccountStatus().name());
+		Set<String> roles = user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
+		accountInfoResponse.setRoles(roles);
+		return accountInfoResponse;
+	}
+
+
+	public static UserStatResponse toUserStatResponse(User user) {
+		UserStatResponse userStatResponse = new UserStatResponse();
+		userStatResponse.setUserId(user.getId());
+		userStatResponse.setJoinDate(user.getCreatedAt());
+		userStatResponse.setUsername(user.getUsername());
+		userStatResponse.setEmail(user.getEmail());
+		userStatResponse.setName(user.getName());
+
+		Set<String> rolesString = user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
+		userStatResponse.setRoles(rolesString);
+		userStatResponse.setAccountStatus(user.getAccountStatus());
+		userStatResponse.setImageUrl(user.getImageUrl());
+		userStatResponse.setAvatar(user.getAvatar());
+		userStatResponse.setUserStat(user.getStat());
+
+		return userStatResponse;
+	}
+
+
 
 
 

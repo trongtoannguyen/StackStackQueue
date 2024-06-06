@@ -62,11 +62,11 @@ public class UserController {
 	public ResponseEntity<ObjectResponse> deleteUser(@PathVariable Long id) {
 		User user = userService.findById(id).orElse(null);
 		if (user == null) {
-			return ResponseEntity.status(404).body(new ObjectResponse("404","User not found",null));
+			return ResponseEntity.badRequest().body(new ObjectResponse("404","User not found",null));
 		}
 		//check user has role admin
 		if(user.getRoles().stream().anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"))) {
-			return ResponseEntity.status(400).body(new ObjectResponse("400","Cannot delete user with role admin",null));
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","Cannot delete user with role admin",null));
 		}
 		ServiceResponse<Void> response = userService.deleteUser(user);
 		if (response.getAckCode().equals(AckCodeType.SUCCESS)) {

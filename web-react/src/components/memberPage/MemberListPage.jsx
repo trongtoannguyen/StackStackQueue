@@ -2,19 +2,14 @@ import { Link } from "react-router-dom";
 import { useCallback, useEffect, useState } from 'react';
 
 import BannerTop from "../bannerTop/BannerTop";
-
-import { getAllUserStats, getAvatarByUsername } from "../../services/userService/UserStatService";
-import { formatDifferentUpToNow } from "../../utils/FormatHelper";
-
-import {
-  Row,
-} from "reactstrap";
 import Pagination from "../pagination/Pagination";
 
-import { fetchAvatarByUsername } from "../../services/userService/UserService";
 import noAvatar from '../../assets/img/default-avatar.png';
 import Avatar from "../avatar/Avatar";
 
+import { getAllUserStats } from "../../services/userService/UserStatService";
+import { fetchImage } from "../../services/userService/UserService";
+import { formatDifferentUpToNow } from "../../utils/FormatHelper";
 
 
 
@@ -30,7 +25,7 @@ const MemberList = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [orderBy, setOrderBy] = useState('createdAt');
+  const [orderBy, setOrderBy] = useState('id'); //default orderBy userId
   const [sortBy, setSortBy] = useState('ASC');
 
 
@@ -48,17 +43,6 @@ const MemberList = () => {
     // getDataUserStat();
     return true;
   }
-
-  const getAvatar = async (username) => {
-    let res = await getAvatarByUsername(username);
-    if (res?.data && +res?.status === 200) {
-      const img = res?.data;
-      console.log(`img`, img);
-      return img
-    }
-    return noAvatar;
-  }
-
 
 
   const getDataUserStat = useCallback(async () => {
@@ -105,77 +89,77 @@ const MemberList = () => {
             <th>
               <span>Member&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "createdBy")}
-                  onKeyDown={() => { handleSort("DESC", "createdBy") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "username")}
+                  onKeyDown={() => { handleSort("DESC", "username") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "createdBy")}
-                  onKeyDown={() => { handleSort("ASC", "createdBy") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "username")}
+                  onKeyDown={() => { handleSort("ASC", "username") }}
+                ></button>
               </span>
             </th>
             <th style={{ textAlign: "right" }}>
               <span>Discussion&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "discussionCount")}
-                  onKeyDown={() => { handleSort("DESC", "discussionCount") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.discussionCount")}
+                  onKeyDown={() => { handleSort("DESC", "stat.discussionCount") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "discussionCount")}
-                  onKeyDown={() => { handleSort("ASC", "discussionCount") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.discussionCount")}
+                  onKeyDown={() => { handleSort("ASC", "stat.discussionCount") }}
+                ></button>
               </span>
             </th>
             <th style={{ textAlign: "right" }}>
 
               <span>Comments&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "commentCount")}
-                  onKeyDown={() => { handleSort("DESC", "commentCount") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.commentCount")}
+                  onKeyDown={() => { handleSort("DESC", "stat.commentCount") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "commentCount")}
-                  onKeyDown={() => { handleSort("ASC", "commentCount") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.commentCount")}
+                  onKeyDown={() => { handleSort("ASC", "stat.commentCount") }}
+                ></button>
               </span>
             </th>
             <th style={{ textAlign: "right" }}>
               <span>Join Forum&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "createdAt")}
-                  onKeyDown={() => { handleSort("DESC", "createdAt") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "joinDate")}
+                  onKeyDown={() => { handleSort("DESC", "joinDate") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "createdAt")}
-                  onKeyDown={() => { handleSort("ASC", "createdAt") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "joinDate")}
+                  onKeyDown={() => { handleSort("ASC", "joinDate") }}
+                ></button>
               </span>
             </th>
             <th style={{ textAlign: "right" }}>
               <span>Reputation&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "reputation")}
-                  onKeyDown={() => { handleSort("DESC", "reputation") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.reputation")}
+                  onKeyDown={() => { handleSort("DESC", "stat.reputation") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "reputation")}
-                  onKeyDown={() => { handleSort("ASC", "reputation") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.reputation")}
+                  onKeyDown={() => { handleSort("ASC", "stat.reputation") }}
+                ></button>
               </span>
 
             </th>
@@ -184,18 +168,18 @@ const MemberList = () => {
         <tbody>
           {memberList?.map((item) => {
             return (
-              <tr key={item?.id}>
+              <tr key={item?.userId}>
                 <td>
-                  <Link to={"/member-profile/" + item.createdBy} className="text-decoration-none">
-                    <Avatar src={getAvatar(item?.createdBy) ?? noAvatar}
-                      username={item?.createdBy}
+                  <Link to={"/member-profile/" + item.username} className="text-decoration-none">
+                    <Avatar src={item?.avatar !== null ? fetchImage(item?.avatar) : (item?.imageUrl ?? noAvatar)}
+                      username={item?.name ?? item?.username}
                       height={50} width={50} />
                   </Link>
                 </td>
-                <td style={{ textAlign: "right" }}>{item?.discussionCount}</td>
-                <td style={{ textAlign: "right" }}>{item?.commentCount}</td>
-                <td style={{ textAlign: "right" }}>{item?.createdAt ? formatDifferentUpToNow(item.createdAt) : ""}</td>
-                <td style={{ textAlign: "right" }}> {item?.reputation}</td>
+                <td style={{ textAlign: "right" }}>{item.userStat?.discussionCount}</td>
+                <td style={{ textAlign: "right" }}>{item.userStat?.commentCount}</td>
+                <td style={{ textAlign: "right" }}>{item?.joinDate ? formatDifferentUpToNow(item.joinDate) : ""}</td>
+                <td style={{ textAlign: "right" }}> {item.userStat?.reputation}</td>
               </tr>
             )
           })}
@@ -208,50 +192,47 @@ const MemberList = () => {
 
   return (
     <section className="members-container content">
-      <Row>
-        <div className="col-12">
-          <BannerTop
-            bannerName={bannerName}
-            breadcrumbs={breadcrumbs}
-          />
-        </div>
-        <div className="col-12">
-          <Row className="px-2">
-            <div className="card">
-              <div className="card-header">
-                <div className="row d-flex justify-content-around">
-                  <span className="col-md-4 mb-2 mb-lg-0">
-                    <h4>Total: {totalUsers} user(s)/page{page}</h4>
-                  </span>
+      <div className="col-12">
+        <BannerTop
+          bannerName={bannerName}
+          breadcrumbs={breadcrumbs}
+        />
+      </div>
+      <div className="col-12">
+        <div className="card px-2">
+          <div className="card-header">
+            <div className="row d-flex justify-content-around">
+              <span className="col-md-4 mb-2 mb-lg-0">
+                <h4>Total: {totalUsers} user(s)/page{page}</h4>
+              </span>
 
-                  <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
-                    <label htmlFor="page" className="col-auto">Page size:</label>
-                    <select id="page" name="page"
-                      className="form-select"
-                      onChange={(e) => setPageSize(e.currentTarget.value)}
-                    >
-                      <option value="5">05 per page</option>
-                      <option value="10">10 per page</option>
-                      <option value="20">20 per page</option>
-                      <option value="50">50 per page</option>
-                    </select>
-                  </span>
-                </div>
-              </div>
-              <div className="card-body">
-                {tableList(userStatList)}
-
-                <Pagination
-                  handlePageClick={handlePageClick}
-                  pageSize={pageSize}
-                  totalPages={totalPages}
-                />
-
-              </div>
+              <span className="col-md-2 d-flex align-items-center">
+                <label htmlFor="page" className="col-auto">Page size:</label>
+                <select id="page" name="page"
+                  className="form-select"
+                  onChange={(e) => setPageSize(e.currentTarget.value)}
+                  style={{ minWidth: 120 }}
+                >
+                  <option value="5">05 per page</option>
+                  <option value="10">10 per page</option>
+                  <option value="20">20 per page</option>
+                  <option value="50">50 per page</option>
+                </select>
+              </span>
             </div>
-          </Row>
+          </div>
+          <div className="card-body">
+            {tableList(userStatList)}
+
+            <Pagination
+              handlePageClick={handlePageClick}
+              pageSize={pageSize}
+              totalPages={totalPages}
+            />
+
+          </div>
         </div>
-      </Row>
+      </div>
     </section>
   );
 }
