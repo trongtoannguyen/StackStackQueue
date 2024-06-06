@@ -24,9 +24,6 @@ public class PasswordResetController {
 	private static final Logger logger = LoggerFactory.getLogger(PasswordResetController.class);
 
 	@Autowired
-	private RefreshTokenService refreshTokenService;
-
-	@Autowired
 	private PasswordResetService passwordResetService;
 	@Autowired
 	private UserRepository userRepository;

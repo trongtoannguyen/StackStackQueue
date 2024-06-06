@@ -2,9 +2,10 @@ import { Route, Routes } from "react-router-dom";
 import NotFound from "../components/errorPage/NotFound";
 import Home from "../components/homePage/Home";
 import ForumGroup from "../components/forumsPage/ForumGroup";
-import LoginForm from "../components/auth/LoginForm";
-import RegisterForm from "../components/auth/RegisterForm";
-import OAuth2RedirectHandler from "../components/auth/oauth2/OAuth2RedirectHandler";
+import LoginForm from "../components/authPage/LoginForm";
+import RegisterForm from "../components/authPage/RegisterForm";
+import OAuth2RedirectHandler from "../components/authPage/oauth2/OAuth2RedirectHandler";
+import EmailConfirm from '../components/authPage/EmailConfirmPage';
 
 import Discussion from "../components/discussions/Discussions";
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
@@ -14,13 +15,13 @@ import MemberList from "../components/memberPage/MemberListPage";
 import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
 import ChangePassword from "../components/memberProfilePage/ChangePasswordPage";
 import Layout from "../layouts/Layout";
-import ForgotPassword from "../components/auth/resetPassword/ForgotPassword";
-import UpdatePassword from "../components/auth/resetPassword/UpdatePassword";
+import ForgotPassword from "../components/authPage/resetPassword/ForgotPassword";
+import UpdatePassword from "../components/authPage/resetPassword/UpdatePassword";
 import Unauthorized from "../components/errorPage/Unauthorized";
-import RequireAuth from "../components/auth/RequireAuth";
+import RequireAuth from "../components/authPage/RequireAuth";
 import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
-import RedirectHandlerAfterLogin from "../components/auth/RedirectHandlerAfterLogin";
+import RedirectHandlerAfterLogin from "../components/authPage/RedirectHandlerAfterLogin";
 
 
 const ROLES = {
@@ -38,6 +39,8 @@ function AppRoutes() {
 			<Route path="/reset-password" element={<UpdatePassword />} />
 
 			<Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+
+			<Route path="/email-confirm" element={<EmailConfirm />} />
 
 			<Route path="/" element={<Layout route="routes1" />}>
 				{/* public route */}

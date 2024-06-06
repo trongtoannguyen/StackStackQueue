@@ -1,13 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
-
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Row,
-  Col,
-} from "reactstrap";
+import {Card, Row, Col } from 'react-bootstrap';
 
 import Avatar from "../../../avatar/Avatar";
 
@@ -36,7 +29,7 @@ const UserCardItem = (props) => {
       <Card
         color={user.active ? 'primary' : ''}
         className="card-stats text-dark">
-        <CardBody>
+        <Card.Body>
           <Row>
             <Col md="4" xs="5">
               <div className="icon-big text-center icon-warning">
@@ -53,9 +46,9 @@ const UserCardItem = (props) => {
               </div>
             </Col>
           </Row>
-        </CardBody>
+        </Card.Body>
         <hr />
-        <CardFooter className='d-flex justify-content-around'>
+        <Card.Footer className='d-flex justify-content-around'>
           <span className="stats">
             <div
               onClick={handleUpdate}
@@ -69,7 +62,7 @@ const UserCardItem = (props) => {
               ></i>  Delete
             </div>
           </span>
-        </CardFooter>
+        </Card.Footer>
       </Card>
     </Col>);
 }

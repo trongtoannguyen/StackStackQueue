@@ -4,6 +4,8 @@ import {
   Col,
 } from "react-bootstrap";
 
+import PropTypes from "prop-types";
+
 const CardInFo = (props) => {
   const { title, icon, number, updateNumber } = props;
 
@@ -32,12 +34,18 @@ const CardInFo = (props) => {
       <Card.Footer>
         <hr />
         <div className="stats">
-          <i className="fas fa-sync-alt" onClick={handleUpdateNow} /> Update Now
+          <button className="fas fa-sync-alt" onClick={handleUpdateNow} /> Update Now
         </div>
       </Card.Footer>
     </Card>
   );
 }
 
+CardInFo.propTypes = {
+  title: PropTypes.string,
+  icon: PropTypes.string,
+  number: PropTypes.number,
+  updateNumber: PropTypes.func,
+}
 
 export default CardInFo;

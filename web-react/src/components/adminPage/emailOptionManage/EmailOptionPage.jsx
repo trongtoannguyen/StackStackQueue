@@ -132,7 +132,7 @@ const EmailOption = () => {
               </div>
               <div className="form-group mb-3 col-md-6">
                 <label htmlFor="password">Password of email <span className="text-danger">(*)</span></label>
-                <input value={password} name="password" className="form-control" required onChange={(e) => setHost(e.target.value)} />
+                <input type="password" value={password} name="password" className="form-control" required onChange={(e) => setHost(e.target.value)} />
               </div>
             </Row>
             <Row className="d-flex justify-content-end">

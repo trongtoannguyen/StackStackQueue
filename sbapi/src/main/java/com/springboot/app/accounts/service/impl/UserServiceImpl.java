@@ -216,32 +216,28 @@ public class UserServiceImpl implements UserService {
 	private Set<Role> getRolesByString(Set<String> strRoles) {
 		Set<Role> roles = new HashSet<>();
 		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-				.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-			roles.add(userRole);
+			roles.add(findRoleByName("ROLE_USER"));
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
 					case "admin":
-						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-							.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
-						roles.add(adminRole);
-
+						roles.add(findRoleByName("ROLE_ADMIN"));
 						break;
 					case "mod":
-						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-							.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
-						roles.add(modRole);
-
+						roles.add(findRoleByName("ROLE_MODERATOR"));
 						break;
 					default:
-						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-							.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-						roles.add(userRole);
+						roles.add(findRoleByName("ROLE_USER"));
+						break;
 				}
 			});
 		}
 		return roles;
+	}
+
+	private Role findRoleByName(String roleName) {
+		return roleRepository.findByName(RoleName.valueOf(roleName))
+			.orElseThrow(() -> new RuntimeException("Error: Role %s is not found.".formatted(roleName)));
 	}
 
 

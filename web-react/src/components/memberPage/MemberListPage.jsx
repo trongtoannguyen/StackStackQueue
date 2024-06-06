@@ -187,7 +187,7 @@ const MemberList = () => {
               <tr key={item?.id}>
                 <td>
                   <Link to={"/member-profile/" + item.createdBy} className="text-decoration-none">
-                    <Avatar src={fetchAvatarByUsername(item?.createdBy) ?? noAvatar}
+                    <Avatar src={getAvatar(item?.createdBy) ?? noAvatar}
                       username={item?.createdBy}
                       height={50} width={50} />
                   </Link>

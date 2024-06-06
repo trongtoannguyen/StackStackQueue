@@ -1,17 +1,9 @@
 import React from "react";
-
 import PropTypes from "prop-types";
 
 function FixedPlugin(props) {
 
   const { bgColor,activeColor, handleBgClick,handleActiveClick } = props;
-
-  FixedPlugin.propTypes = {
-    bgColor: PropTypes.string.isRequired,
-    activeColor: PropTypes.string.isRequired,
-    handleBgClick: PropTypes.func.isRequired,
-    handleActiveClick: PropTypes.func.isRequired,
-  };
 
   const [classes, setClasses] = React.useState("dropdown");
 
@@ -26,14 +18,14 @@ function FixedPlugin(props) {
   return (
     <div className="fixed-plugin">
       <div className={classes}>
-        <div onClick={handleClick}>
+        <button onClick={handleClick}>
           <i className="fa fa-cog fa-2x" />
-        </div>
+        </button>
         <ul className="dropdown-menu show">
           <li className="header-title">SIDEBAR BACKGROUND</li>
           <li className="adjustments-line">
             <div className="badge-colors text-center">
-              <span
+              <button
                 className={
                   bgColor === "black"
                     ? "badge filter badge-dark bg-dark active"
@@ -44,7 +36,7 @@ function FixedPlugin(props) {
                   handleBgClick("black");
                 }}
               />
-              <span
+              <button
                 className={
                   bgColor === "white"
                     ? "badge filter badge-light active"
@@ -60,7 +52,7 @@ function FixedPlugin(props) {
           <li className="header-title">SIDEBAR ACTIVE COLOR</li>
           <li className="adjustments-line">
             <div className="badge-colors text-center">
-              <span
+              <button
                 className={
                   activeColor === "primary"
                     ? "badge filter badge-primary active"
@@ -71,7 +63,7 @@ function FixedPlugin(props) {
                   handleActiveClick("primary");
                 }}
               />
-              <span
+              <button
                 className={
                   activeColor === "info"
                     ? "badge filter badge-info active"
@@ -82,7 +74,7 @@ function FixedPlugin(props) {
                   handleActiveClick("info");
                 }}
               />
-              <span
+              <button
                 className={
                   activeColor === "success"
                     ? "badge filter badge-success active"
@@ -93,7 +85,7 @@ function FixedPlugin(props) {
                   handleActiveClick("success");
                 }}
               />
-              <span
+              <button
                 className={
                   activeColor === "warning"
                     ? "badge filter badge-warning active"
@@ -104,7 +96,7 @@ function FixedPlugin(props) {
                   handleActiveClick("warning");
                 }}
               />
-              <span
+              <button
                 className={
                   activeColor === "danger"
                     ? "badge filter badge-danger active"
@@ -117,11 +109,17 @@ function FixedPlugin(props) {
               />
             </div>
           </li>
-          <li className="header-title">Want more components?</li>
         </ul>
       </div>
     </div>
   );
 }
+
+FixedPlugin.propTypes = {
+  bgColor: PropTypes.string.isRequired,
+  activeColor: PropTypes.string.isRequired,
+  handleBgClick: PropTypes.func.isRequired,
+  handleActiveClick: PropTypes.func.isRequired,
+};
 
 export default FixedPlugin;

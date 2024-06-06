@@ -74,7 +74,7 @@ const Layout = (props) => {
 
         <Outlet />
 
-        <Footer fluid />
+        <Footer fluid {...props} />
       </div>
       <FixedPlugin
         bgColor={backgroundColor}

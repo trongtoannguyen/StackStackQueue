@@ -138,11 +138,11 @@ const LoginForm = () => {
             valid={+(password.length === 0 || validPwd)}
             autoComplete="on"
           />
-          <i
+          <button
             className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
             onClick={() => setIsShowPassword(!isShowPassword)}
             onKeyDown={() => setIsShowPassword(!isShowPassword)}
-          ></i>
+          ></button>
         </div>
         <small id="password-err" className={pwdFocus && password || !validPwd ? "text-danger" : "invalid-feedback"} role="alert" hidden={validPwd || !pwdFocus}>
           <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}

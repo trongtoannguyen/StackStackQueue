@@ -13,6 +13,8 @@ import java.util.List;
 public interface UserStatService {
 	PaginateResponse getAllUserStats(int page, int size, String orderBy, String sortDirection, String search);
 
+	PaginateResponse getAllUserStatsWithIgnoreAdmin(int page, int size, String orderBy, String sortDirection, String search);
+
 	PaginateResponse getCommentByUsername(int page, int size, String orderBy, String sortDirection,String username);
 
 	PaginateResponse getDiscussionByUsername(int page, int size, String orderBy, String sortDirection,String username);

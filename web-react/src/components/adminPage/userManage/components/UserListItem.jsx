@@ -6,7 +6,12 @@ import { fetchImage } from '../../../../services/userService/UserService';
 import noAvatar from "../../../../assets/img/default-avatar.png";
 
 const UserListItem = (props) => {
-  const { user, handleShowHideEdit, handleSetEditUser, handleShowHide, handleSetDeleteUser } = props;
+  const { user,
+    handleShowHideEdit,
+    handleSetEditUser,
+    handleShowHide,
+    handleSetDeleteUser
+  } = props;
 
   const handleDelete = () => {
     handleSetDeleteUser(user);
@@ -16,6 +21,11 @@ const UserListItem = (props) => {
   const handleUpdate = () => {
     handleSetEditUser(user);
     handleShowHideEdit();
+  }
+
+  const handleSetUpdateRole = () => {
+    console.log(`Update role`);
+    handleSetEditUser(user);
   }
 
 
@@ -32,7 +42,7 @@ const UserListItem = (props) => {
         </Link>
       </td>
       <td>
-        {convertListNameRole(user.roles.map(x => x.name))}
+        <button onClick={handleSetUpdateRole}>{convertListNameRole(user.roles.map(x => x.name))}</button>
       </td>
       <td>
         <i className="fas fa-sync-alt mx-2"

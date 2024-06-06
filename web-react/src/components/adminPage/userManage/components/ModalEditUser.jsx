@@ -15,9 +15,10 @@ const ModalEditUser = (props) => {
 
   const [status, setStatus] = useState(user.accountStatus);
 
-  const handleEditStatus = () => {
+  const handleEditStatus = async () => {
     console.log(`Status`, status);
-    handleUpdateStatus(user.id, status);
+    await handleUpdateStatus(user.id, status);
+    setStatus(user.accountStatus);
   }
 
 

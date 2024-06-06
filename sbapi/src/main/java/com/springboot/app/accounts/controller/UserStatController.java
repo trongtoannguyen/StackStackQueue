@@ -15,6 +15,7 @@ import com.springboot.app.dto.response.ServiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,17 @@ public class UserStatController {
 			@RequestParam(value="search",defaultValue = "",required = false) String search
 	) {
 		return ResponseEntity.ok(userStatService.getAllUserStats(page, size, orderBy, sort,search));
+	}
+
+	@GetMapping("/members")
+	public ResponseEntity<PaginateResponse> getUserStatsWithIgnoreAdmin(
+			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
+			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
+			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
+			@RequestParam(value="search",defaultValue = "",required = false) String search
+	) {
+		return ResponseEntity.ok(userStatService.getAllUserStatsWithIgnoreAdmin(page, size, orderBy, sort,search));
 	}
 
 	@GetMapping("/{username}/comments")
@@ -104,20 +116,20 @@ public class UserStatController {
 	public ResponseEntity<?> readAvatarByUsername(@PathVariable String username) {
 		User user = userService.findByUsername(username).orElse(null);
 		if (user == null) {
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 		}
 		String filename = user.getAvatar();
 		if (filename == null) {
 			if(user.getImageUrl()!=null){
 				return ResponseEntity.ok().body(user.getImageUrl());
 			}
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No avatar found");
 		}
 		try {
 			byte[] fileBytes = storageService.readFileContent(filename);
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(fileBytes);
 		} catch (Exception e) {
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 
 	}

@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import './App.scss'
 import AdminRoutes from './routes/AdminRoutes';
 import AppRoutes from './routes/AppRoutes'
@@ -7,20 +6,9 @@ import { Routes, Route } from 'react-router-dom';
 
 import { ToastContainer } from 'react-toastify';
 
-import { useDispatch } from "react-redux";
-import { handleRefresh } from "./redux/actions/userAction";
 
 
 function App() {
-  // const [count, setCount] = useState(0)
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (localStorage.getItem("token") !== null) {
-      dispatch(handleRefresh())
-    }
-  }, [])
 
   return (
     <>
@@ -31,7 +19,7 @@ function App() {
         </Routes>
       </main>
       <ToastContainer
-        position="top-right"
+        position={"top-right"}
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}

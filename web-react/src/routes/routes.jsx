@@ -1,4 +1,4 @@
-import RegisterForm from "../components/auth/RegisterForm";
+import RegisterForm from "../components/authPage/RegisterForm";
 import Home from "../components/homePage/Home";
 import ForumGroup from "../components/forumsPage/ForumGroup";
 import MemberList from "../components/memberPage/MemberListPage";

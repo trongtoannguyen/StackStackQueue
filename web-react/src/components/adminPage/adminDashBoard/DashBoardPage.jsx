@@ -16,10 +16,10 @@ import {
 //   dashboardNASDAQChart,
 // } from "../variables/charts";
 
-import CardInfo from './CardInfo';
-import UsersBehaviorChart from "./UsersBehaviorChart";
-import EmailStatisticsChart from "./EmailStatisticsChart";
-import LineChart from "./LineChart";
+import CardInfo from './components/CardInfo';
+import UsersBehaviorChart from "./components/UsersBehaviorChart";
+import EmailStatisticsChart from "./components/EmailStatisticsChart";
+import LineChart from "./components/LineChart";
 
 
 const DashBoard = () => {

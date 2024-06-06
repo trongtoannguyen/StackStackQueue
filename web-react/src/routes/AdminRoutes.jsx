@@ -9,7 +9,7 @@ import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
 import TagsStat from "../components/adminPage/tagManage/TagsStat";
-import RequireAuth from "../components/auth/RequireAuth";
+import RequireAuth from "../components/authPage/RequireAuth";
 import '../assets/scss/paper-dashboard.scss?v=1.3.0';
 
 import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";

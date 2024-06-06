@@ -50,6 +50,27 @@ public class UserStatServiceImpl implements UserStatService {
 				usersPage.getContent());
 	}
 
+	@Override
+	public PaginateResponse getAllUserStatsWithIgnoreAdmin(int pageNo, int pageSize, String orderBy, String sortDir,String search) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
+				: Sort.by(orderBy).descending();
+
+		// create Pageable instance
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+
+		// get the list of users from the UserRepository and return it as a Page object
+		Page<UserStat> usersPage = userStatRepository.findAllByUsernameWithIgnoreAdmin(search,pageable);
+
+		return new PaginateResponse(
+				usersPage.getNumber()+1,
+				usersPage.getSize(),
+				usersPage.getTotalPages(),
+				usersPage.getContent().size(),
+				usersPage.isLast(),
+				usersPage.getContent());
+	}
+
+
 	public void updateLastLogin(Long id) {
 		UserStat userStat = userStatRepository.findById(id).orElse(null);
 		if(userStat != null) {

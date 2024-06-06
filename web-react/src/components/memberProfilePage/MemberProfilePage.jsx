@@ -257,12 +257,12 @@ const MemberProfile = () => {
           className="mb-3"
           fill
         >
-          <Tab eventKey="home" title="Posts in Profile">
-            <Card>
-              <CardBody>
-                Posts in profile
-              </CardBody>
-            </Card>
+          <Tab eventKey="home" title="Save Bookmark">
+            <div className='card'>
+              <div className='card-body'>
+                List of bookmark
+              </div>
+            </div>
           </Tab>
           <Tab eventKey="activities" title="Activities">
             <ActivitiesProfile username={username} userInfo={userInfo} />

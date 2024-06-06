@@ -1,4 +1,4 @@
-
+import axios from "../customize-axios";
 import { API_BASE_URL } from "../../constants";
 import { pathParams } from '../../utils/Helper';
 
@@ -26,8 +26,16 @@ export const getUserInfoByUsername = async (username, axiosJWT, accessToken) => 
 }
 
 // use in adminPage/userManage
-export const patchUpdateStatusUser = async (id, status, axiosJWT, accessToken) => {
-  return await axiosJWT.patch(`admin/users/status/${id}?status=${status}`, { status }, {
+export const createNewUser = async (user) => {
+  return await axios.post("/auth/signup", user);
+}
+
+// use in adminPage/userManage
+export const updateStatusUser = async (id, status, axiosJWT, accessToken) => {
+  return await axiosJWT.post(`admin/users/status/${id}`, {
+    userId: id,
+    status
+  }, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }

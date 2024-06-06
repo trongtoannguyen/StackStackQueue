@@ -1,6 +1,7 @@
 package com.springboot.app.accounts.controller;
 
 import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
+import com.springboot.app.accounts.dto.request.UpdateStatusRequest;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.service.UserService;
 import com.springboot.app.dto.response.AckCodeType;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -73,9 +75,13 @@ public class UserController {
 		return ResponseEntity.ok(new ObjectResponse("500","Failed to delete user",null));
 	}
 
-	@PatchMapping("status/{id}")
+	@PostMapping("status/{id}")
 	@PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
-	public ResponseEntity<ObjectResponse> updateStatusUser(@PathVariable Long id, @RequestParam String status) {
+	public ResponseEntity<ObjectResponse> updateStatusUser(@PathVariable Long id, @RequestBody UpdateStatusRequest updateStatusRequest) {
+		if(!Objects.equals(id, updateStatusRequest.getUserId())) {
+			return ResponseEntity.badRequest().body(new ObjectResponse("400","Invalid user id",null));
+		}
+		String status = updateStatusRequest.getStatus();
 		if(!status.equals("ACTIVE") && !status.equals("INACTIVE") && !status.equals("LOCKED")) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400","Invalid status",null));
 		}
