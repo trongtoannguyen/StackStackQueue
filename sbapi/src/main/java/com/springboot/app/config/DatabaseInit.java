@@ -73,10 +73,10 @@ public class DatabaseInit {
 				addRoles(roleRepository);
 				addAdmin(userRepository, roleRepository);
 
-				createRegistrationOption();
-				createEmailOption();
-				createCommentOption();
-				createAvatarOption();
+//				createRegistrationOption();
+//				createEmailOption();
+//				createCommentOption();
+//				createAvatarOption();
 			}
 		};
 	}

@@ -5,6 +5,7 @@ export const validateName = (username) => USER_REGEX.test(username);
 export const validateEmail = (email) => EMAIL_REGEX.test(email);
 export const validatePassword = (password) => PWD_REGEX.test(password);
 export const validateConfirm = (password, confirm) => password === confirm;
+export const validateNameOrEmail = (value) => (validateName(value) || validateEmail(value));
 
 export const errorPasswordItem = (password) => {
   if (validatePassword(password)) {

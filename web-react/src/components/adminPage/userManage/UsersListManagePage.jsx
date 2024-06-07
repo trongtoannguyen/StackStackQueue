@@ -1,32 +1,32 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import _debounce from 'lodash/debounce';
-
-import Table from 'react-bootstrap/Table';
 
 import {
   Row,
   Col,
 } from "reactstrap";
 
-import { Tab, Tabs } from 'react-bootstrap';
-
+import { Tab, Tabs, Table } from 'react-bootstrap';
 
 import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
-import { deleteUser, updateStatusUser, createNewUser } from "../../../services/userService/UserService";
-import { registerUser } from "../../../redux/apiRequest";
+import {
+  deleteUser,
+  updateStatusUser,
+  createNewUser
+} from "../../../services/userService/UserService";
 
 
 import UserCardItem from "./components/UserCardItem";
 import UserListItem from "./components/UserListItem";
 import Pagination from "../../pagination/Pagination";
 import ModalConfirmDeleteUser from "./components/ModalConfirmDelete";
-import ModalEditUser from "./components/ModalEditUser";
-import { toast } from "react-toastify";
+import ModalEditRole from "./components/ModalEditRole";
+import ModalEditUser from "./components/ModalEditStatus";
 import AddNewUser from "./components/AddNewUser";
 
 
@@ -52,6 +52,8 @@ function UserListManage() {
   const [userEdit, setUserEdit] = useState({});
   const [showEdit, setShowEdit] = useState(false);
 
+  const [showModalRole, setShowModalRole] = useState(false);
+
 
   const handleShowAdd = () => setShowAdd(!showAdd);
   const handleShowHide = () => setShowModal(!showModal);
@@ -60,6 +62,7 @@ function UserListManage() {
   const handleShowHideEdit = () => setShowEdit(!showEdit);
   const handleSetEditUser = (user) => setUserEdit(user);
 
+  const handleShowEditRole = () => setShowModalRole(!showModalRole);
 
 
 
@@ -125,7 +128,6 @@ function UserListManage() {
       return toast.error("Can't delete admin");
     }
     let res = await deleteUser(currentUser?.accessToken, user.id, axiosJWT);
-    console.log(`Checlo dele`, JSON.stringify(res));
     if (+res?.status ===200 || +res?.data?.status === 200) {
       setShowModal(false);
       toast.success("Deleted successfully!");
@@ -148,9 +150,8 @@ function UserListManage() {
     }
   }
 
-  const handleUpdateRole = () => {
-    console.log(`Update role`);
-
+  const handleUpdateRole = (dataRole) => {
+    console.log(`Update role`,dataRole);
   }
 
 
@@ -248,6 +249,7 @@ function UserListManage() {
             handleSetDeleteUser={handleSetDeleteUser}
             handleShowHideEdit={handleShowHideEdit}
             handleSetEditUser={handleSetEditUser}
+            handleShowEditRole={handleShowEditRole}
           />)}
         </tbody>
       </Table>
@@ -321,11 +323,13 @@ function UserListManage() {
                         </span>
                         <h5>Loading...</h5>
                       </div>
-                      : userList?.map((user) => <UserCardItem key={user.id} user={user}
+                      : userList?.map((user) => <UserCardItem key={user.id}
+                        user={user}
                         handleShowHide={handleShowHide}
                         handleSetDeleteUser={handleSetDeleteUser}
                         handleShowHideEdit={handleShowHideEdit}
                         handleSetEditUser={handleSetEditUser}
+                        handleShowEditRole={handleShowEditRole}
                       />)
                   }
 
@@ -355,6 +359,13 @@ function UserListManage() {
         show={showEdit}
         handleClose={handleShowHideEdit}
         handleUpdateStatus={handleUpdateStatus}
+        user={userEdit}
+      />
+
+      <ModalEditRole
+        show={showModalRole}
+        handleClose={handleShowEditRole}
+        handleUpdateRole={handleUpdateRole}
         user={userEdit}
       />
 

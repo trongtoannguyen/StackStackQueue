@@ -1,4 +1,4 @@
-package com.springboot.app.security.userprinal;
+package com.springboot.app.security.service;
 
 import com.springboot.app.accounts.entity.User;
 import org.springframework.security.core.GrantedAuthority;

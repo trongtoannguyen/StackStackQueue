@@ -2,6 +2,7 @@ package com.springboot.app.forums.service.impl;
 
 import com.springboot.app.accounts.entity.PasswordReset;
 import com.springboot.app.accounts.entity.UserStat;
+import com.springboot.app.accounts.repository.UserStatRepository;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.entity.Comment;
@@ -30,16 +31,14 @@ public class VoteServiceImpl implements VoteService {
 
 	@Autowired
 	private CommentVoteRepository commentVoteRepository;
-
+	@Autowired
+	private UserStatRepository userStatRepository;
 
 	@Autowired
 	private VoteDAO voteDAO;
 
 	@Autowired
 	private StatDAO statDAO;
-
-	@Autowired
-	private GenericDAO genericDAO;
 
 	@Transactional(readOnly = false)
 	public ServiceResponse<Void> registerCommentVote(Comment comment,String voteName, Short voteValue) {
@@ -93,6 +92,6 @@ public class VoteServiceImpl implements VoteService {
 		String username = comment.getCreatedBy();
 		UserStat stat = statDAO.getUserStat(username);
 		stat.addReputation(voteValue);
-		genericDAO.merge(stat);
+		userStatRepository.save(stat);
 	}
 }

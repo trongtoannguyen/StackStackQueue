@@ -3,14 +3,10 @@ import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { loginUser } from "../../redux/apiRequest";
-
+import FormInput from "../formInput/FormInput";
 import StyledInput from "./StyledInput";
+import { validatePassword, validateNameOrEmail  } from "../../utils/validUtils";
 
-import {
-  USER_REGEX,
-  EMAIL_REGEX,
-  PWD_REGEX
-} from "./ConstRegex";
 import SocialLogin from "./SocialLogin";
 
 
@@ -39,13 +35,13 @@ const LoginForm = () => {
 
 
   useEffect(() => {
-    let isUsernameOrEmail = (USER_REGEX.test(username) || EMAIL_REGEX.test(username));
+    let isUsernameOrEmail = validateNameOrEmail(username);
     setValidName(isUsernameOrEmail);
   }, [username]);
 
 
   useEffect(() => {
-    setValidPwd(PWD_REGEX.test(password));
+    setValidPwd(validatePassword(password));
   }, [password]);
 
 
@@ -58,9 +54,7 @@ const LoginForm = () => {
       errRef.current.focus();
       return toast.error("Please enter email and password");
     }
-    const v1 = USER_REGEX.test(username) || EMAIL_REGEX.test(username);
-    const v3 = PWD_REGEX.test(password);
-    if (!v1 || !v3) {
+    if (!validateNameOrEmail(username) || !validatePassword(password)) {
       errRef.current.focus();
       return toast.error('Please enter valid information');
     }
@@ -73,7 +67,6 @@ const LoginForm = () => {
   }
 
   const handleKeyDown = (e) => {
-    // e.preventDefault();
     if (e.keyCode === 13) {
       handleLogin();
     }
@@ -103,51 +96,41 @@ const LoginForm = () => {
     <article className="auth-container content container mt-3 col-12 col-sm-8 col-lg-4 mx-auto">
       <h1 className="login-title">Welcome back</h1>
       <form onSubmit={handleLogin}>
-        <StyledInput type='text'
+        <FormInput
           id="username"
-          autoComplete="off"
+          type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          valid={validName}
+          focus={userFocus}
+          setFocus={setUserFocus}
+          setValue={setUsername}
+          validate={validateNameOrEmail}
           placeholder="Username or Email (*)"
-          required
-          aria-invalid={!validName}
-          aria-describedby="username-err"
-          onFocus={() => setUserFocus(true)}
-          onBlur={() => setUserFocus(false)}
-          valid={+(username.length === 0 || validName)}
+          errorMsg="Username must be 5-24 characters long and start with a letter. Letters, numbers, underscores, hyphens allowed. Or email must be format valid."
         />
-        <small id="username-err" className={userFocus && username || !validName ? "text-danger" : "invalid-feedback"} role="alert" hidden={validName || !userFocus}>
-          <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-          Username must be 5-24 characters long and start with a letter.
-          Letters, numbers, underscores, hyphens allowed.
-        </small>
-
         <div className="input-password">
-          <StyledInput
-            type={isShowPassword ? "text" : "password"}
+          <FormInput
             id="password"
-            placeholder="Password (*)"
+            type={isShowPassword ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e)}
-            required
-            aria-invalid={!validPwd}
-            aria-describedby="password-err"
-            onFocus={() => setPwdFocus(true)}
-            onBlur={() => setPwdFocus(false)}
-            valid={+(password.length === 0 || validPwd)}
-            autoComplete="on"
+            valid={validPwd}
+            focus={pwdFocus}
+            setFocus={setPwdFocus}
+            setValue={setPassword}
+            validate={validatePassword}
+            placeholder="Password (*)"
+            errorMsg="Password is not valid"
+            handleKeyDown={handleKeyDown}
           />
           <button
-            className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
+            className={isShowPassword ? "fa-solid fa-eye eye-login" : "fa-solid fa-eye-slash eye-login"}
             onClick={() => setIsShowPassword(!isShowPassword)}
             onKeyDown={() => setIsShowPassword(!isShowPassword)}
           ></button>
+
         </div>
-        <small id="password-err" className={pwdFocus && password || !validPwd ? "text-danger" : "invalid-feedback"} role="alert" hidden={validPwd || !pwdFocus}>
-          <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-          Password must be 8-24 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character.
-        </small>
+
+
         <div className="forgot-password">
           <Link to="/forgot-password" className='nav-link'>
             <span>Forget password?</span>
@@ -155,12 +138,13 @@ const LoginForm = () => {
         </div>
 
         <button type="submit"
-          className={username && password ? "active mx-auto" : "mx-auto"}
+          className={username && password ? "active mx-auto btn-auth" : "mx-auto btn-auth"}
           disabled={username && password ? "" : "disabled"}
         >
           {isLoading && <i className="fas fa-sync fa-spin"></i>}
           &nbsp;Login
         </button>
+
       </form>
       <div>
         <p className="login-subtitle">Do not have an account?

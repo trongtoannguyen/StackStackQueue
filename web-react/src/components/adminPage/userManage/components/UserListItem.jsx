@@ -10,7 +10,8 @@ const UserListItem = (props) => {
     handleShowHideEdit,
     handleSetEditUser,
     handleShowHide,
-    handleSetDeleteUser
+    handleSetDeleteUser,
+    handleShowEditRole
   } = props;
 
   const handleDelete = () => {
@@ -23,9 +24,9 @@ const UserListItem = (props) => {
     handleShowHideEdit();
   }
 
-  const handleSetUpdateRole = () => {
-    console.log(`Update role`);
+  const handleUpdateRole = () => {
     handleSetEditUser(user);
+    handleShowEditRole();
   }
 
 
@@ -33,7 +34,10 @@ const UserListItem = (props) => {
     <tr key={user.id}>
       <td>
         <div className='ml-0 me-auto'>
-          <Avatar src={user?.imageUrl ?? (user?.avatar ? fetchImage(user?.avatar) : noAvatar)} username={user?.username} height={50} width={50} />
+          <Avatar
+            src={(user?.avatar ? fetchImage(user?.avatar) : (user?.imageUrl ?? noAvatar))}
+            username={user?.username}
+            height={50} width={50} />
         </div>
       </td>
       <td>
@@ -42,7 +46,7 @@ const UserListItem = (props) => {
         </Link>
       </td>
       <td>
-        <button onClick={handleSetUpdateRole}>{convertListNameRole(user.roles.map(x => x.name))}</button>
+        <button onClick={handleUpdateRole}>{convertListNameRole(user.roles.map(x => x.name))}</button>
       </td>
       <td>
         <i className="fas fa-sync-alt mx-2"
@@ -70,7 +74,8 @@ UserListItem.propTypes = {
   handleShowHideEdit: PropTypes.func.isRequired,
   handleSetEditUser: PropTypes.func.isRequired,
   handleShowHide: PropTypes.func.isRequired,
-  handleSetDeleteUser: PropTypes.func.isRequired
+  handleSetDeleteUser: PropTypes.func.isRequired,
+  handleShowEditRole: PropTypes.func.isRequired,
 };
 
 export default UserListItem;

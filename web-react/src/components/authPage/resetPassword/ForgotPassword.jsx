@@ -3,10 +3,7 @@ import { useState, useEffect } from 'react';
 
 import StyledInput from "../StyledInput";
 
-import {
-  EMAIL_REGEX
-} from "../ConstRegex";
-
+import { validateEmail } from "../../../utils/validUtils";
 import { forgotPassword } from "../../../redux/apiRequest";
 import { toast } from "react-toastify";
 
@@ -23,11 +20,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setValidEmailRP(EMAIL_REGEX.test(emailRP));
-  }, [emailRP]);
-
-
-  useEffect(() => {
+    setValidEmailRP(validateEmail(emailRP));
     setErrMsg('');
   }, [emailRP]);
 
@@ -78,7 +71,7 @@ const ForgotPassword = () => {
         aria-describedby="emailRP-err"
         onFocus={() => setEmailRPFocus(true)}
         onBlur={() => setEmailRPFocus(false)}
-        $valid={+(emailRP.length === 0 || validEmailRP)}
+        valid={+(emailRP.length === 0 || validEmailRP)}
       />
       <small id="emailRP-err" className={emailRPFocus && emailRP || !validEmailRP ? "text-danger" : "invalid-feedback"} role="alert" hidden={validEmailRP || !emailRPFocus}>
         <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
@@ -87,7 +80,7 @@ const ForgotPassword = () => {
 
 
       <button
-        className={isAction() ? "active mx-auto" : "mx-auto"}
+        className={isAction() ? "active mx-auto btn-auth" : "mx-auto btn-auth"}
         disabled={isAction() ? +false : +true}
         onClick={() => handleResetPassword()}
       >

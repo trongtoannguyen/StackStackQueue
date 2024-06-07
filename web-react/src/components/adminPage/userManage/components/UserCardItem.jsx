@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link } from "react-router-dom";
-import {Card, Row, Col } from 'react-bootstrap';
+import { Card, Row, Col } from 'react-bootstrap';
 
 import Avatar from "../../../avatar/Avatar";
 
@@ -11,7 +11,13 @@ import noAvatar from "../../../../assets/img/default-avatar.png";
 
 const UserCardItem = (props) => {
 
-  const { user, handleShowHideEdit, handleSetEditUser, handleShowHide, handleSetDeleteUser } = props;
+  const { user,
+    handleShowHideEdit,
+    handleSetEditUser,
+    handleShowHide,
+    handleSetDeleteUser,
+    handleShowEditRole
+  } = props;
 
   const handleDelete = () => {
     handleSetDeleteUser(user);
@@ -23,9 +29,16 @@ const UserCardItem = (props) => {
     handleShowHideEdit();
   }
 
+  const handleUpdateRole = () => {
+    handleSetEditUser(user);
+    handleShowEditRole();
+  }
+
 
   return (
-    <Col key={user.id} lg="4" md="6" sm="6" className='my-3'>
+    <Col key={user.id}
+      lg="4" md="6" sm="6"
+      className='my-3' style={{ minWidth: `400px` }}>
       <Card
         color={user.active ? 'primary' : ''}
         className="card-stats text-dark">
@@ -37,12 +50,16 @@ const UserCardItem = (props) => {
               </div>
             </Col>
             <Col md="8" xs="7">
-              <div className="">
+              <div style={{ color: 'black' }}>
                 <Link to="/admin/user-profile/1" className='text-decoration-none'>
-                  <span className="card-category">Username: {user.username}</span> <br />
-                  <span className="card-category">Email: {user.email}</span> <br />
-                  <span className='card-category'>Role:  {convertListNameRole(user.roles.map(x => x.name))}</span>
+                  <strong>{user.name ?? user.username}</strong> <br />
+                  <span>Email: {user.email}</span> <br />
                 </Link>
+                <button className=''
+                  onClick={handleUpdateRole}
+                >
+                  Role:  {convertListNameRole(user.roles.map(x => x.name))}
+                </button>
               </div>
             </Col>
           </Row>
@@ -50,17 +67,17 @@ const UserCardItem = (props) => {
         <hr />
         <Card.Footer className='d-flex justify-content-around'>
           <span className="stats">
-            <div
+            <button
               onClick={handleUpdate}
-            ><i className="fas fa-sync-alt" /> {user.accountStatus}</div>
+            ><i className="fas fa-sync-alt" /> {user.accountStatus}</button>
           </span>
           <span className="stats mx-2 text-danger">
-            <div className='d-block'
+            <button className='d-block'
               onClick={handleDelete}
               onKeyDown={handleDelete}>
               <i className="fa-solid fa-delete-left text-danger"
               ></i>  Delete
-            </div>
+            </button>
           </span>
         </Card.Footer>
       </Card>
@@ -73,7 +90,8 @@ UserCardItem.propTypes = {
   handleShowHideEdit: PropTypes.func.isRequired,
   handleSetEditUser: PropTypes.func.isRequired,
   handleShowHide: PropTypes.func.isRequired,
-  handleSetDeleteUser: PropTypes.func.isRequired
+  handleSetDeleteUser: PropTypes.func.isRequired,
+  handleShowEditRole: PropTypes.func.isRequired,
 };
 
 

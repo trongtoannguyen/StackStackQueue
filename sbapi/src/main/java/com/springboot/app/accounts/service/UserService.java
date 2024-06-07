@@ -7,9 +7,10 @@ import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Service
 public interface UserService {
 
 	Optional<User> findById(Long id);

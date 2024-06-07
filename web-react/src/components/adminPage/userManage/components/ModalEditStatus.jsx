@@ -22,6 +22,8 @@ const ModalEditUser = (props) => {
   }
 
 
+
+
   return (
     <Modal show={show} onHide={handleClose}
       backdrop="static"
@@ -35,13 +37,14 @@ const ModalEditUser = (props) => {
       <Modal.Body>
         <Form>
           <FormGroup>
-            Username: {user.username}
+            <strong>Name:</strong> {user.name ?? user.username}
           </FormGroup>
           <FormGroup>
-            Email: {user.email}
+            <strong>Email:</strong> {user.email}
+            <strong>Email:</strong> {user.accountStatus}
           </FormGroup>
           <FormGroup>
-            <Label for="accountStatus">Account Status:</Label>
+            <Label for="accountStatus"><strong>Account Status:</strong></Label>
             <Input type="select" name="accountStatus" id="accountStatus"
               onChange={(e) => setStatus(e.target.value)} value={status}>
               <option value={ACCOUNT_STATUS.INACTIVE}>InActive</option>
@@ -68,3 +71,4 @@ ModalEditUser.propTypes = {
 };
 
 export default ModalEditUser;
+

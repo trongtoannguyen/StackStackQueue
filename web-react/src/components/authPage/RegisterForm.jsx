@@ -112,7 +112,6 @@ const RegisterForm = () => {
         errorMsg="Username must be 5-24 characters long and start with a letter. Letters, numbers, underscores, hyphens allowed."
       />
 
-
       <FormInput
         id="email"
         type="text"
@@ -127,18 +126,17 @@ const RegisterForm = () => {
       />
 
       <div className="input-password">
-        <StyledInput
-          type={isShowPassword ? "text" : "password"}
+        <FormInput
           id="password"
-          placeholder="Password (*)"
+          type={isShowPassword ? "text" : "password"}
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          aria-invalid={!validPwd}
-          aria-describedby="password-err"
-          onFocus={() => setPwdFocus(true)}
-          onBlur={() => setPwdFocus(false)}
-          valid={+(password.length === 0 || validPwd)}
+          valid={validPwd}
+          focus={pwdFocus}
+          setFocus={setPwdFocus}
+          setValue={setPassword}
+          validate={validatePassword}
+          placeholder="Password (*)"
+          errorMsg="Password is not valid"
         />
         <button
           className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
@@ -146,53 +144,31 @@ const RegisterForm = () => {
           onKeyDown={() => setIsShowPassword(!isShowPassword)}
         ></button>
       </div>
-      <small id="password-err"
-        className={pwdFocus && password || !validPwd ? "text-danger" : "invalid-feedback"}
-        role="alert" hidden={validPwd || !pwdFocus}
-      >
-        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-        Password must be 8-24 characters long. <br />
-        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-        And contain at least one lowercase letter, one uppercase letter, one number. <br />
-        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-        And one special character (
-        <span aria-label="exclamation mark">! </span>
-        <span aria-label="at symbol">@ </span>
-        <span aria-label="hashtag"># </span>
-        <span aria-label="dollar sign">$ </span>
-        <span aria-label="percent">%</span>)
-      </small>
 
       <div className="input-password">
-        <StyledInput
-          type={isShowPassword ? "text" : "password"}
+        <FormInput
           id="confirm"
-          placeholder="Confirm Password (*)"
+          type={isShowPassword ? "text" : "password"}
           value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e)}
-          required
-          aria-invalid={!validConfirm}
-          aria-describedby="confirm-err"
-          onFocus={() => setConfirmFocus(true)}
-          onBlur={() => setConfirmFocus(false)}
-          valid={+(confirm.length===0 ||validConfirm)}
+          valid={validConfirm}
+          focus={confirmFocus}
+          setFocus={setConfirmFocus}
+          setValue={setConfirm}
+          validate={validateConfirm}
+          placeholder="Confirm Password (*)"
+          errorMsg="Passwords do not match"
+          handleKeyDown={handleKeyDown}
         />
         <button
           className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}
           onClick={() => setIsShowPassword(!isShowPassword)}
           onKeyDown={() => setIsShowPassword(!isShowPassword)}
         ></button>
+
       </div>
-      <small id="confirm-err"
-        className={confirmFocus && confirm || !validConfirm ? "text-danger" : "invalid-feedback"}
-        role="alert" hidden={validConfirm || !confirmFocus}>
-        <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}
-        Passwords do not match
-      </small>
 
       <button
-        className={isAction() ? "active mx-auto" : "mx-auto"}
+        className={isAction() ? "active mx-auto btn-auth" : "mx-auto btn-auth"}
         disabled={isAction() ? +false : +true}
         onClick={() => handleRegister()}
       >

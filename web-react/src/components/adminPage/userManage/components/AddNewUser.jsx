@@ -106,11 +106,11 @@ const AddNewUser = (props) => {
   }
 
 
-  // const handleKeyDown = (e) => {
-  //   if (e.keyCode === 13) {
-  //     handleRegister();
-  //   }
-  // }
+  const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      handleRegister();
+    }
+  }
 
   const isAction = () => {
     return validName && validEmail && validPwd && validConfirm;
@@ -203,6 +203,7 @@ const AddNewUser = (props) => {
               validate={validateConfirm}
               placeholder="Confirm Password (*)"
               errorMsg="Passwords do not match"
+              handleKeyDown={handleKeyDown}
             />
             <button
               className={isShowPassword ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}

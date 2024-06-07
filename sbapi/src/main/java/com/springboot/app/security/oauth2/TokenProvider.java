@@ -1,7 +1,7 @@
 package com.springboot.app.security.oauth2;
 
 import com.springboot.app.security.oauth2.config.AppProperties;
-import com.springboot.app.security.userprinal.UserDetailsImpl;
+import com.springboot.app.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

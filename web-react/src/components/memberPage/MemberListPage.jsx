@@ -137,13 +137,13 @@ const MemberList = () => {
               <span className="d-inline-block">
                 <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "joinDate")}
-                  onKeyDown={() => { handleSort("DESC", "joinDate") }}
+                  onClick={() => handleSort("DESC", "createdAt")}
+                  onKeyDown={() => { handleSort("DESC", "createdAt") }}
                 ></button>
                 <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "joinDate")}
-                  onKeyDown={() => { handleSort("ASC", "joinDate") }}
+                  onClick={() => handleSort("ASC", "createdAt")}
+                  onKeyDown={() => { handleSort("ASC", "createdAt") }}
                 ></button>
               </span>
             </th>

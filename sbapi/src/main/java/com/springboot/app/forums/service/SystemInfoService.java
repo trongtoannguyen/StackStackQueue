@@ -1,7 +1,12 @@
 package com.springboot.app.forums.service;
 
+import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.repository.CommentRepository;
+import com.springboot.app.forums.repository.DiscussionRepository;
+import com.springboot.app.forums.repository.ForumRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +21,15 @@ import java.util.logging.Logger;
 @Service("systemInfoService")
 public class SystemInfoService {
 	private static final Logger logger = Logger.getLogger(SystemInfoService.class.getName());
+
+	@Autowired
+	private CommentRepository commentRepository;
+	@Autowired
+	private DiscussionRepository discussionRepository;
+	@Autowired
+	private ForumRepository forumRepository;
+	@Autowired
+	private UserRepository userRepository;
 
 	private Statistics statistics = new Statistics();
 
@@ -35,6 +49,10 @@ public class SystemInfoService {
 	private Statistics statisticsFromDB() {
 
 		Statistics stat = new Statistics();
+		stat.setUserCount(userRepository.count());
+		stat.setCommentCount(commentRepository.count());
+		stat.setDiscussionCount(discussionRepository.count());
+		stat.setForumCount(forumRepository.count());
 
 
 		return stat;
@@ -85,7 +103,8 @@ public class SystemInfoService {
 	/**
 	 * List of logged on users
 	 */
-	private Set<String> loggedOnUsers = Collections.synchronizedSet(new HashSet<String>());;
+	private final Set<String> loggedOnUsers = Collections.synchronizedSet(new HashSet<String>());
+
 
 	public ServiceResponse<Void> addLoggedOnUser(String username) {
 		ServiceResponse<Void> response = new ServiceResponse<>();

@@ -45,3 +45,10 @@ export function convertListNameRole(roles) {
   names = names.slice(0, -2);
   return names;
 }
+
+//convert object to array
+export function toArray(role) {
+  let roles = [];
+  roles.push(role);
+  return roles;
+}
