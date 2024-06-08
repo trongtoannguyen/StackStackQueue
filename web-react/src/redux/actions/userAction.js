@@ -1,4 +1,4 @@
-import { loginApi } from "../../services/AuthService";
+import { loginApi } from "../../services/userService/AuthService";
 import { toast } from 'react-toastify';
 
 export const USER_LOGOUT = 'USER_LOGOUT';

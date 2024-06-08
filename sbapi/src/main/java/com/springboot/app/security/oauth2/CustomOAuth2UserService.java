@@ -1,7 +1,6 @@
 package com.springboot.app.security.oauth2;
 
 import com.springboot.app.accounts.entity.Person;
-import com.springboot.app.accounts.entity.Role;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.accounts.enumeration.AccountStatus;
@@ -12,7 +11,7 @@ import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.security.exception.OAuth2AuthenticationProcessingException;
 import com.springboot.app.security.oauth2.user.OAuth2UserInfo;
 import com.springboot.app.security.oauth2.user.OAuth2UserInfoFactory;
-import com.springboot.app.security.userprinal.UserDetailsImpl;
+import com.springboot.app.security.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;

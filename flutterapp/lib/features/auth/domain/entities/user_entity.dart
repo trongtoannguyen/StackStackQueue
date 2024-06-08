@@ -3,34 +3,27 @@ import 'package:formz/formz.dart';
 
 class UserEntity extends Equatable {
   final String id;
+  final String username;
   final String email;
   final String name;
-  final String lastName;
-  final String profilePic;
-  final String bannerPic;
-  final String job;
-  final String bio;
+  final String avatar;
+  final String imageUrl;
+  final String accessToken;
+  final List<String> roles;
 
-  const UserEntity(
-    this.id,
-    this.email,
-    this.name,
-    this.lastName,
-    this.profilePic,
-    this.bannerPic,
-    this.job,
-    this.bio,
-  );
+  const UserEntity(this.id, this.username, this.email, this.name, this.avatar,
+      this.imageUrl, this.accessToken, this.roles);
+
   @override
   List<Object?> get props => [
         id,
         email,
+        username,
         name,
-        lastName,
-        profilePic,
-        bannerPic,
-        bio,
-        job,
+        accessToken,
+        avatar,
+        imageUrl,
+        roles,
       ];
 }
 

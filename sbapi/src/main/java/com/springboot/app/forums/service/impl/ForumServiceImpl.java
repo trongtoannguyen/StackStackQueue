@@ -125,8 +125,12 @@ public class ForumServiceImpl implements ForumService {
 		ServiceResponse<ForumDTO> response = new ServiceResponse<>();
 
 		Integer maxSortOrder = forumRepository.findTopBySortOrderForForum(forumGroup.getId());
-
-		newForum.setSortOrder(maxSortOrder + 1);
+		if(maxSortOrder == null) {
+			maxSortOrder = 1;
+		}else{
+			maxSortOrder++;
+		}
+		newForum.setSortOrder(maxSortOrder);
 		newForum.setActive(true);
 
 		ForumStat forumStat = new ForumStat();
@@ -170,7 +174,13 @@ public class ForumServiceImpl implements ForumService {
 		ServiceResponse<ForumGroup> response = new ServiceResponse<>();
 
 		Integer maxSortOrder = forumRepository.findTopBySortOrder();
-		newForumGroup.setSortOrder(maxSortOrder + 1);
+
+		if(maxSortOrder == null) {
+			maxSortOrder = 1;
+		}else{
+			maxSortOrder++;
+		}
+		newForumGroup.setSortOrder(maxSortOrder);
 
 		newForumGroup.setParent(null);
 		forumGroupRepository.save(newForumGroup);

@@ -17,10 +17,10 @@ const refreshToken = async () => {
 		return res.data;
 	} catch (err) {
 		console.log(err.message);
-		// if (err?.response?.status === 403) {
-		//   localStorage.clear();
-		//   return (window.location.href = "/login");
-		// }
+		if (err?.response?.status === 403) {
+			localStorage.clear();
+			return (window.location.href = "/login");
+		}
 		return null;
 	}
 };

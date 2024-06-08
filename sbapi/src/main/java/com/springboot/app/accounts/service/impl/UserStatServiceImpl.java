@@ -1,7 +1,10 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
+import com.springboot.app.accounts.dto.responce.UserStatResponse;
 import com.springboot.app.accounts.entity.Badge;
 import com.springboot.app.accounts.entity.Person;
+import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.repository.UserStatRepository;
@@ -10,6 +13,8 @@ import com.springboot.app.accounts.service.UserStatService;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.repository.CommentRepository;
+import com.springboot.app.forums.repository.DiscussionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserStatServiceImpl implements UserStatService {
@@ -30,14 +37,20 @@ public class UserStatServiceImpl implements UserStatService {
 	@Autowired
 	private UserStatRepository userStatRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private DiscussionRepository discussionRepository;
+	@Autowired
+	private CommentRepository commentRepository;
+
 	@Override
 	public PaginateResponse getAllUserStats(int pageNo, int pageSize, String orderBy, String sortDir,String search) {
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
-
 		// create Pageable instance
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
-
 		// get the list of users from the UserRepository and return it as a Page object
 		Page<UserStat> usersPage = userStatRepository.searchByUsername(search,pageable);
 
@@ -50,13 +63,25 @@ public class UserStatServiceImpl implements UserStatService {
 				usersPage.getContent());
 	}
 
-	public void updateLastLogin(Long id) {
-		UserStat userStat = userStatRepository.findById(id).orElse(null);
-		if(userStat != null) {
-			userStat.setLastLogin(LocalDateTime.now());
-			userStatRepository.save(userStat);
-		}
+	@Override
+	public PaginateResponse getAllUserStatsWithIgnoreAdmin(int pageNo, int pageSize, String orderBy, String sortDir,String search) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
+				: Sort.by(orderBy).descending();
+		// create Pageable instance
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+		// get the list of users from the UserRepository and return it as a Page object
+		Page<UserStatResponse> usersPage = userRepository.searchByUsernameOrNameWithIgnoreAdmin(search,pageable)
+				.map(User::toUserStatResponse);
+
+		return new PaginateResponse(
+				usersPage.getNumber()+1,
+				usersPage.getSize(),
+				usersPage.getTotalPages(),
+				usersPage.getContent().size(),
+				usersPage.isLast(),
+				usersPage.getContent());
 	}
+
 
 	@Override
 	public PaginateResponse getCommentByUsername(int page, int size, String orderBy, String sortDirection, String username) {
@@ -77,4 +102,7 @@ public class UserStatServiceImpl implements UserStatService {
 	public ServiceResponse<List<Badge>> getBadgesByUsername(String username) {
 		return null;
 	}
+
+
+
 }

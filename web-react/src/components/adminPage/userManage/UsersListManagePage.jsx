@@ -1,32 +1,34 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import _debounce from 'lodash/debounce';
-
-import Table from 'react-bootstrap/Table';
 
 import {
   Row,
   Col,
-  Card
 } from "reactstrap";
 
-import { Tab, Tabs } from 'react-bootstrap';
-
+import { Tab, Tabs, Table } from 'react-bootstrap';
 
 import { getAllUsers } from "../../../redux/apiUserRequest";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
-import { deleteUser, patchUpdateStatusUser } from "../../../services/UserService";
+import {
+  deleteUser,
+  updateStatusUser,
+  createNewUser
+} from "../../../services/userService/UserService";
 
 
 import UserCardItem from "./components/UserCardItem";
 import UserListItem from "./components/UserListItem";
 import Pagination from "../../pagination/Pagination";
 import ModalConfirmDeleteUser from "./components/ModalConfirmDelete";
-import ModalEditUser from "./components/ModalEditUser";
-import { toast } from "react-toastify";
+import ModalEditRole from "./components/ModalEditRole";
+import ModalEditUser from "./components/ModalEditStatus";
+import AddNewUser from "./components/AddNewUser";
+
 
 function UserListManage() {
 
@@ -50,13 +52,17 @@ function UserListManage() {
   const [userEdit, setUserEdit] = useState({});
   const [showEdit, setShowEdit] = useState(false);
 
+  const [showModalRole, setShowModalRole] = useState(false);
 
+
+  const handleShowAdd = () => setShowAdd(!showAdd);
   const handleShowHide = () => setShowModal(!showModal);
   const handleSetDeleteUser = (user) => setUserDelete(user);
 
   const handleShowHideEdit = () => setShowEdit(!showEdit);
   const handleSetEditUser = (user) => setUserEdit(user);
 
+  const handleShowEditRole = () => setShowModalRole(!showModalRole);
 
 
 
@@ -77,7 +83,7 @@ function UserListManage() {
   // const msg = useSelector((state) => state.users?.msg);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
   const getAllUsersData = async (value) => {
@@ -100,6 +106,19 @@ function UserListManage() {
     return true;
   }
 
+  const handleAddUser = async (registerInfo) => {
+    let res = await createNewUser(registerInfo);
+    if (+res?.status === 201) {
+      setShowAdd(false);
+      toast.success("Added successfully!");
+      getAllUsersData();
+      return true;
+    } else {
+      toast.error(res?.data?.message);
+      return false;
+    }
+  }
+
 
   const handleDelete = async (user) => {
     if (user.id === null) {
@@ -109,20 +128,18 @@ function UserListManage() {
       return toast.error("Can't delete admin");
     }
     let res = await deleteUser(currentUser?.accessToken, user.id, axiosJWT);
-    if (+res.status !== 500) {
+    if (+res?.status ===200 || +res?.data?.status === 200) {
       setShowModal(false);
       toast.success("Deleted successfully!");
       setUserDelete({});
       getAllUsersData();
     } else {
-      toast.error(res?.data?.message);
+      toast.error(res?.message);
     }
-    return true;
   };
 
   const handleUpdateStatus = async (id, accountStatus) => {
-    const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
-    let res = await patchUpdateStatusUser(id, accountStatus, axiosJWT);
+    let res = await updateStatusUser(id, accountStatus, axiosJWT,currentUser.accessToken);
     if (+res.data.status === 200) {
       toast.success("Update status successfully");
       setShowEdit(false);
@@ -131,8 +148,10 @@ function UserListManage() {
     } else {
       toast.error(res?.data?.message);
     }
+  }
 
-    return true;
+  const handleUpdateRole = (dataRole) => {
+    console.log(`Update role`,dataRole);
   }
 
 
@@ -140,22 +159,17 @@ function UserListManage() {
 
   function handleSearch(value) {
     getAllUsersData(value);
-    return true;
   }
 
   const handleChange = (event) => {
     setMsg("");
     setKeyword(event.target.value)
     debounceFn(event.target.value);
-    return true;
   };
 
 
 
   useEffect(() => {
-    if (!currentUser.accessToken) {
-      createAxios(currentUser, dispatch, loginSuccess);
-    }
     getAllUsersData("");
 
   }, [page, pageSize, orderBy, sortBy]);
@@ -181,31 +195,31 @@ function UserListManage() {
             <th>
               <span>Username&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
                   onClick={() => handleSort("DESC", "username")}
                   onKeyDown={() => { handleSort("DESC", "username") }}
-                ></i>
-                <i
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
                   onClick={() => handleSort("ASC", "username")}
                   onKeyDown={() => { handleSort("ASC", "username") }}
-                ></i>
+                ></button>
               </span>
             </th>
             <th>
               <span>Email&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
                   onClick={() => handleSort("DESC", "email")}
                   onKeyDown={() => { handleSort("DESC", "email") }}
-                ></i>
-                <i
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
                   onClick={() => handleSort("ASC", "email")}
                   onKeyDown={() => { handleSort("ASC", "email") }}
-                ></i>
+                ></button>
               </span>
             </th>
             <th>
@@ -214,16 +228,16 @@ function UserListManage() {
             <th>
               <span>Status&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
                   onClick={() => handleSort("DESC", "accountStatus")}
                   onKeyDown={() => { handleSort("DESC", "accountStatus") }}
-                ></i>
-                <i
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
                   onClick={() => handleSort("ASC", "accountStatus")}
                   onKeyDown={() => { handleSort("ASC", "accountStatus") }}
-                ></i>
+                ></button>
               </span>
             </th>
             <th>Actions</th>
@@ -235,6 +249,7 @@ function UserListManage() {
             handleSetDeleteUser={handleSetDeleteUser}
             handleShowHideEdit={handleShowHideEdit}
             handleSetEditUser={handleSetEditUser}
+            handleShowEditRole={handleShowEditRole}
           />)}
         </tbody>
       </Table>
@@ -249,56 +264,15 @@ function UserListManage() {
         <Col className="my-3">
           {!showAdd &&
             <div className="ml-auto me-0 col-md-4">
-              <button to="/admin/user/add"
+              <button
                 onClick={() => setShowAdd(!showAdd)}
-                className="btn btn-primary">{showAdd ? "Close" : "Add New"}</button>
+                className="btn btn-success">{showAdd ? "Close" : "Add New"}</button>
             </div>
           }
-          {showAdd &&
-            <div className="">
-              <div className="card col-8 mx-auto p-3">
-                <p>Create a new user</p>
-                <div className="row">
-                  <div className="col-md-6 form-group mb-3">
-                    <label htmlFor="username">Username</label>
-                    <input type="text" placeholder="Username" className="form-control" />
-                  </div>
-                  <div className="col-md-6 form-group mb-3">
-                    <label htmlFor="username">Email</label>
-                    <input type="text" placeholder="email" className="form-control" />
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-6 form-group mb-3">
-                    <label htmlFor="username">Password</label>
-                    <input type="password" placeholder="Password" className="form-control" />
-                  </div>
-                  <div className="col-md-6 form-group mb-3">
-                    <label htmlFor="username">Confirm Password</label>
-                    <input type="password" placeholder="Confirm password" className="form-control" />
-                  </div>
-                </div>
-
-                <div className="form-group mb-3">
-                  <label htmlFor="role">Role</label>
-                  <select name="role" id="role" className="form-select">
-                    <option value="all">select role</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                    <option value="mod">Mod</option>
-                  </select>
-                </div>
-
-                <div>
-                  <button className="btn btn-secondary mx-2"
-                    onClick={() => setShowAdd(!showAdd)}
-                  >Cancel</button>
-                  <button className="btn btn-primary">Create</button>
-                </div>
-              </div>
-              <hr />
-            </div>
-          }
+          {showAdd && <AddNewUser
+            handleShowAdd={handleShowAdd}
+            registerUser={handleAddUser}
+          />}
           <Row className="d-flex">
             <div className="ml-0 me-auto col-ms-2 d-flex align-items-center mb-3">
               <label htmlFor="page" className="col-2">Page size:</label>
@@ -336,11 +310,6 @@ function UserListManage() {
             <Tab eventKey="userList"
               title={<i className="fa-solid fa-list fa-2x"></i>}>
               {tableUserList(userList)}
-              <Pagination
-                handlePageClick={handlePageClick}
-                pageSize={pageSize}
-                totalPages={totalPages}
-              />
             </Tab>
             <Tab eventKey="userGrid" title={<i className="fa-solid fa-grip fa-2x"></i>}>
               <Col>
@@ -354,22 +323,25 @@ function UserListManage() {
                         </span>
                         <h5>Loading...</h5>
                       </div>
-                      : userList?.map((user) => <UserCardItem key={user.id} user={user}
+                      : userList?.map((user) => <UserCardItem key={user.id}
+                        user={user}
                         handleShowHide={handleShowHide}
                         handleSetDeleteUser={handleSetDeleteUser}
                         handleShowHideEdit={handleShowHideEdit}
                         handleSetEditUser={handleSetEditUser}
+                        handleShowEditRole={handleShowEditRole}
                       />)
                   }
-                  <Pagination
-                    handlePageClick={handlePageClick}
-                    pageSize={pageSize}
-                    totalPages={totalPages}
-                  />
+
                 </Row>
               </Col>
             </Tab>
           </Tabs>
+          <Pagination
+            handlePageClick={handlePageClick}
+            pageSize={+pageSize}
+            totalPages={+totalPages}
+          />
         </div>
 
 
@@ -387,6 +359,13 @@ function UserListManage() {
         show={showEdit}
         handleClose={handleShowHideEdit}
         handleUpdateStatus={handleUpdateStatus}
+        user={userEdit}
+      />
+
+      <ModalEditRole
+        show={showModalRole}
+        handleClose={handleShowEditRole}
+        handleUpdateRole={handleUpdateRole}
         user={userEdit}
       />
 

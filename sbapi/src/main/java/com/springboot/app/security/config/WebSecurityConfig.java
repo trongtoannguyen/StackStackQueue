@@ -22,7 +22,7 @@ import com.springboot.app.security.oauth2.CustomOAuth2UserService;
 import com.springboot.app.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.springboot.app.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.springboot.app.security.oauth2.OAuth2AuthenticationSuccessHandler;
-import com.springboot.app.security.userprinal.UserDetailsServiceImpl;
+import com.springboot.app.security.service.UserDetailsServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
@@ -41,9 +41,6 @@ public class WebSecurityConfig {
 
 	@Autowired
 	private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-
-	@Autowired
-	private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -87,9 +84,12 @@ public class WebSecurityConfig {
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						.requestMatchers("/api/test/**").permitAll().requestMatchers("/api/reset-password/**")
-						.permitAll().requestMatchers("/api/user-stat").permitAll().requestMatchers("/api/view/**")
-						.permitAll().requestMatchers("/").permitAll().anyRequest().authenticated());
+						.requestMatchers("/api/test/**").permitAll()
+						.requestMatchers("/api/reset-password/**")
+						.permitAll().requestMatchers("/api/user-stat/**").permitAll()
+						.requestMatchers("/api/view/**")
+						.permitAll().requestMatchers("/").permitAll().anyRequest().authenticated()
+				);
 
 		http.authenticationProvider(authenticationProvider());
 

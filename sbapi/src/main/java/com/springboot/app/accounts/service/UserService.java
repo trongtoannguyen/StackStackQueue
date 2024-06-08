@@ -1,14 +1,16 @@
 package com.springboot.app.accounts.service;
 
+import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.dto.request.SignupRequest;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Service
 public interface UserService {
 
 	Optional<User> findById(Long id);
@@ -16,7 +18,6 @@ public interface UserService {
 	Optional<User> findByEmail(String email);
 
 	PaginateResponse getAllUsers(int page, int size,String orderBy,String sortDirection, String search);
-	ServiceResponse<String> getAvatarMember(String username);
 
 	ServiceResponse<User> createNewUser(SignupRequest signupRequest);
 
@@ -27,5 +28,7 @@ public interface UserService {
 	void updateLastLogin(Long id);
 
 	ServiceResponse<User> updateRoleUser(UpdateRoleRequest updateRoleRequest);
+
+	ServiceResponse<Void> updateNewPassword(NewPasswordRequest newPasswordRequest, User user);
 
 }

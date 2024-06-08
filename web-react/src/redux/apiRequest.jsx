@@ -1,6 +1,5 @@
 // import axios from "axios";
 import axios from "../services/customize-axios";
-// import { loginApi } from "../services/AuthService";
 import {
   loginFailed,
   loginStart,
@@ -12,6 +11,7 @@ import {
   registerStart,
   registerSuccess,
 } from "./authSlice";
+import { clearAvatar } from "./avatarSlice";
 import { clearUserList } from './userSlice';
 
 import { toast } from 'react-toastify';
@@ -61,12 +61,14 @@ export const logOut = async (dispatch, id, navigate, accessToken, axiosJWT) => {
     });
     dispatch(logOutSuccess());
     dispatch(clearUserList());
+    dispatch(clearAvatar());
     navigate("/login");
     toast.success("Logout Successfully!");
   } catch (err) {
     console.log(`Logout error: ${err.message}`);
     toast.error("Log out failed!");
     dispatch(logOutFailed());
+    navigate("/login");
   }
 };
 
@@ -103,3 +105,4 @@ export const forgotPassword = async (email) => {
 export const resetPassword = async (passwordInfo) => {
   return await axios.post('reset-password/reset', passwordInfo);
 }
+

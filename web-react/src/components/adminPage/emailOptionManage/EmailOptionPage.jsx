@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { Button, Col, Row, Card } from "react-bootstrap";
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import { getEmailOptionById, putUpdateEmailOption } from "../../../services/EmailOptionService";
+import { getEmailOptionById, putUpdateEmailOption } from "../../../services/emailService/EmailOptionService";
 import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
 
@@ -24,6 +24,7 @@ const EmailOption = () => {
   const [authentication, setAuthentication] = useState(true);
 
   const [show, setShow] = useState(false);
+  // const [showTest, setShowTest] = useState(false);
 
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
@@ -105,7 +106,6 @@ const EmailOption = () => {
           </div>
         }
 
-        <hr />
         {!show &&
           <Row className="d-flex justify-content-end">
             <Button className="col-md-2 me-3" variant="secondary" onClick={() => setShow(!show)}>{show ? "Close" : "Update"}</Button>
@@ -132,7 +132,7 @@ const EmailOption = () => {
               </div>
               <div className="form-group mb-3 col-md-6">
                 <label htmlFor="password">Password of email <span className="text-danger">(*)</span></label>
-                <input value={password} name="password" className="form-control" required onChange={(e) => setHost(e.target.value)} />
+                <input type="password" value={password} name="password" className="form-control" required onChange={(e) => setHost(e.target.value)} />
               </div>
             </Row>
             <Row className="d-flex justify-content-end">
@@ -144,8 +144,8 @@ const EmailOption = () => {
           </Card>
         }
 
-
       </Col>
+      <h3></h3>
 
     </div>
   )

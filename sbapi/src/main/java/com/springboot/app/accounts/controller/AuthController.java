@@ -15,7 +15,7 @@ import com.springboot.app.security.entity.RefreshToken;
 import com.springboot.app.security.exception.TokenRefreshException;
 import com.springboot.app.security.jwt.JwtUtils;
 import com.springboot.app.security.service.RefreshTokenService;
-import com.springboot.app.security.userprinal.UserDetailsImpl;
+import com.springboot.app.security.service.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;

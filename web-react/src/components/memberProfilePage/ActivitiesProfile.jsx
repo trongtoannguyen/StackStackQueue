@@ -1,15 +1,13 @@
 import PropTypes from "prop-types";
-import {
-  Button,
-  Card, CardHeader, CardBody,
-} from "reactstrap";
 
 import Avatar from "../avatar/Avatar";
+import {fetchImage } from "../../services/userService/UserService";
 
 
 const ActivitiesProfile = (props) => {
 
-  const { username } = props;
+  const { username, userInfo } = props;
+
 
 
   const activities = [
@@ -36,10 +34,22 @@ const ActivitiesProfile = (props) => {
     }
   }
 
+
+  const urlAvatarUser = () => {
+    if (userInfo.imageUrl) {
+      return userInfo.imageUrl;
+    }
+    if (userInfo.avatar) {
+      return fetchImage(userInfo.avatar);
+    }
+
+    return null;
+  }
+
   return (
-    <Card className="card-activities">
-      <CardHeader>Activities History</CardHeader>
-      <CardBody>
+    <div className="card card-activities">
+      <div className="card-header">Activities History</div>
+      <div className="card-body">
         <div className="table-full-width table-responsive">
           <table className="table">
             <tbody>
@@ -47,7 +57,7 @@ const ActivitiesProfile = (props) => {
                 <tr key={activity.id}>
                   <td className="col-1">
                     <p className={setColor(activity.color)}>
-                      <Avatar src="" username="" height={50} width={50} />
+                      <Avatar src={urlAvatarUser()} username="" height={50} width={50} />
                     </p>
                   </td>
                   <td className="col-auto">
@@ -56,8 +66,8 @@ const ActivitiesProfile = (props) => {
                     </p>
                     <small className="text-muted">{activity?.time}</small>
                   </td>
-                  <td className={"td-actions "+ setColor(activity.color)}>
-                    <Button
+                  <td className={"td-actions " + setColor(activity.color)}>
+                    <button
                       className="btn-link"
                       color="info"
                       id="tooltip636901683"
@@ -65,7 +75,7 @@ const ActivitiesProfile = (props) => {
                       type="button"
                     >
                       <i className="fa fa-share" />
-                    </Button>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -73,13 +83,16 @@ const ActivitiesProfile = (props) => {
             </tbody>
           </table>
         </div>
-      </CardBody>
-    </Card>
+      </div>
+    </div>
   )
 }
 
+
 ActivitiesProfile.propTypes = {
   username: PropTypes.string.isRequired,
+  userInfo: PropTypes.object.isRequired,
 };
+
 
 export default ActivitiesProfile;

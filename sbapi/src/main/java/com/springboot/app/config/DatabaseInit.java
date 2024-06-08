@@ -73,10 +73,10 @@ public class DatabaseInit {
 				addRoles(roleRepository);
 				addAdmin(userRepository, roleRepository);
 
-				createRegistrationOption();
-				createEmailOption();
-				createCommentOption();
-				createAvatarOption();
+//				createRegistrationOption();
+//				createEmailOption();
+//				createCommentOption();
+//				createAvatarOption();
 			}
 		};
 	}
@@ -154,7 +154,7 @@ public class DatabaseInit {
 		forum.setIcon("fa fa-bullhorn");
 		forum.setColor("ff7e00");
 
-		ForumDTO forumdto = forumService.addForum(forum, null).getDataObject();
+		ForumDTO forumdto = forumService.addForum(forum, null,user.getUsername()).getDataObject();
 		forum = modelMapper.map(forumdto, Forum.class);
 
 		logger.info("Announcements forum created.");

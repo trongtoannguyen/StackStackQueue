@@ -1,22 +1,14 @@
+import { useState } from 'react';
+
 import Table from 'react-bootstrap/Table';
 import ForumInfo from '../forumsPage/ForumInfo';
 import { Link } from 'react-router-dom';
-import ReactPaginate from 'react-paginate';
 
-import { Container } from 'react-bootstrap';
 import BannerTop from '../bannerTop/BannerTop';
+import Pagination from '../pagination/Pagination';
 
 
 import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  CardTitle,
-  FormGroup,
-  Form,
-  Input,
   Row,
   Col,
 } from "reactstrap";
@@ -29,6 +21,13 @@ const ListDiscussions = () => {
   const breadcrumbs = [
     { id: 1, name: 'List Discussions', link: '/list-discussion' }
   ];
+
+  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [orderBy, setOrderBy] = useState('createdAt');
+  const [sortBy, setSortBy] = useState('ASC');
+
 
   const handlePageClick = (event) => {
     console.log(event)
@@ -44,40 +43,40 @@ const ListDiscussions = () => {
 
   return (
     <article className="list-discussion-container content">
-      <Col md="12">
+      <div className='col-12'>
         <BannerTop
           bannerName={bannerName}
           breadcrumbs={breadcrumbs}
         />
-      </Col>
-      <Col md="12">
-        <Row className='filter-top'>
-          <div className='filter-item'>
+      </div>
+      <div className='col-12 my-3'>
+        <div className="row d-flex justify-content-between">
+          <span className="col-md-6 mb-2 mb-lg-0">
             <span className='filter-name'>Sort by: </span>
-            <label htmlFor='recent'><input type='radio' id='recent' name='sortBy' value="1" /> Most Recent</label>
-            <label htmlFor='reply'><input type='radio' id='reply' name='sortBy' value="2" /> Most Recent</label>
-            <label htmlFor='view'><input type='radio' id='view' name='sortBy' value="3" /> Most Recent</label>
-          </div>
+            <label htmlFor='recent' className='mx-2'>
+              <input type='radio' id='recent' name='sortBy' value="1" /> Most Recent
+            </label>
+            <label htmlFor='reply' className='mx-2'>
+              <input type='radio' id='reply' name='sortBy' value="2" /> Most Views
+            </label>
+            <label htmlFor='view' className='mx-2'>
+              <input type='radio' id='view' name='sortBy' value="3" /> Most Comments
+            </label>
+          </span>
 
-          <div className='filter-item'>
-            <span className='filter-name'>Sort Order:</span>
-            <button>
-              <i className="fa-solid fa-arrow-down-long"></i>
-            </button>
-            <button>
-              <i className="fa-solid fa-arrow-up-long"></i>
-            </button>
-          </div>
-
-          <div className='filter-item'>
-            <span className='filter-name'>Page Size</span>
-            <button>10</button>
-            <button>20</button>
-            <button>50</button>
-          </div>
-
-        </Row>
-      </Col>
+          <span className="ml-auto me-0 col-md-3 d-flex align-items-center">
+            <label htmlFor="page" className="col-auto">Page size:</label>
+            <select id="page" name="page"
+              className="form-select"
+            >
+              <option value="5">05 per page</option>
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+              <option value="50">50 per page</option>
+            </select>
+          </span>
+        </div>
+      </div>
 
       <Col md="12">
         <Row>
@@ -114,26 +113,11 @@ const ListDiscussions = () => {
               </tbody>
             </Table>
 
-            <div className='pagination pagination-end'>
-              <ReactPaginate
-                breakLabel="..."
-                nextLabel="next >"
-                onPageChange={handlePageClick}
-                pageRangeDisplayed={5}
-                pageCount={15}
-                previousLabel="< previous"
-                pageClassName='page-item'
-                pageLinkClassName='page-link'
-                previousClassName='page-item'
-                previousLinkClassName='page-link'
-                nextClassName='page-item'
-                nextLinkClassName='page-link'
-                breakClassName='page-item'
-                breakLinkClassName='page-link'
-                containerClassName='pagination'
-                activeClassName='active'
-              />
-            </div>
+            <Pagination
+              handlePageClick={handlePageClick}
+              pageSize={pageSize}
+              totalPages={totalPages}
+            />
 
           </Col>
 

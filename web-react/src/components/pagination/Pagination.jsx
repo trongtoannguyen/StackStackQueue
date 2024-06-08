@@ -2,6 +2,7 @@ import ReactPaginate from "react-paginate"; // for pagination
 import { AiFillLeftCircle, AiFillRightCircle } from "react-icons/ai"; // icons form react-icons
 import { IconContext } from "react-icons"; // for customizing icons
 import './style.pagination.scss';
+import PropTypes from 'prop-types';
 
 
 const Pagination = (props) => {
@@ -32,6 +33,12 @@ const Pagination = (props) => {
       />
     </div>
   );
+}
+
+Pagination.propTypes = {
+  pageSize: PropTypes.number,
+  totalPages: PropTypes.number,
+  handlePageClick: PropTypes.func,
 }
 
 export default Pagination;

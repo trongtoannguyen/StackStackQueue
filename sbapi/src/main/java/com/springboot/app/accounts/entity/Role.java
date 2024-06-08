@@ -9,7 +9,7 @@ import org.hibernate.annotations.NaturalId;
 public class Role {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private int id;
 	@Enumerated(EnumType.STRING)
 	@NaturalId
 	@Column(length = 60)
@@ -18,16 +18,16 @@ public class Role {
 	public Role() {
 	}
 
-	public Role(Integer id, RoleName name) {
+	public Role(int id, RoleName name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

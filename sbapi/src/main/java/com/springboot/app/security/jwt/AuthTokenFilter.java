@@ -1,7 +1,7 @@
 package com.springboot.app.security.jwt;
 
 
-import com.springboot.app.security.userprinal.UserDetailsServiceImpl;
+import com.springboot.app.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

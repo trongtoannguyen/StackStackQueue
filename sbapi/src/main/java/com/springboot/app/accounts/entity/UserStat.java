@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.entity;
 
+import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;

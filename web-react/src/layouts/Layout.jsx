@@ -8,8 +8,8 @@ import Sidebar from "./sidebar/Sidebar"
 import routes from "../routes/routes";
 import routesAdmin from "../routes/routesForAdmin";
 
-import AdminHeader from './header/AdminHeader';
-import AdminFooter from "./footer/AdminFooter";
+import Header from './header/Header';
+import Footer from "./footer/Footer";
 import FixedPlugin from "../components/adminPage/FixedPlugin/FixedPlugin";
 import PropTypes from 'prop-types';
 
@@ -70,11 +70,11 @@ const Layout = (props) => {
         activeColor={activeColor}
       />
       <div className="main-panel" ref={mainPanel}>
-        <AdminHeader {...props} />
+        <Header {...props} />
 
         <Outlet />
 
-        <AdminFooter fluid />
+        <Footer fluid {...props} />
       </div>
       <FixedPlugin
         bgColor={backgroundColor}

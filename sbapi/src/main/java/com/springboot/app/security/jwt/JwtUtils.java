@@ -1,11 +1,8 @@
 package com.springboot.app.security.jwt;
 import com.springboot.app.accounts.entity.User;
-import com.springboot.app.security.dto.response.JwtResponse;
 import com.springboot.app.security.dto.response.UserInfoResponse;
-import com.springboot.app.security.userprinal.UserDetailsImpl;
+import com.springboot.app.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -20,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
@@ -37,13 +33,13 @@ public class JwtUtils {
 	private String jwtSecret;
 
 	@Value("${springboot.app.jwtExpirationMs}")
-	private int jwtExpirationMs;
+	private long jwtExpirationMs;
 
 	@Value("${springboot.app.jwtCookieName}")
 	private String jwtCookie;
 
 	@Value("${springboot.app.jwtRefreshExpirationMs}")
-	private int jwtRefreshExpirationMs;
+	private long jwtRefreshExpirationMs;
 
 	@Value("${springboot.app.jwtRefreshCookieName}")
 	private String jwtRefreshCookie;

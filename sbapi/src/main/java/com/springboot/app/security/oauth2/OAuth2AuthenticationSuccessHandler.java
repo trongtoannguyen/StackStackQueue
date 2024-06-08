@@ -3,7 +3,7 @@ package com.springboot.app.security.oauth2;
 import com.springboot.app.security.exception.BadRequestException;
 import com.springboot.app.security.jwt.JwtUtils;
 import com.springboot.app.security.oauth2.config.AppProperties;
-import com.springboot.app.security.userprinal.UserDetailsImpl;
+import com.springboot.app.security.service.UserDetailsImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

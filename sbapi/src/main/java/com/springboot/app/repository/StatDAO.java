@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ import java.util.Map;
  * Map<String, Integer> getCommentorMap(Discussion discussion);
  * Comment findLatestCommentByDiscussion(Discussion discussion);
  */
-
+@Qualifier("statDAO")
 @Repository
 public class StatDAO {
 	@PersistenceContext

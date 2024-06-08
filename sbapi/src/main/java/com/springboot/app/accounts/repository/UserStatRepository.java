@@ -16,4 +16,7 @@ public interface UserStatRepository extends JpaRepository<UserStat, Long>, Pagin
 	@Query("SELECT u FROM UserStat u WHERE (:username IS NULL OR :username = '' OR u.createdBy LIKE %:username%)")
 	Page<UserStat> searchByUsername(@Param("username") String username, Pageable pageable);
 
+	@Query("SELECT u FROM UserStat u WHERE (:username IS NULL OR :username = '' OR u.createdBy LIKE %:username%) AND u.createdBy <> 'admin'")
+	Page<UserStat> findAllByUsernameWithIgnoreAdmin(@Param("username") String username, Pageable pageable);
+
 }

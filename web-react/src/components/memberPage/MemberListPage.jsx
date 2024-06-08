@@ -1,26 +1,15 @@
 import { Link } from "react-router-dom";
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import BannerTop from "../bannerTop/BannerTop";
-
-import { getAllUserStats } from "../../services/UserStatService";
-import { formatDifferentUpToNow } from "../../utils/FormatHelper";
-
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Table,
-  Row,
-  Col,
-} from "reactstrap";
-
-
-import Avatar from "../avatar/Avatar";
-import { useEffect, useState } from "react";
-
 import Pagination from "../pagination/Pagination";
+
+import noAvatar from '../../assets/img/default-avatar.png';
+import Avatar from "../avatar/Avatar";
+
+import { getAllUserStats } from "../../services/userService/UserStatService";
+import { fetchImage } from "../../services/userService/UserService";
+import { formatDifferentUpToNow } from "../../utils/FormatHelper";
 
 
 
@@ -36,7 +25,7 @@ const MemberList = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [orderBy, setOrderBy] = useState('createdAt');
+  const [orderBy, setOrderBy] = useState('id'); //default orderBy userId
   const [sortBy, setSortBy] = useState('ASC');
 
 
@@ -56,7 +45,6 @@ const MemberList = () => {
   }
 
 
-
   const getDataUserStat = useCallback(async () => {
     let pageData = {
       page: page,
@@ -73,7 +61,7 @@ const MemberList = () => {
       setTotalUsers(totalItems);
     }
     return true;
-  }, [page, pageSize, orderBy, sortBy])
+  }, [page, pageSize, orderBy, sortBy]);
 
 
   useEffect(() => {
@@ -95,83 +83,83 @@ const MemberList = () => {
       );
     }
     return (
-      <Table responsive>
+      <table className="table responsive">
         <thead className="text-primary">
           <tr>
             <th>
               <span>Member&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "createdBy")}
-                  onKeyDown={() => { handleSort("DESC", "createdBy") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "username")}
+                  onKeyDown={() => { handleSort("DESC", "username") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "createdBy")}
-                  onKeyDown={() => { handleSort("ASC", "createdBy") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "username")}
+                  onKeyDown={() => { handleSort("ASC", "username") }}
+                ></button>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Discussion&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "discussionCount")}
-                  onKeyDown={() => { handleSort("DESC", "discussionCount") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.discussionCount")}
+                  onKeyDown={() => { handleSort("DESC", "stat.discussionCount") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "discussionCount")}
-                  onKeyDown={() => { handleSort("ASC", "discussionCount") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.discussionCount")}
+                  onKeyDown={() => { handleSort("ASC", "stat.discussionCount") }}
+                ></button>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
 
               <span>Comments&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "commentCount")}
-                  onKeyDown={() => { handleSort("DESC", "commentCount") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.commentCount")}
+                  onKeyDown={() => { handleSort("DESC", "stat.commentCount") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "commentCount")}
-                  onKeyDown={() => { handleSort("ASC", "commentCount") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.commentCount")}
+                  onKeyDown={() => { handleSort("ASC", "stat.commentCount") }}
+                ></button>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Join Forum&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
                   onClick={() => handleSort("DESC", "createdAt")}
                   onKeyDown={() => { handleSort("DESC", "createdAt") }}
-                ></i>
-                <i
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
                   onClick={() => handleSort("ASC", "createdAt")}
                   onKeyDown={() => { handleSort("ASC", "createdAt") }}
-                ></i>
+                ></button>
               </span>
             </th>
-            <th className="text-right">
+            <th style={{ textAlign: "right" }}>
               <span>Reputation&nbsp;</span>
               <span className="d-inline-block">
-                <i
+                <button
                   className="fa-solid fa-arrow-down-long"
-                  onClick={() => handleSort("DESC", "reputation")}
-                  onKeyDown={() => { handleSort("DESC", "reputation") }}
-                ></i>
-                <i
+                  onClick={() => handleSort("DESC", "stat.reputation")}
+                  onKeyDown={() => { handleSort("DESC", "stat.reputation") }}
+                ></button>
+                <button
                   className="fa-solid fa-arrow-up-long"
-                  onClick={() => handleSort("ASC", "reputation")}
-                  onKeyDown={() => { handleSort("ASC", "reputation") }}
-                ></i>
+                  onClick={() => handleSort("ASC", "stat.reputation")}
+                  onKeyDown={() => { handleSort("ASC", "stat.reputation") }}
+                ></button>
               </span>
 
             </th>
@@ -180,21 +168,23 @@ const MemberList = () => {
         <tbody>
           {memberList?.map((item) => {
             return (
-              <tr key={item?.id}>
+              <tr key={item?.userId}>
                 <td>
-                  <Link to={"/member-profile/" + item.createdBy} className="text-decoration-none">
-                    <Avatar username={item?.createdBy} height={50} width={50} />
+                  <Link to={"/member-profile/" + item.username} className="text-decoration-none">
+                    <Avatar src={item?.avatar !== null ? fetchImage(item?.avatar) : (item?.imageUrl ?? noAvatar)}
+                      username={item?.name ?? item?.username}
+                      height={50} width={50} />
                   </Link>
                 </td>
-                <td className="text-right">{item?.discussionCount}</td>
-                <td className="text-right">{item?.commentCount}</td>
-                <td className="text-right">{item?.createdAt ? formatDifferentUpToNow(item.createdAt) : ""}</td>
-                <td className="text-right"> {item?.reputation}</td>
+                <td style={{ textAlign: "right" }}>{item.userStat?.discussionCount}</td>
+                <td style={{ textAlign: "right" }}>{item.userStat?.commentCount}</td>
+                <td style={{ textAlign: "right" }}>{item?.joinDate ? formatDifferentUpToNow(item.joinDate) : ""}</td>
+                <td style={{ textAlign: "right" }}> {item.userStat?.reputation}</td>
               </tr>
             )
           })}
         </tbody>
-      </Table>
+      </table>
     );
   }
 
@@ -202,53 +192,47 @@ const MemberList = () => {
 
   return (
     <section className="members-container content">
-      <Row>
-        <Col md="12">
-          <BannerTop
-            bannerName={bannerName}
-            breadcrumbs={breadcrumbs}
-          />
-        </Col>
-        <Col md="12">
-          <Row className="px-2">
-            <Card>
-              <CardHeader>
-                <Row>
-                  <span className="col-md-4 mb-2 mb-lg-0">
-                    <CardTitle tag="h4">Total: {totalUsers} user(s)/page{ page}</CardTitle>
-                  </span>
+      <div className="col-12">
+        <BannerTop
+          bannerName={bannerName}
+          breadcrumbs={breadcrumbs}
+        />
+      </div>
+      <div className="col-12">
+        <div className="card px-2">
+          <div className="card-header">
+            <div className="row d-flex justify-content-around">
+              <span className="col-md-4 mb-2 mb-lg-0">
+                <h4>Total: {totalUsers} user(s)/page{page}</h4>
+              </span>
 
-                  <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
-                  </span>
+              <span className="col-md-2 d-flex align-items-center">
+                <label htmlFor="page" className="col-auto">Page size:</label>
+                <select id="page" name="page"
+                  className="form-select"
+                  onChange={(e) => setPageSize(e.currentTarget.value)}
+                  style={{ minWidth: 120 }}
+                >
+                  <option value="5">05 per page</option>
+                  <option value="10">10 per page</option>
+                  <option value="20">20 per page</option>
+                  <option value="50">50 per page</option>
+                </select>
+              </span>
+            </div>
+          </div>
+          <div className="card-body">
+            {tableList(userStatList)}
 
-                  <span className="ml-auto me-0 col-md-2 d-flex align-items-center">
-                    <label htmlFor="page" className="col-8">Page size:</label>
-                    <select id="page" name="page"
-                      className="form-select col-4"
-                      onChange={(e) => setPageSize(e.currentTarget.value)}
-                    >
-                      <option value="5">05</option>
-                      <option value="10">10</option>
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                    </select>
-                  </span>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                {tableList(userStatList)}
+            <Pagination
+              handlePageClick={handlePageClick}
+              pageSize={pageSize}
+              totalPages={totalPages}
+            />
 
-                <Pagination
-                  handlePageClick={handlePageClick}
-                  pageSize={pageSize}
-                  totalPages={totalPages}
-                />
-
-              </CardBody>
-            </Card>
-          </Row>
-        </Col>
-      </Row>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

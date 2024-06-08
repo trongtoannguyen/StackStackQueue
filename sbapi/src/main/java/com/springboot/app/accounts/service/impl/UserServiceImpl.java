@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.request.UpdateRoleRequest;
 import com.springboot.app.accounts.entity.*;
 import com.springboot.app.accounts.enumeration.AccountStatus;
@@ -214,42 +215,36 @@ public class UserServiceImpl implements UserService {
 
 	private Set<Role> getRolesByString(Set<String> strRoles) {
 		Set<Role> roles = new HashSet<>();
-		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-				.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-			roles.add(userRole);
+		if (strRoles == null || strRoles.isEmpty()) {
+			roles.add(findRoleByName(RoleName.ROLE_USER));
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
 					case "admin":
-						Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-							.orElseThrow(() -> new RuntimeException("Error: Role Admin is not found."));
-						roles.add(adminRole);
-
+						roles.add(findRoleByName(RoleName.ROLE_ADMIN));
 						break;
 					case "mod":
-						Role modRole = roleRepository.findByName(RoleName.ROLE_MODERATOR)
-							.orElseThrow(() -> new RuntimeException("Error: Role Moderator is not found."));
-						roles.add(modRole);
-
+						roles.add(findRoleByName(RoleName.ROLE_MODERATOR));
 						break;
 					default:
-						Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-							.orElseThrow(() -> new RuntimeException("Error: Role User is not found."));
-						roles.add(userRole);
+						roles.add(findRoleByName(RoleName.ROLE_USER));
+						break;
 				}
 			});
 		}
 		return roles;
 	}
 
+	private Role findRoleByName(RoleName roleName) {
+		return roleRepository.findByName(roleName).orElse(null);
+	}
+
 
 	private List<String> validateUser(SignupRequest user) {
 
 		List<String> messages = new ArrayList<>();
-
-		if(user.getUsername().length() < 5) {
-			messages.add("Username must be at least 5 characters");
+		if(!Validators.isUsernameValid(user.getUsername())) {
+			messages.add("Invalid Username Format");
 		}
 		else if(userRepository.existsByUsername(user.getUsername()) || deletedUserRepository.existsByUsername(user.getUsername())) {
 			messages.add("Username already exists in the system");
@@ -262,26 +257,11 @@ public class UserServiceImpl implements UserService {
 			messages.add("Email already exists in the system");
 		}
 
-		if(user.getPassword().length() < 8) {
-			messages.add("Password must be at least 8 characters");
+		if(!Validators.isPasswordValid(user.getPassword())) {
+			messages.add("Invalid Password Format");
 		}
 
 		return messages;
-	}
-
-	public ServiceResponse<String> getAvatarMember(String username) {
-		ServiceResponse<String> response = new ServiceResponse<>();
-		User user = userRepository.findByUsername(username).orElse(null);
-		if(user != null && user.getImageUrl() != null) {
-			response.setDataObject(user.getImageUrl());
-		}
-		else if(user != null && user.getAvatar() != null) {
-			response.setDataObject(user.getAvatar());
-		}else {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("User not found");
-		}
-		return response;
 	}
 
 	@Transactional(readOnly=false)
@@ -316,18 +296,27 @@ public class UserServiceImpl implements UserService {
 
 	//Update user password with new password but verify the oldPassword with current user.password
 	@Transactional(readOnly=false)
-	public ServiceResponse<Void> updatePassword(String oldPassword,String newPassword, User user) {
+	public ServiceResponse<Void> updateNewPassword(NewPasswordRequest newPasswordRequest, User user) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
-		if(!encoder.matches(oldPassword, user.getPassword())) {
+		if(!encoder.matches(newPasswordRequest.getOldPassword(), user.getPassword())) {
 			response.setAckCode(AckCodeType.FAILURE);
 			response.addMessage("Current password is incorrect");
-		}else if("".equals(newPassword)) {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("New Password must not be empty");
-		}else {
-			user.setPassword(encoder.encode(newPassword));
-			userRepository.save(user);
+			return response;
 		}
+		if(!Validators.isPasswordValid(newPasswordRequest.getNewPassword())) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("Invalid Password Format");
+			return response;
+		}
+
+		if(newPasswordRequest.getOldPassword().equals(newPasswordRequest.getNewPassword())) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("New Password must be different from the old password");
+			return response;
+		}
+
+		user.setPassword(encoder.encode(newPasswordRequest.getNewPassword()));
+		userRepository.save(user);
 		return response;
 	}
 

@@ -5363,7 +5363,7 @@ License - nucleoapp.com/license/
   border-color: rgba(0, 187, 255, 0.53);
 }
 
-.fixed-plugin .dropdown-menu>.active>a.img-holder,
+.fixed-plugin .dropdown-menu>.active:hover>a.img-holder,
 .fixed-plugin .dropdown-menu>.active>a.img-holder {
   border-color: #00bbff;
   background-color: #FFFFFF;
@@ -5372,7 +5372,6 @@ License - nucleoapp.com/license/
 .fixed-plugin .btn-social {
   width: 50%;
   display: block;
-  width: 48%;
   float: left;
   font-weight: 600;
 }
@@ -6674,12 +6673,12 @@ License - nucleoapp.com/license/
 
 .fixed-plugin .dropdown .dropdown-menu:before {
   right: -17px;
-  top: 63%;
+  top: 65%;
 }
 
 .fixed-plugin .dropdown .dropdown-menu:after {
   right: -16px;
-  top: 63%;
+  top: 65%;
 }
 
 .fixed-plugin .gh-btn,

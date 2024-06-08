@@ -1,8 +1,10 @@
 package com.springboot.app.accounts.service.impl;
 
 import com.springboot.app.accounts.dto.request.AccountInfo;
+import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
 import com.springboot.app.accounts.entity.Person;
 import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.enumeration.Gender;
 import com.springboot.app.accounts.repository.PersonRepository;
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.PersonService;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -29,16 +33,36 @@ public class PersonServiceImpl implements PersonService {
 
 	public ServiceResponse<Void> updatePersonalInfo(User user, AccountInfo accountInfo){
 		ServiceResponse<Void> response = new ServiceResponse<>();
-		Person person = user.getPerson();
 		List<String> errors = validatePersonForUpdate(accountInfo);
 		if(!errors.isEmpty()) {
 			response.setAckCode(AckCodeType.FAILURE);
 			response.addMessages(errors);
 			return response;
 		}
-		personRepository.save(person);
+		Person person = user.getPerson();
+		person.setAddress(accountInfo.getAddress());
+		person.setPhone(accountInfo.getPhone());
+		person.setBirthDate(accountInfo.getBirthday());
+		person.setGender(convertGender(accountInfo.getGender()));
+		person.setBio(accountInfo.getBio());
+
+		user.setPerson(person);
+		user.setName(accountInfo.getName());
+		user.setEmail(accountInfo.getEmail());
+
+		userRepository.save(user);
 		response.addMessage("Update personal info successfully");
 		return response;
+	}
+
+	private Gender convertGender(String gender) {
+		if("MALE".equals(gender)) {
+			return Gender.MALE;
+		}
+		if("FEMALE".equals(gender)) {
+			return Gender.FEMALE;
+		}
+		return Gender.OTHER;
 	}
 
 
@@ -48,11 +72,8 @@ public class PersonServiceImpl implements PersonService {
 			errors.add("Person is not found");
 			return errors;
 		}
-		if("".equals(accountInfo.getFirstName())) {
-			errors.add("First Name must not be empty");
-		}
-		if("".equals(accountInfo.getLastName())) {
-			errors.add("Last Name must not be empty");
+		if("".equals(accountInfo.getName())) {
+			errors.add("Full Name must not be empty");
 		}
 		if("".equals(accountInfo.getPhone())){
 			errors.add("Phone number must not be empty");
@@ -71,13 +92,44 @@ public class PersonServiceImpl implements PersonService {
 		return errors;
 	}
 
-	public ServiceResponse<Void> updateAvatar(User user, String avatar) {
-		ServiceResponse<Void> response = new ServiceResponse<>();
-		user.setAvatar(avatar);
-		userRepository.save(user);
-		response.addMessage("Update avatar successfully");
+	public ServiceResponse<String> getAvatarByUsername(String username) {
+		ServiceResponse<String> response = new ServiceResponse<>();
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user == null) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+			return response;
+		}
+		var img = user.getImageUrl() == null ? user.getAvatar() : user.getImageUrl();
+		response.setDataObject(img);
 		return response;
 	}
+
+	public ServiceResponse<AccountInfoResponse> getUserInfoByUsername(String username) {
+		ServiceResponse<AccountInfoResponse> response = new ServiceResponse<>();
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user == null) {
+			response.setAckCode(AckCodeType.FAILURE);
+			response.addMessage("User not found");
+			return response;
+		}
+		AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
+		accountInfoResponse.setId(user.getId());
+		accountInfoResponse.setUsername(user.getUsername());
+		accountInfoResponse.setEmail(user.getEmail());
+		accountInfoResponse.setName(user.getName());
+		accountInfoResponse.setPerson(user.getPerson());
+		accountInfoResponse.setUserStat(user.getStat());
+		accountInfoResponse.setAvatar(user.getAvatar());
+		accountInfoResponse.setImageUrl(user.getImageUrl());
+
+		Set<String> roles = user.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
+		accountInfoResponse.setRoles(roles);
+		
+		response.setDataObject(accountInfoResponse);
+		return response;
+	}
+
 
 
 }
