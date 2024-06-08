@@ -50,6 +50,7 @@ public class ForumServiceImpl implements ForumService {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	// TODO: THIS METHOD AND getChildForumsAndForumGroups METHOD BY HUY WAS DUPLICATED, PLEASE REMOVE ONE
 	@Override
 	@Transactional(readOnly = true)
 	public ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> getChildForumsAndForumGroups(
@@ -87,7 +88,7 @@ public class ForumServiceImpl implements ForumService {
 	public List<ForumDTO> getAllForum() {
 		List<Forum> forumGroups = genericDAO.findAll(Forum.class);
 		List<ForumDTO> dto = forumGroups.stream().map(this::convertToDTO).collect(Collectors.toList());
-		// set idForumGorum for forum = id of forum group
+		// set idForumGroup for forum = id of forum group
 		for (ForumDTO forumDTO : dto) {
 			forumDTO.setIdForumGroup(forumDTO.getForumGroup().getId());
 		}
