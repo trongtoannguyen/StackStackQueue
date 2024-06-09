@@ -27,3 +27,17 @@ export const errorPasswordItem = (password) => {
   }
   return errorMsg;
 }
+
+
+// check string isNul
+export const isNull = (str) => {
+  return str === null || str === undefined || str === "";
+}
+
+export const validateString = (str) => {
+  return !isNull(str);
+}
+
+export const validateNumber = (num) => {
+  return !isNaN(num) && num >= 0;
+}

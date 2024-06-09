@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { Button, Col, Row, Card } from "react-bootstrap";
-import ListGroup from 'react-bootstrap/ListGroup';
+import { Button, Col, Row, Card, ListGroup } from "react-bootstrap";
 
 import { getEmailOptionById, putUpdateEmailOption } from "../../../services/emailService/EmailOptionService";
 import { createAxios } from "../../../services/createInstance";

@@ -1,12 +1,9 @@
 package com.springboot.app.accounts.service;
 
-import com.springboot.app.accounts.entity.Badge;
+import com.springboot.app.bagdes.Badge;
 import com.springboot.app.accounts.entity.Person;
-import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.entity.Comment;
-import com.springboot.app.forums.entity.Discussion;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -21,13 +21,13 @@ import {
 } from "../../../services/userService/UserService";
 
 
-import UserCardItem from "./components/UserCardItem";
-import UserListItem from "./components/UserListItem";
+import UserCardItem from "./elements/UserCardItem";
+import UserListItem from "./elements/UserListItem";
 import Pagination from "../../pagination/Pagination";
-import ModalConfirmDeleteUser from "./components/ModalConfirmDelete";
-import ModalEditRole from "./components/ModalEditRole";
-import ModalEditUser from "./components/ModalEditStatus";
-import AddNewUser from "./components/AddNewUser";
+import ModalConfirmDeleteUser from "./elements/ModalConfirmDelete";
+import ModalEditRole from "./elements/ModalEditRole";
+import ModalEditUser from "./elements/ModalEditStatus";
+import AddNewUser from "./elements/AddNewUser";
 
 
 function UserListManage() {
@@ -78,7 +78,7 @@ function UserListManage() {
   }
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
-  const usersData = useSelector((state) => state.users.users?.allUsers);
+  // const usersData = useSelector((state) => state.users.users?.allUsers);
 
   // const msg = useSelector((state) => state.users?.msg);
 

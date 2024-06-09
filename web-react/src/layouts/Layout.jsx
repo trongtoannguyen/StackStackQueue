@@ -52,9 +52,7 @@ const Layout = (props) => {
   }
 
   const routesSidebar = (route) => {
-    if (route === "routesProfile") {
-      return routes;
-    } else if (route === "routesAdmin") {
+    if (route === "routesAdmin") {
       return routesAdmin;
     }
     return routes;

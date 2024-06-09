@@ -1,18 +1,17 @@
 package com.springboot.app.admin.service;
 
+import com.springboot.app.admin.dto.DashBoardResponse;
+import com.springboot.app.admin.dto.DataForumGroupResponse;
+import com.springboot.app.admin.dto.PieChartResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 
-import java.util.Map;
+import java.util.List;
 
 public interface AdminDashboardService {
-	ServiceResponse<Number> countUsers();
-	ServiceResponse<Number> countForums();
-	ServiceResponse<Number> countDiscussions();
-	ServiceResponse<Number> countComments();
+	ServiceResponse<DashBoardResponse> getDashboardData();
 
-	ServiceResponse<Map<String,Integer>> countUsersByForum();
+	ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup();
 
-	ServiceResponse<Map<String,Integer>> countDiscussionsByForum();
+	ServiceResponse<List<PieChartResponse>> getDataForPieChart();
 
-	ServiceResponse<Map<String,Integer>> countCommentsByForum();
 }

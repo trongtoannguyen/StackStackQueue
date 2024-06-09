@@ -1,19 +1,20 @@
 package com.springboot.app.admin.service;
 
 import com.springboot.app.accounts.repository.UserRepository;
-import com.springboot.app.dto.response.AckCodeType;
+import com.springboot.app.admin.dto.DashBoardResponse;
+import com.springboot.app.admin.dto.DataForumGroupResponse;
+import com.springboot.app.admin.dto.PieChartResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.repository.CommentRepository;
-import com.springboot.app.forums.repository.DiscussionRepository;
-import com.springboot.app.forums.repository.ForumRepository;
-import com.springboot.app.forums.repository.ForumStatRepository;
+import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.entity.ForumGroup;
+import com.springboot.app.forums.repository.*;
+import com.springboot.app.tags.TagRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class AdminDashboardServiceImpl implements AdminDashboardService{
@@ -34,57 +35,41 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	@Autowired
 	private ForumStatRepository forumStatRepository;
 
+	@Autowired
+	private ForumGroupRepository forumGroupRepository;
+
+	@Autowired
+	private TagRepository tagRepository;
 
 	@Override
-	public ServiceResponse<Number> countUsers() {
-		ServiceResponse<Number> response = new ServiceResponse<>();
-		response.setAckCode(AckCodeType.SUCCESS);
-		response.setDataObject(userRepository.count());
+	public ServiceResponse<DashBoardResponse> getDashboardData() {
+		ServiceResponse<DashBoardResponse> response = new ServiceResponse<>();
+		DashBoardResponse dashBoardResponse = new DashBoardResponse();
+		dashBoardResponse.setTotalUsers(userRepository.count());
+		dashBoardResponse.setTotalForums(forumRepository.count());
+		dashBoardResponse.setTotalDiscussions(discussionRepository.count());
+		dashBoardResponse.setTotalComments(commentRepository.count());
+		dashBoardResponse.setTotalTags(tagRepository.count());
+
+		response.setDataObject(dashBoardResponse);
 		return response;
 	}
 
 	@Override
-	public ServiceResponse<Number> countForums() {
-		ServiceResponse<Number> response = new ServiceResponse<>();
-		response.setAckCode(AckCodeType.SUCCESS);
-		response.setDataObject(forumRepository.count());
+	public ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup() {
+		ServiceResponse<List<DataForumGroupResponse>> response = new ServiceResponse<>();
+		List<DataForumGroupResponse> dataForumGroupResponses = new java.util.ArrayList<>();
+		List<ForumGroup> forumGroups = forumGroupRepository.findAll();
+		List<Forum> forums = forumRepository.findAll();
+		response.setDataObject(dataForumGroupResponses);
 		return response;
 	}
 
 	@Override
-	public ServiceResponse<Number> countDiscussions() {
-		ServiceResponse<Number> response = new ServiceResponse<>();
-		response.setAckCode(AckCodeType.SUCCESS);
-		response.setDataObject(discussionRepository.count());
-		return response;
-
-	}
-
-	@Override
-	public ServiceResponse<Number> countComments() {
-		ServiceResponse<Number> response = new ServiceResponse<>();
-		response.setAckCode(AckCodeType.SUCCESS);
-		response.setDataObject(commentRepository.count());
-		return response;
-	}
-
-	//data for chart in dashboard page for admin to see how many users are in each forum
-	@Override
-	public ServiceResponse<Map<String, Integer>> countUsersByForum() {
+	public ServiceResponse<List<PieChartResponse>> getDataForPieChart() {
 		return null;
 	}
 
-	@Override
-	public ServiceResponse<Map<String, Integer>> countDiscussionsByForum() {
-
-		return null;
-	}
-
-	@Override
-	public ServiceResponse<Map<String, Integer>> countCommentsByForum() {
-		Map<String, Integer> commentCountByForum = new HashMap<>();
-		return null;
-	}
 
 
 }

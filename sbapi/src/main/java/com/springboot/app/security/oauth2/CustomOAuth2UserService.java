@@ -81,7 +81,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
 		User user = new User();
 		user.setUsername(oAuth2UserInfo.getEmail()); // Set a default username
-		user.setPassword(encoder.encode(oAuth2UserInfo.getEmail() + "1234")); // Set a default password
+		user.setPassword(encoder.encode("user" + (int)(Math.random()*10000))); // Set a default password
 		// Encode the password before saving it in the database
 		user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
 		user.setProviderId(oAuth2UserInfo.getId());
@@ -113,6 +113,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
 		existingUser.setUpdatedBy(existingUser.getUsername());
 		return userRepository.save(existingUser);
+	}
+
+	private String createUsername(){
+		String username = null;
+		while (username==null){
+			username = "user" + (int)(Math.random()*10000);
+			if(userRepository.findByUsername(username).isPresent()){
+				username = null;
+			}
+		}
+		return username;
 	}
 
 }

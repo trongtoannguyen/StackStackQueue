@@ -14,7 +14,7 @@ const CardInFo = (props) => {
   }
 
   return (
-    <Card className="card-stats">
+    <Card className="card-stats" style={{ maxHeight: "200px" }}>
       <Card.Body>
         <Row>
           <Col md="4" xs="5">
@@ -24,8 +24,14 @@ const CardInFo = (props) => {
           </Col>
           <Col md="8" xs="7">
             <div className="numbers">
-              <p className="card-category">{ title}</p>
-              <Card.Title tag="p">{ number}</Card.Title>
+              <strong className="card-category"
+                style={{
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipse",
+                  overflow: "hidden"
+                }}
+              >{title}</strong>
+              <Card.Title tag="p">{number}</Card.Title>
               <p />
             </div>
           </Col>

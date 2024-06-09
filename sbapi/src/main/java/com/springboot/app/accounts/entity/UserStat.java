@@ -1,6 +1,6 @@
 package com.springboot.app.accounts.entity;
 
-import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
+import com.springboot.app.bagdes.Badge;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;
@@ -51,13 +51,9 @@ public class UserStat extends BaseEntity {
 	@Column(name="last_login")
 	private LocalDateTime lastLogin;
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name="user_badges",
-			joinColumns = {@JoinColumn(name="user_id", foreignKey = @ForeignKey(name="FK_USER_BADGES_USER_ID"))},
-			inverseJoinColumns = {@JoinColumn(name="badge_id", foreignKey = @ForeignKey(name="FK_USER_BADGES_BADGE_ID"))},
-			indexes = {@Index(name="IDX_USER_BADGES", columnList = "USER_ID,BADGE_ID")})
-	private List<Badge> badges;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "badge_id", foreignKey = @ForeignKey(name = "FK_USER_STAT_BADGE"))
+	private Badge badge;
 
 
 	public void addReputation(long value) {
@@ -74,14 +70,6 @@ public class UserStat extends BaseEntity {
 
 	public void addProfileViewed(long value) {
 		this.profileViewed += value;
-	}
-
-	public void addBadge(Badge badge) {
-		this.badges.add(badge);
-	}
-
-	public void removeBadge(Badge badge) {
-		this.badges.remove(badge);
 	}
 
 

@@ -1,7 +1,7 @@
 import Table from 'react-bootstrap/Table';
 
 
-const TagsStat = () => {
+const TagsManage = () => {
   return (
     <div className="content">
       <Table striped bordered hover size="sm">
@@ -37,4 +37,4 @@ const TagsStat = () => {
   )
 }
 
-export default TagsStat;
+export default TagsManage;

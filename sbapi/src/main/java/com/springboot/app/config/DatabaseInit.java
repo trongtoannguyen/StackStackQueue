@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.springboot.app.bagdes.Badge;
+import com.springboot.app.bagdes.BadgeService;
+import com.springboot.app.dto.response.ServiceResponse;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +67,9 @@ public class DatabaseInit {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	@Autowired
+	private BadgeService badgeService;
+
 	@Bean
 	CommandLineRunner initDatabase(RoleRepository roleRepository, UserRepository userRepository) {
 		return new CommandLineRunner() {
@@ -73,10 +79,11 @@ public class DatabaseInit {
 				addRoles(roleRepository);
 				addAdmin(userRepository, roleRepository);
 
-//				createRegistrationOption();
-//				createEmailOption();
-//				createCommentOption();
-//				createAvatarOption();
+				createRegistrationOption();
+				createEmailOption();
+				createCommentOption();
+				createAvatarOption();
+				createBadgeDefault();
 			}
 		};
 	}
@@ -294,6 +301,22 @@ public class DatabaseInit {
 			avatarOption.setUpdatedBy("admin");
 			genericService.saveEntity(avatarOption);
 			logger.info("Avatar option created.");
+		}
+	}
+
+	private void createBadgeDefault() {
+		ServiceResponse<List<Badge>> response = badgeService.getAllBadges();
+		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
+			logger.info("Badge default already exists.");
+		}else {
+			logger.info("Badge default not exists. Create badge default.");
+			badgeService.createBadge();
+			badgeService.createTraineeBadge();
+			badgeService.createBronzeBadge();
+			badgeService.createSilverBadge();
+			badgeService.createGoldBadge();
+			badgeService.createPlatinumBadge();
+			logger.info("Badge default created.");
 		}
 	}
 

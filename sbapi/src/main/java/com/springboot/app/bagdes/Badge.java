@@ -1,4 +1,4 @@
-package com.springboot.app.accounts.entity;
+package com.springboot.app.bagdes;
 
 import com.springboot.app.model.BaseEntity;
 import jakarta.persistence.*;
@@ -43,13 +43,16 @@ public class Badge extends BaseEntity {
 	@Column(name = "color",length = 50)
 	private String color;
 
-	@Column(name = "criteria")
-	private long criteria;
-
-	@Column(name = "type")
-	private String type;
-
 	@Column(name="action")
 	private boolean action;
+
+	@Column(name="total_score")
+	private long totalScore;
+
+	@Column(name="total_discussion")
+	private long totalDiscussion;
+
+	@Column(name="total_comment")
+	private long totalComment;
 
 }

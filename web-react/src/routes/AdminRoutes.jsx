@@ -8,11 +8,12 @@ import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 
-import TagsStat from "../components/adminPage/tagManage/TagsStat";
 import RequireAuth from "../components/authPage/RequireAuth";
 import '../assets/scss/paper-dashboard.scss?v=1.3.0';
 
 import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
+import TagsManage from "../components/adminPage/tagManage/TagsManage";
+import BadgeManage from "../components/adminPage/badgeManage/badgeManage";
 
 
 const ROLES = {
@@ -33,12 +34,16 @@ function AdminRoutes() {
           <Route exact path="/forums" element={<ForumManage />} />
           <Route exact path="/discussions" element={<DiscussionManage />} />
 
-          <Route exact path="/tags" element={<TagsStat />} />
+          <Route exact path="/tags" element={<TagsManage />} />
 
           <Route exact path="/users" element={<UsersListManage />} />
           <Route path="/member-profile/:username" element={<MemberProfile />} />
 
           <Route path="email-option" element={<EmailOption />} />
+          <Route path="badges" element={<BadgeManage />} />
+
+
+
         </Route>
 
         <Route exact path="*" element={<NotFound />} />

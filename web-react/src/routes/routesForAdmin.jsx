@@ -1,11 +1,12 @@
 import DashBoard from "../components/adminPage/adminDashBoard/DashBoardPage"
 import DiscussionManage from "../components/adminPage/discussionManage/DiscussionManage";
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
-import TagsStat from "../components/adminPage/tagManage/TagsStat";
+import TagsStat from "../components/adminPage/tagManage/TagsManage";
 import TableUsers from "../components/adminPage/userManage/UsersListManagePage"
 import ViewDiscussion from "../components/discussions/ViewDiscussion";
 
 import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
+import BadgeManage from "../components/adminPage/badgeManage/badgeManage";
 
 const routes = [
   {
@@ -48,6 +49,13 @@ const routes = [
     name: "manage tags",
     icon: "fa-solid fa-tags",
     component: <TagsStat />,
+    layout: "/admin"
+  },
+  {
+    path: "/badges",
+    name: "manage Badge",
+    icon: "fa-solid fa-tags",
+    component: <BadgeManage />,
     layout: "/admin"
   },
   {
