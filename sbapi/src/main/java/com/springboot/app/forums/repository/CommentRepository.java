@@ -38,4 +38,12 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 	@Query("SELECT c FROM Comment c WHERE (:username IS NULL OR :username = '' OR c.createdBy LIKE :username)")
 	Page<Comment> findAllByUsername(@Param("username") String username, Pageable pageable);
 
+	//the comment is the first in the discussion
+	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion AND c.id = (SELECT MIN(c2.id) FROM Comment c2 WHERE c2.discussion = :discussion)")
+	Comment findFirstCommentByDiscussion(@Param("discussion") Discussion discussion);
+
+	//findAllByDiscussion
+	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion")
+	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
+
 }

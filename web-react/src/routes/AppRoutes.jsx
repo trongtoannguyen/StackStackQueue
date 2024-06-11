@@ -8,12 +8,13 @@ import OAuth2RedirectHandler from "../components/authPage/oauth2/OAuth2RedirectH
 import EmailConfirm from '../components/authPage/EmailConfirmPage';
 
 import Discussion from "../components/discussions/Discussions";
-import ViewDiscussion from "../components/discussions/ViewDiscussion";
+// import ViewDiscussion from "../components/discussions/ViewDiscussion";
+import ViewDiscussion from "../components/discussions/DiscussionDetails";
 import ListDiscussions from "../components/discussions/ListDiscussions";
 
 import MemberList from "../components/memberPage/MemberListPage";
 import MemberProfile from "../components/memberProfilePage/MemberProfilePage";
-import ChangePassword from "../components/memberProfilePage/ChangePasswordPage";
+import ChangePassword from "../components/memberProfilePage/elements/ChangePasswordPage";
 import Layout from "../layouts/Layout";
 import ForgotPassword from "../components/authPage/resetPassword/ForgotPassword";
 import UpdatePassword from "../components/authPage/resetPassword/UpdatePassword";

@@ -11,10 +11,12 @@ import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
 import { getDiscussionById } from "../../services/forum/Discussion";
 import { createComment } from "../../services/forum/Comment";
+import { upVote, downVote } from "../../services/voteService/voteService";
 
 //Modal
 import DiscussionInfo from "./DiscussionInfo";
-
+import Avatar from "../avatar/Avatar";
+import "./stylecomment.scss";
 const ViewDiscussion = () => {
 	const { discussionId } = useParams();
 	const [contentByDiscussion, setContentByDiscussion] = useState("");
@@ -31,6 +33,8 @@ const ViewDiscussion = () => {
 
 	const [isShowAddNewComment, setIsShowAddNewComment] = useState(false);
 
+	const [isBookmark, setIsBookMark] = useState(false);
+
 	const discussionById = async () => {
 		let res = await getDiscussionById(discussionId);
 		if (res && res.data) {
@@ -42,6 +46,7 @@ const ViewDiscussion = () => {
 			if (matchingComment) {
 				setCommentsByTitle([matchingComment]);
 				setContentByDiscussion(matchingComment.content);
+				setIsBookMark(isBookmarkOfCurrentUser()); //setBookmark state
 			}
 		}
 	};
@@ -111,6 +116,51 @@ const ViewDiscussion = () => {
 		toolbar: toolbarOptions,
 	};
 
+	const isBookmarkOfCurrentUser = () => {
+		const listBookmark = commentsByTitle[0]?.bookmarks;
+		listBookmark?.map(item => {
+			if (item?.bookmarkBy === currentUser?.username) {
+				return true;
+			}
+		});
+		return false;
+	}
+
+	const handleUpVote = async (commentId) => {
+		//check this comment had vote by username
+
+		//vote action
+		const vote = {
+			commentId: commentId,
+			voteName: currentUser.username,
+			voteId: 1,
+		};
+		let res = await upVote(vote, currentUser?.accessToken, axiosJWT);
+		if (res && +res.data.status === 200) {
+			toast.success(res.data.message);
+		} else {
+			toast.error("Error when voting");
+		}
+	}
+
+	const handleDownVote = async (commentId) => {
+		//check this comment had vote by username
+
+		//vote action
+		const vote = {
+			commentId: commentId,
+			voteName: currentUser.username,
+			voteId: -1,
+		};
+		let res = await downVote(vote, currentUser?.accessToken, axiosJWT);
+		if (res && +res.data.status === 200) {
+			toast.success(res.data.message);
+		} else {
+			toast.error("Error when voting");
+		}
+	}
+
+
 	return (
 		<section className="discussion-details content mb-3">
 			<Col>
@@ -121,30 +171,72 @@ const ViewDiscussion = () => {
 				<Row>
 					<Col className="mb-3 col-12 col-md-8 col-lg-9">
 						<section className="card mb-3 p-3">
-							<div className="card-header">
-								{commentsByTitle[0] && (
-									<div>{commentsByTitle[0].createdBy}</div>
-								)}
-								{commentsByTitle[0] && (
-									<div>{formatDate(commentsByTitle[0].createdAt)}</div>
-								)}
-							</div>
-							<div className="card-body">
-								<div
-									className="contentByDiscussion"
-									dangerouslySetInnerHTML={{ __html: contentByDiscussion }}
-								></div>
-							</div>
-							<div className="card-footer ">
-								<span>
-									<button>Reply</button>
-									<button>Vote</button>
-								</span>
-								<span>
-									<button>Like</button>
-									<button>Dislike</button>
-								</span>
-							</div>
+							<Row>
+								<div className="col-1 vote-container">
+									<button className="vote fa-solid fa-caret-up" onClick={() => handleUpVote(commentsByTitle[0]?.id)}></button>
+									<button className="vote-count px-2 rounded-circle">100</button>
+									<button className="vote fa-solid fa-caret-down" onClick={() => handleDownVote(commentsByTitle[0]?.id)}></button>
+
+									<button className="fa-solid fa-check text-success mb-3"></button>
+									{isBookmark ?
+										<button className="fa-solid fa-bookmark fa-2x"></button>
+										:
+										<button className="fa-regular fa-bookmark"></button>
+									}
+								</div>
+								<div className="col-11">
+									<div className="card-header d-flex justify-content-between">
+										{/* <strong>{commentsByTitle[0].createdBy}</strong> */}
+										{commentsByTitle[0] && (
+											<span className="ml-0 me-auto">
+												<Avatar username={"@"+commentsByTitle[0]?.createdBy} height={50} width={50} />
+												<small>
+													post at:{formatDate(commentsByTitle[0].createdAt)}
+													<button className="fa-solid fa-user-plus"></button>
+													<br />
+													<i className="fa-solid fa-star" alt="reputation"></i> 12
+													|| <i className="fa-solid fa-pen"></i> 12
+												</small>
+											</span>
+										)}
+
+
+										{commentsByTitle[0] && currentUser.username === commentsByTitle[0]?.createdBy && (
+											<small className="ml-auto me-0 d-inline-block">
+												<button className="mx-2 fa-solid fa-edit fa-2x"></button>
+												<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
+											</small>
+										)}
+
+
+
+									</div>
+									<hr />
+									<div className="card-body">
+										<div
+											className="contentByDiscussion"
+											dangerouslySetInnerHTML={{ __html: contentByDiscussion }}
+										></div>
+										<span>
+											<button className="btn btn-sm mx-2">Tag 1</button>
+											<button className="btn btn-sm mx-2">Tag 2</button>
+										</span>
+									</div>
+									<hr />
+									<div className="card-footer d-flex justify-content-between">
+										<span>
+											<button><i className="fa-solid fa-reply"></i>Reply</button>
+										</span>
+										<span>
+											<button><i className="fa-regular fa-flag"></i>Report</button>
+										</span>
+
+										<span>
+											<small>Edit at: {commentsByTitle[0]?.updatedAt && formatDate(commentsByTitle[0].updatedAt)}</small>
+										</span>
+									</div>
+								</div>
+							</Row>
 						</section>
 						{comments?.map((comments) => {
 							if (comments.title !== discussion.title) {

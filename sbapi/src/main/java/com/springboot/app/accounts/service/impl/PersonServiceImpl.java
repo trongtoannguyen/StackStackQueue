@@ -105,6 +105,7 @@ public class PersonServiceImpl implements PersonService {
 		return response;
 	}
 
+	//get user info, not user deleted
 	public ServiceResponse<AccountInfoResponse> getUserInfoByUsername(String username) {
 		ServiceResponse<AccountInfoResponse> response = new ServiceResponse<>();
 		User user = userRepository.findByUsername(username).orElse(null);

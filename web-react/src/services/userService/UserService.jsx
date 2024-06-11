@@ -46,20 +46,20 @@ export const deleteUser = async (accessToken, id, axiosJWT) => {
     let res = await axiosJWT.delete(`admin/users/delete/${id}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    console.log(`Here api`, JSON.stringify(res));
+    // console.log(`Here api`, JSON.stringify(res));
     return res;
   } catch (err) {
     console.log(err);
   }
 }
 
-//use in profilePage
+//use in profilePage: get account info
 export const getAccountInfoByUsername = async (username, axiosJWT, accessToken) => {
   try {
-    let res = await axiosJWT.get(`account-info/account/${username}`, {
+    let res = await axiosJWT.get(`account-info/details/${username}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res.data;
+    return res;
   } catch (err) {
     console.log(err);
   }

@@ -5,9 +5,11 @@ import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.accounts.repository.UserStatRepository;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.request.CommentVoteRequest;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.CommentVote;
 import com.springboot.app.forums.entity.Vote;
+import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.VoteRepository;
 import com.springboot.app.forums.service.VoteService;
@@ -30,6 +32,9 @@ public class VoteServiceImpl implements VoteService {
 	private VoteRepository voteRepository;
 
 	@Autowired
+	private CommentRepository commentRepository;
+
+	@Autowired
 	private CommentVoteRepository commentVoteRepository;
 	@Autowired
 	private UserStatRepository userStatRepository;
@@ -41,10 +46,17 @@ public class VoteServiceImpl implements VoteService {
 	private StatDAO statDAO;
 
 	@Transactional(readOnly = false)
-	public ServiceResponse<Void> registerCommentVote(Comment comment,String voteName, Short voteValue) {
+	public ServiceResponse<Void> registerCommentVote(CommentVoteRequest commentVoteRequest, String voteName, Short voteValue) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
+		Comment comment = commentRepository.findById(commentVoteRequest.getCommentId()).orElse(null);
+		if(comment == null) {
+			response.addMessage("Comment not found");
+			response.setAckCode(AckCodeType.FAILURE);
+			return response;
+		}
+
 		CommentVote commentVote = comment.getCommentVote();
-		Vote vote = voteDAO.getVote(commentVote, voteName);
+		Vote vote = getVote(commentVote, voteName);
 
 		if(vote == null) {
 			vote = new Vote();
@@ -56,21 +68,43 @@ public class VoteServiceImpl implements VoteService {
 			commentVote.getVotes().add(vote);
 			if(voteValue == 1) {
 				commentVote.setVoteDownCount(commentVote.getVoteUpCount() + 1);
+				addReputationAfterVote(comment, 10);
 			}
 			else if(voteValue == -1) {
 				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
+				addReputationAfterVote(comment, -2);
 			}
 			commentVoteRepository.save(commentVote);
 
-			addReputationAfterVote(comment, voteValue);
-
 			response.addMessage("Vote on comment registered successfully for voter " + voteName);
+		}else if(vote.getVoteValue() != voteValue) {
+			vote.setVoteValue(voteValue);
+			voteRepository.save(vote);
+
+			if(voteValue == 1) {
+				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
+				commentVote.setVoteUpCount(commentVote.getVoteUpCount() - 1);
+				addReputationAfterVote(comment, 12);
+			}
+			else if(voteValue == -1) {
+				commentVote.setVoteDownCount(commentVote.getVoteDownCount() - 1);
+				commentVote.setVoteUpCount(commentVote.getVoteUpCount() + 1);
+				addReputationAfterVote(comment, -12);
+			}
+			commentVoteRepository.save(commentVote);
+
+			response.addMessage("Vote on comment updated successfully for voter " + voteName);
 		}
 		else {
 			response.addMessage("Voter already voted on the comment");
 			response.setAckCode(AckCodeType.FAILURE);
 		}
 		return response;
+	}
+
+	public Vote getVote(CommentVote commentVote, String voteName) {
+		Optional<Vote> vote = commentVote.getVotes().stream().filter(v -> v.getVoterName().equals(voteName)).findFirst();
+		return vote.orElse(null);
 	}
 
 	@Transactional(readOnly = false)
@@ -88,7 +122,7 @@ public class VoteServiceImpl implements VoteService {
 	}
 
 
-	public void addReputationAfterVote(Comment comment, short voteValue) {
+	public void addReputationAfterVote(Comment comment, int voteValue) {
 		String username = comment.getCreatedBy();
 		UserStat stat = statDAO.getUserStat(username);
 		stat.addReputation(voteValue);

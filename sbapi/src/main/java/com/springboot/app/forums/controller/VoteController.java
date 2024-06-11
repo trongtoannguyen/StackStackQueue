@@ -3,7 +3,9 @@ package com.springboot.app.forums.controller;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.request.CommentVoteRequest;
 import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.service.CommentService;
 import com.springboot.app.forums.service.VoteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +19,11 @@ public class VoteController {
 
 	@Autowired
 	private VoteService voteService;
+	@Autowired
+	private CommentService commentService;
 
 	@PostMapping("/vote-up")
-	public ResponseEntity<ObjectResponse> voteUp(@Valid @RequestBody Comment comment) {
+	public ResponseEntity<ObjectResponse> voteUp(@Valid @RequestBody CommentVoteRequest comment) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		if(username.equals("anonymousUser")) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400","Must login to vote",null));
@@ -27,15 +31,15 @@ public class VoteController {
 		ServiceResponse<Void> response = voteService.registerCommentVote(comment,username, (short)1);
 
 		if(response.getAckCode() == AckCodeType.SUCCESS) {
-			return ResponseEntity.ok().body(new ObjectResponse("200","Vote registered",null));
+			return ResponseEntity.ok(new ObjectResponse("200",response.getMessages().getFirst(),null));
 		}
 		else {
-			return ResponseEntity.badRequest().body(new ObjectResponse("400","Error: Vote could not be registered",null));
+			return ResponseEntity.ok().body(new ObjectResponse("400",response.getMessages().getFirst(),null));
 		}
 	}
 
 	@PostMapping("/vote-down")
-	public ResponseEntity<ObjectResponse> voteDown(@Valid @RequestBody Comment comment) {
+	public ResponseEntity<ObjectResponse> voteDown(@Valid @RequestBody CommentVoteRequest comment) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		if(username.equals("anonymousUser")) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400","Must login to vote",null));
@@ -43,10 +47,10 @@ public class VoteController {
 		ServiceResponse<Void> response = voteService.registerCommentVote(comment,username, (short)-1);
 
 		if(response.getAckCode() == AckCodeType.SUCCESS) {
-			return ResponseEntity.ok().body(new ObjectResponse("200","Vote registered",null));
+			return ResponseEntity.ok(new ObjectResponse("200",response.getMessages().getFirst(),null));
 		}
 		else {
-			return ResponseEntity.badRequest().body(new ObjectResponse("400","Error: Vote could not be registered",null));
+			return ResponseEntity.ok(new ObjectResponse("400",response.getMessages().getFirst(),null));
 		}
 	}
 

@@ -68,7 +68,6 @@ function UserListManage() {
 
   const handlePageClick = (event) => {
     setPage(+event.selected + 1);
-    return true;
   }
 
   const handleSort = (sortBy, orderBy) => {

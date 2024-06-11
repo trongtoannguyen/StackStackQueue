@@ -1,4 +1,4 @@
-package com.springboot.app.follows.dto;
+package com.springboot.app.follows.dto.request;
 
 public class FollowUserRequest {
 	private String username;

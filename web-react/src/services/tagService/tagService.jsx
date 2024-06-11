@@ -1,5 +1,5 @@
 
-export const getTags = async (accessToken, axiosJWT) => {
+export const getAllTags = async (accessToken, axiosJWT) => {
   try {
     const res = await axiosJWT.get("admin/tags", {
       headers: {

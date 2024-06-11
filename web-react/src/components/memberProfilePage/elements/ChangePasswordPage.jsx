@@ -2,9 +2,9 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import BannerTop from '../bannerTop/BannerTop';
+import BannerTop from '../../bannerTop/BannerTop';
 
-import { postUpdatePassword } from '../../services/userService/UserService';
+import { postUpdatePassword } from '../../../services/userService/UserService';
 
 import styled from "styled-components";
 
@@ -15,9 +15,9 @@ const StyledInput = styled.input`
 `;
 import {
   PWD_REGEX
-} from "../../constants";
-import { createAxios } from '../../services/createInstance';
-import { loginSuccess } from '../../redux/authSlice';
+} from "../../../constants";
+import { createAxios } from '../../../services/createInstance';
+import { loginSuccess } from '../../../redux/authSlice';
 import { toast } from 'react-toastify';
 
 const ChangePassword = () => {

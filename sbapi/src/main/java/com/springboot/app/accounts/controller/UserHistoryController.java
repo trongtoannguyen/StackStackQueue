@@ -1,6 +1,7 @@
 package com.springboot.app.accounts.controller;
 
 import com.springboot.app.accounts.service.UserHistoryService;
+import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,26 +14,31 @@ public class UserHistoryController {
 	@Autowired
 	private UserHistoryService userHistoryService;
 
-	@GetMapping("/{username}/comments")
-	public ResponseEntity<PaginateResponse> getCommentsByUsername(
+	@GetMapping("/bookmarks")
+	public ResponseEntity<?> getBookmarksByUsername(
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
 			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
 			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
-			@PathVariable String username
+			@RequestParam(value="sort",defaultValue = "DESC",required = false) String sort,
+			@RequestParam(value="username",defaultValue = "",required = true) String username
 	){
+		if(username.isEmpty()){
+			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Username is required", null));
+		}
+		return ResponseEntity.ok(userHistoryService.getAllBookmarksByUsername(page, size, orderBy, sort,username));
+	}
+
+	@GetMapping("/comments")
+	public ResponseEntity<?> getCommentsByUsername(
+			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
+			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
+			@RequestParam(value="sort",defaultValue = "DESC",required = false) String sort,
+			@RequestParam(value="username",defaultValue = "",required = true) String username
+	){
+		if(username.isEmpty()){
+			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Username is required", null));
+		}
 		return ResponseEntity.ok(userHistoryService.getAllCommentsByUsername(page, size, orderBy, sort,username));
 	}
-
-	@GetMapping("/{username}/discussions")
-	public ResponseEntity<PaginateResponse> getDiscussionsByUsername(
-			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
-			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
-			@PathVariable String username
-	){
-		return null;
-	}
-
 }

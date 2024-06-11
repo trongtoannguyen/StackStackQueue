@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Tab, Tabs } from 'react-bootstrap';
 
 import {
   Card, CardBody,
@@ -8,22 +9,22 @@ import {
 } from "reactstrap";
 import { toast } from "react-toastify";
 
-import { Tab, Tabs } from 'react-bootstrap';
 
-import IntroProfile from './IntroProfile';
+import banner from "../../assets/img/damir-bosnjak.jpg";
 import BannerTop from '../bannerTop/BannerTop';
-import ActivitiesProfile from "./ActivitiesProfile";
 
 import { getUserInfoByUsername, postUpdateInfo, fetchImage } from '../../services/userService/UserService';
 import { createAxios } from '../../services/createInstance';
 import { loginSuccess } from '../../redux/authSlice';
 import noAvatar from "../../assets/img/default-avatar.png";
-import banner from "../../assets/img/damir-bosnjak.jpg";
-import { formatDate } from "../../utils/FormatHelper";
+import { formatDate } from "../../utils/FormatDateTimeHelper";
 import { uploadAvatar } from "../../redux/apiUserRequest";
 
-import ModalEditImage from "./ModalEditImage";
-import ModalEditProfile from "./ModalEditProfile";
+import ActivitiesProfile from "./elements/ActivitiesProfile";
+import IntroProfile from './elements/IntroProfile';
+import ModalEditImage from "./elements/ModalEditImage";
+import ModalEditProfile from "./elements/ModalEditProfile";
+import ListBookmark from './elements/ListBookmarkByUser';
 
 const MemberProfile = () => {
 
@@ -251,30 +252,19 @@ const MemberProfile = () => {
       </Col>
       <Col>
         <Tabs
-          id="fill-tab-example"
+          id="fill-tab-profile"
           activeKey={key}
           onSelect={(k) => setKey(k)}
           className="mb-3"
           fill
         >
           <Tab eventKey="home" title="Save Bookmark">
-            <div className='card'>
-              <div className='card-body'>
-                List of bookmark
-              </div>
-            </div>
+            <ListBookmark username={username} />
           </Tab>
           <Tab eventKey="activities" title="Activities">
             <ActivitiesProfile username={username} userInfo={userInfo} />
           </Tab>
-          <Tab eventKey="discussions" title="Posts in Forums">
-            <Card>
-              <CardBody>
-                Posts in forum
-              </CardBody>
-            </Card>
 
-          </Tab>
           <Tab eventKey="intro" title="Intro">
             <Card>
               <IntroProfile username={username} />

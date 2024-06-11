@@ -46,7 +46,7 @@ public class AccountInfoController {
 		return ResponseEntity.ok(new ObjectResponse("200", "Success user", user));
 	}
 
-	@GetMapping("/account/{username}")
+	@GetMapping("/details/{username}")
 	public ResponseEntity<ObjectResponse> getAccountInfoByUsername(@PathVariable String username) {
 		ServiceResponse<AccountInfoResponse> response = personService.getUserInfoByUsername(username);
 		if (response.getAckCode() != AckCodeType.SUCCESS) {

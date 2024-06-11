@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 
 import { Row } from 'reactstrap';
-import { GENDER, EMAIL_REGEX } from '../../constants';
+import { GENDER, EMAIL_REGEX } from '../../../constants';
 
 const ModalEditProfile = (props) => {
   const { show, handleClose, handleUpdateInfo, user } = props;

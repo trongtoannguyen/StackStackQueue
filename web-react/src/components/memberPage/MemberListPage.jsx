@@ -9,7 +9,7 @@ import Avatar from "../avatar/Avatar";
 
 import { getAllUserStats } from "../../services/userService/UserStatService";
 import { fetchImage } from "../../services/userService/UserService";
-import { formatDifferentUpToNow } from "../../utils/FormatHelper";
+import { formatDifferentUpToNow } from "../../utils/FormatDateTimeHelper";
 
 
 

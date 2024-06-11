@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import PropTypes from "prop-types";
+//Color Picker
+import { ChromePicker } from "react-color";
 
 import { validateString, validateNumber } from "../../../../utils/validUtils";
 
@@ -87,7 +89,7 @@ const ModalEditBadge = (props) => {
     setTotalDiscussion(badge.totalDiscussion);
     setTotalComment(badge.totalComment);
     setAction(badge.action);
-  },[badge])
+  }, [badge])
 
 
 
@@ -104,9 +106,9 @@ const ModalEditBadge = (props) => {
               type="text"
               placeholder="Enter badge name"
               value={badgeName}
-              onChange={e=>setBadgeName(e.target.value)}
+              onChange={e => setBadgeName(e.target.value)}
             />
-            { validName ? "" : <small className="text-danger">Name is not empty</small>}
+            {validName ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
           <Form.Group controlId="formBadgeDescription">
             <Form.Label>Badge Description</Form.Label>
@@ -114,9 +116,9 @@ const ModalEditBadge = (props) => {
               type="text"
               placeholder="Enter badge description"
               value={badgeDescription}
-              onChange={e=>setBadgeDescription(e.target.value)}
+              onChange={e => setBadgeDescription(e.target.value)}
             />
-            { validDes ? "" : <small className="text-danger">Name is not empty</small>}
+            {validDes ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
           <Form.Group controlId="formBadgeIcon">
             <Form.Label>Badge Icon</Form.Label>
@@ -124,21 +126,22 @@ const ModalEditBadge = (props) => {
               type="text"
               placeholder="Enter badge image URL"
               value={badgeIcon}
-              onChange={e=>setBadgeIcon(e.target.value)}
+              onChange={e => setBadgeIcon(e.target.value)}
             />
-            { validIcon ? "" : <small className="text-danger">Name is not empty</small>}
+            {validIcon ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
 
-          <Form.Group controlId="formBadgeIcon">
-            <Form.Label>Icon Color</Form.Label>
-            <Form.Control
-              type="color"
-              placeholder="Enter badge image URL"
-              value={badgeColor}
-              onChange={e => setBadgeColor(e.target.value)}
+
+          <div className="form-group mb-3">
+            <label className="form-label" htmlFor="title">
+              Color
+            </label>
+            <ChromePicker
+              color={badgeColor}
+              onChangeComplete={(color) => setBadgeColor(color.hex)}
             />
-            { validColor ? "" : <small className="text-danger">Name is not empty</small>}
-          </Form.Group>
+            {validColor ? "" : <small className="text-danger">Name is not empty</small>}
+          </div>
 
           <Form.Group controlId="formTotalScore">
             <Form.Label>Total Score</Form.Label>
@@ -148,7 +151,7 @@ const ModalEditBadge = (props) => {
               value={totalScore}
               onChange={e => setTotalScore(e.target.value)}
             />
-            { validTotalScore ? "" : <small className="text-danger">Name is not empty</small>}
+            {validTotalScore ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
 
           <Form.Group controlId="formTotalDiscussion">
@@ -159,7 +162,7 @@ const ModalEditBadge = (props) => {
               value={totalDiscussion}
               onChange={e => setTotalDiscussion(e.target.value)}
             />
-            { validTotalDiscussion ? "" : <small className="text-danger">Name is not empty</small>}
+            {validTotalDiscussion ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
 
           <Form.Group controlId="formTotalComment">
@@ -170,7 +173,7 @@ const ModalEditBadge = (props) => {
               value={totalComment}
               onChange={e => setTotalComment(e.target.value)}
             />
-            { validTotalComment ? "" : <small className="text-danger">Name is not empty</small>}
+            {validTotalComment ? "" : <small className="text-danger">Name is not empty</small>}
           </Form.Group>
 
         </Form>

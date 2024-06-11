@@ -23,7 +23,7 @@ public class VoteDAO {
 	private EntityManager entityManager;
 
 	public Vote getVote(CommentVote commentVote, String voteName) {
-		String queryStr = "SELECT cv FROM CommentVote cv, cv.votes v WHERE cv = :commentVote AND v.voterName = :voteName";
+		String queryStr = "SELECT v FROM CommentVote cv, cv.votes v WHERE cv = :commentVote AND v.voterName = :voteName";
 		TypedQuery<Vote> typedQuery = entityManager.createQuery(queryStr, Vote.class);
 		typedQuery.setParameter("commentVote", commentVote);
 		typedQuery.setParameter("voteName", voteName);

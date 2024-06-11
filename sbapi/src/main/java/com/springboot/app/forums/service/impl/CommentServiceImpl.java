@@ -6,8 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.follows.dto.response.BookmarkHistoryResponse;
+import com.springboot.app.follows.dto.response.BookmarkResponse;
+import com.springboot.app.follows.entity.Bookmark;
+import com.springboot.app.forums.dto.response.Author;
+import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.response.ViewCommentResponse;
+import com.springboot.app.forums.entity.*;
+import com.springboot.app.repository.VoteDAO;
+import com.springboot.app.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +31,6 @@ import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
-import com.springboot.app.forums.entity.Comment;
-import com.springboot.app.forums.entity.CommentInfo;
-import com.springboot.app.forums.entity.CommentVote;
-import com.springboot.app.forums.entity.Discussion;
-import com.springboot.app.forums.entity.DiscussionStat;
-import com.springboot.app.forums.entity.FileInfo;
-import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
@@ -69,6 +77,9 @@ public class CommentServiceImpl implements CommentService {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@Transactional(readOnly = true)
 	public ServiceResponse<List<Comment>> getComments(Discussion discussion) {
 		ServiceResponse<List<Comment>> response = new ServiceResponse<>();
@@ -80,6 +91,112 @@ public class CommentServiceImpl implements CommentService {
 
 		response.setDataObject(comments);
 		return response;
+	}
+
+	@Override
+	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir, Long discussionId) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
+				: Sort.by(orderBy).descending();
+
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+		Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+		Page<ViewCommentResponse> itemsPage = commentRepository.findAllByDiscussion(discussion, pageable)
+				.map(this::mapCommentToViewCommentResponse);
+
+		return new PaginateResponse(
+				itemsPage.getNumber()+1,
+				itemsPage.getSize(),
+				itemsPage.getTotalPages(),
+				itemsPage.getContent().size(),
+				itemsPage.isLast(),
+				itemsPage.getContent());
+	}
+
+	@Override
+	public ServiceResponse<DiscussionResponse> getFirstCommentByDiscussionId(Long discussionId) {
+		ServiceResponse<DiscussionResponse> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+		if (discussion != null) {
+			DiscussionResponse discussionResponse = new DiscussionResponse();
+			discussionResponse.setDiscussionId(discussion.getId());
+			discussionResponse.setDiscussionTitle(discussion.getTitle());
+			discussionResponse.setForumId(discussion.getForum().getId());
+			discussionResponse.setForumTitle(discussion.getForum().getTitle());
+			discussionResponse.setForumGroupId(discussion.getForum().getForumGroup().getId());
+			discussionResponse.setForumGroupTitle(discussion.getForum().getForumGroup().getTitle());
+
+			Comment firstComment = commentRepository.findFirstCommentByDiscussion(discussion);
+			if (firstComment != null) {
+				ViewCommentResponse viewCommentResponse = mapCommentToViewCommentResponse(firstComment);
+				discussionResponse.setCommentInfo(viewCommentResponse);
+				response.setDataObject(discussionResponse);
+				response.setAckCode(AckCodeType.SUCCESS);
+				return response;
+			}
+		}
+		response.setAckCode(AckCodeType.FAILURE);
+		return response;
+	}
+
+	private ViewCommentResponse mapCommentToViewCommentResponse(Comment comment) {
+		ViewCommentResponse viewCommentResponse = new ViewCommentResponse();
+		viewCommentResponse.setCommentId(comment.getId());
+		viewCommentResponse.setCreatedAt(comment.getCreatedAt());
+		viewCommentResponse.setUpdatedAt(comment.getUpdatedAt());
+
+		Author author = new Author();
+		author.setUsername(comment.getCreatedBy());
+		User user = userRepository.findByUsername(comment.getCreatedBy()).orElse(null);
+		if (user != null) {
+			author.setAvatar(user.getAvatar());
+			author.setImageUrl(user.getImageUrl());
+			author.setReputation(user.getStat().getReputation());
+			author.setTotalDiscussions(user.getStat().getDiscussionCount());
+			author.setTotalComments(user.getStat().getCommentCount());
+		}
+		viewCommentResponse.setAuthor(author);
+
+		viewCommentResponse.setDiscussionId(comment.getDiscussion().getId());
+		//check if first comment of discussion
+		Comment firstComment = commentRepository.findFirstCommentByDiscussion(comment.getDiscussion());
+		viewCommentResponse.setFirstComment(firstComment.getId().equals(comment.getId()));
+
+		Discussion discussion = comment.getDiscussion();
+		if(discussion.getTags()!=null && !discussion.getTags().isEmpty()){
+			List<Tag> tags = discussion.getTags();
+			viewCommentResponse.setTags(tags);
+		}
+		viewCommentResponse.setClosed(discussion.isClosed());
+		//comment info
+		viewCommentResponse.setTitle(comment.getTitle());
+		viewCommentResponse.setContent(comment.getContent());
+		viewCommentResponse.setHidden(comment.isHidden());
+		if(comment.getReplies()!=null && !comment.getReplies().isEmpty()){
+			viewCommentResponse.setReplyTo(comment.getReplyTo().getId());
+		}
+		//votes
+		CommentVote commentVote = comment.getCommentVote();
+		if(commentVote != null && commentVote.getVotes() != null && !commentVote.getVotes().isEmpty()){
+			viewCommentResponse.setVotes(commentVote.getVotes());
+			//get total votes on comment
+			Long totalVotes = commentVote.getVotes().stream().mapToLong(Vote::getVoteValue).sum();
+			viewCommentResponse.setTotalVotes(totalVotes);
+		}
+		//bookmark
+		if(comment.getBookmarks() != null && !comment.getBookmarks().isEmpty()){
+			List<BookmarkResponse> bookmarkResponses = comment.getBookmarks().stream().map(this::mapBookmarkToBookmarkResponse).toList();
+			viewCommentResponse.setBookmarks(bookmarkResponses);
+		}
+		return viewCommentResponse;
+	}
+
+	private BookmarkResponse mapBookmarkToBookmarkResponse(Bookmark bookmark) {
+		BookmarkResponse bookmarkResponse = new BookmarkResponse();
+		bookmarkResponse.setId(bookmark.getId());
+		bookmarkResponse.setBookmarkBy(bookmark.getBookmarkBy());
+		bookmarkResponse.setBookmarked(bookmark.getBookmarked());
+		bookmarkResponse.setBookmarkedDate(bookmark.getBookmarkedDate());
+		return bookmarkResponse;
 	}
 
 	@Override
@@ -212,8 +329,8 @@ public class CommentServiceImpl implements CommentService {
 	public ServiceResponse<Boolean> isFirstComment(Comment comment) {
 
 		ServiceResponse<Boolean> response = new ServiceResponse<>();
-
-		response.setDataObject(commentDAO.isFirstComment(comment));
+		Comment firstComment = commentRepository.findFirstCommentByDiscussion(comment.getDiscussion());
+		response.setDataObject(firstComment.getId().equals(comment.getId()));
 
 		return response;
 	}

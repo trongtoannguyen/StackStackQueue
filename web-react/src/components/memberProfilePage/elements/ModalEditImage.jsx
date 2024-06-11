@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
-import NoAvatar from "../../assets/img/default-avatar.png";
-import { fetchImage } from "../../services/userService/UserService";
+import NoAvatar from "../../../assets/img/default-avatar.png";
+import { fetchImage } from "../../../services/userService/UserService";
 
 
 const ModalEditImage = (props) => {

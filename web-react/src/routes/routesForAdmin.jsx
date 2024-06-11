@@ -18,42 +18,42 @@ const routes = [
   },
   {
     path: "/users",
-    name: "manage users",
+    name: "users manage",
     icon: "fa-solid fa-people-group",
     component: <TableUsers />,
     layout: "/admin"
   },
   {
     path: "/forums",
-    name: "manage forums",
+    name: "forums manage",
     icon: "fa-solid fa-users",
     component: <ForumManage />,
     layout: "/admin"
   },
   {
     path: "/discussions",
-    name: "manage discussions",
+    name: "discussions manage",
     icon: "fa-solid fa-comments",
     component: <DiscussionManage />,
     layout: "/admin"
   },
   {
     path: "/comments",
-    name: "manage comments",
+    name: "comments manage",
     icon: "fa-solid fa-comment",
     component: <ViewDiscussion />,
     layout: "/admin"
   },
   {
     path: "/tags",
-    name: "manage tags",
+    name: "tags manage",
     icon: "fa-solid fa-tags",
     component: <TagsStat />,
     layout: "/admin"
   },
   {
     path: "/badges",
-    name: "manage Badge",
+    name: "Badge manage",
     icon: "fa-solid fa-tags",
     component: <BadgeManage />,
     layout: "/admin"
