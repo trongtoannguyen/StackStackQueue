@@ -31,11 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
-!/src/main/resources/application.properties
 /src/main/resources/application-databasa.properties
 
-application.properties
-application.yml
 
 # JAVA
 # Compiled class file
