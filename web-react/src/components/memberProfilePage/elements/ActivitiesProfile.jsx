@@ -83,7 +83,7 @@ const ActivitiesProfile = (props) => {
                 <tr key={item.commentId}>
                   <td className="col-1">
                     <p className="">
-                      <Avatar src={urlAvatarUser()} username="" height={50} width={50} />
+                      <Avatar src={urlAvatarUser()} username="" height={50} width={50} className="d-flex align-items-start"/>
                     </p>
                   </td>
                   <td className="col-auto">

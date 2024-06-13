@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tab, Tabs, Col, Row } from 'react-bootstrap';
@@ -199,14 +199,16 @@ const MemberProfile = () => {
     return noAvatar;
   }
 
-
+  const fetchData = async () => {
+    await getDataUserInfo();
+    urlAvatarUser();
+    await fetchFollowerData();
+    await fetchFollowingData();
+    await fetchAllBadge();
+  };
 
   useEffect(() => {
-    getDataUserInfo();
-    urlAvatarUser();
-    fetchFollowerData();
-    fetchFollowingData();
-    fetchAllBadge();
+    fetchData();
   }, [username]);
 
 

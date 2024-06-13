@@ -2,7 +2,7 @@ import { pathParams } from '../../utils/Helper';
 //user profile page
 
 //get list bookmark by username
-export const getAllBookmarkByUsername = async (pageData, axiosJWT, accessToken, navigate) => {
+export const getAllBookmarkByUsername = async (pageData, axiosJWT, accessToken) => {
   try {
     let path = pathParams(pageData);
     return await axiosJWT.get(`user-history/bookmarks?${path}`, {
@@ -10,14 +10,12 @@ export const getAllBookmarkByUsername = async (pageData, axiosJWT, accessToken, 
     });
   } catch (err) {
     console.log(`Error:`, JSON.stringify(err?.message));
-    navigate("/login");
   }
 }
 
 //get list comment by username
-export const getAllCommentByUsername = async (pageData, axiosJWT, accessToken, navigate) => {
+export const getAllCommentByUsername = async (pageData, axiosJWT, accessToken) => {
   try {
-
     let path = pathParams(pageData);
     return await axiosJWT.get(`user-history/comments?${path}`, {
       headers: { Authorization: `Bearer ${accessToken}` },

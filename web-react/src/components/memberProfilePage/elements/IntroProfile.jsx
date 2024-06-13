@@ -26,7 +26,7 @@ const IntroProfile = (props) => {
 
   const cardUser = (item) => {
     return (
-      <div className='col-12 col-xs-6 col-md-4 card m-2 d-flex justify-content-center border' style={{minWidth:400}}>
+      <div className='col-12 col-xs-6 col-md-4 card m-2 d-flex justify-content-center border' style={{ minWidth: 400 }}>
         <Row className="p-2">
           <div className="col-3 py-2">
             <div className="mx-auto">
@@ -37,9 +37,9 @@ const IntroProfile = (props) => {
           </div>
           <div className="col-7 py-2">
             <span>{item?.name ?? item?.username ?? "Anonymous"}</span> <br />
-            <span className="text-muted row">
-              <small className="col-6"><i className="fa-solid fa-user mx-2"></i>{item?.totalFollowers ?? 0} followers; </small>
-              <small className="col-6">{item?.totalFollowing ?? 0} following;</small>
+            <span className="text-muted row d-block">
+              <small className="col-6 row d-inline-block"><i className="fa-solid fa-user mx-2"></i>{item?.totalFollowers ?? 0} followers; </small>
+              <small className="col-6 d-inline-block">{item?.totalFollowing ?? 0} following;</small>
             </span>
           </div>
           <div className="col-1 py-2">
