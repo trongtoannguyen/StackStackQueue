@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Avatar from "../../avatar/Avatar";
 import { fetchImage } from "../../../services/userService/UserService";
@@ -28,7 +28,7 @@ const ActivitiesProfile = (props) => {
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 
@@ -51,8 +51,8 @@ const ActivitiesProfile = (props) => {
       sort: sortBy,
       username
     }
-    let res = await getAllCommentByUsername(pageData, axiosJWT, currentUser.accessToken);
-    if (+res.status === 200) {
+    let res = await getAllCommentByUsername(pageData, axiosJWT, currentUser.accessToken, navigate);
+    if (+res?.status === 200) {
       const { pageSize, totalPages, data } = res.data;
       setListComment(data);
       setPageSize(pageSize);
