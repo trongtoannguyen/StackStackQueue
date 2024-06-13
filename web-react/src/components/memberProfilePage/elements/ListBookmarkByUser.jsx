@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -27,6 +27,7 @@ const ListBookmark = (props) => {
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
   const fetchDataBookmark = async () => {
@@ -37,9 +38,8 @@ const ListBookmark = (props) => {
       sort: sortBy,
       username
     }
-    let res = await getAllBookmarkByUsername(pageData, axiosJWT, currentUser.accessToken);
-    console.log(`bookmark`, JSON.stringify(res.data));
-    if (+res.status === 200) {
+    let res = await getAllBookmarkByUsername(pageData, axiosJWT, currentUser.accessToken, navigate);
+    if (+res?.status === 200) {
       const { pageSize, totalPages, data } = res.data;
       setListBookmark(data);
       setPageSize(pageSize);

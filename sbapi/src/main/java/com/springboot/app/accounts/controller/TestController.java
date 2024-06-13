@@ -1,16 +1,28 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.admin.dto.DataForumGroupResponse;
+import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.repository.DiscussionDAO;
 import com.springboot.app.security.jwt.JwtUtils;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 //@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+
+	@Resource
+	private DiscussionDAO discussionDAO;
+
 	@GetMapping("/all")
 	public String allAccess() {
 		var session = JwtUtils.getSession();
@@ -37,4 +49,12 @@ public class TestController {
 		var session = JwtUtils.getSession();
 		return "Admin Board. "+ session;
 	}
+
+	@GetMapping("/stats")
+	public ResponseEntity<List<DataForumGroupResponse>> getForumStats() {
+		List<DataForumGroupResponse> response = discussionDAO.getForumGroupData();
+		return ResponseEntity.ok(response);
+	}
+
+
 }

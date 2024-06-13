@@ -1,24 +1,23 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Tab, Tabs } from 'react-bootstrap';
-
-import {
-  Card, CardBody,
-  Col, Row, Button
-} from "reactstrap";
+import { Tab, Tabs, Col, Row } from 'react-bootstrap';
 import { toast } from "react-toastify";
-
 
 import banner from "../../assets/img/damir-bosnjak.jpg";
 import BannerTop from '../bannerTop/BannerTop';
-
+import {
+  getFollowerByUserId,
+  getFollowingByUserId,
+  postRegisterFollow
+} from "../../services/followService/followService";
 import { getUserInfoByUsername, postUpdateInfo, fetchImage } from '../../services/userService/UserService';
 import { createAxios } from '../../services/createInstance';
 import { loginSuccess } from '../../redux/authSlice';
 import noAvatar from "../../assets/img/default-avatar.png";
 import { formatDate } from "../../utils/FormatDateTimeHelper";
 import { uploadAvatar } from "../../redux/apiUserRequest";
+import { getAllBadge } from "../../services/badgeService/badgeService";
 
 import ActivitiesProfile from "./elements/ActivitiesProfile";
 import IntroProfile from './elements/IntroProfile';
@@ -45,6 +44,9 @@ const MemberProfile = () => {
   const [isFollow, setIsFollow] = useState(false);
   const [image, setImage] = useState(null);
 
+  const [followers, setFollowers] = useState([]);
+  const [followings, setFollowings] = useState([]);
+  const [badges, setBadges] = useState([]);
 
   let currentUser = useSelector(state => state.auth.login?.currentUser);
   const dispatch = useDispatch();
@@ -53,12 +55,10 @@ const MemberProfile = () => {
 
 
   const getDataUserInfo = async () => {
-    // const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
     const accessToken = currentUser?.accessToken;
     const res = await getUserInfoByUsername(username, axiosJWT, accessToken);
-    if (res) {
+    if (res && res?.data) {
       setUserInfo(res.data);
-      // console.log(`Check user info`, res.data);
     }
     return true;
   };
@@ -97,7 +97,6 @@ const MemberProfile = () => {
   }
 
   const handleUpdateInfo = async (newInfo) => {
-    console.log(`Here is new info: `, newInfo);
     let res = await postUpdateInfo(currentUser.accessToken, axiosJWT, newInfo);
     if (res && +res?.status === 200) {
       handleClose();
@@ -110,10 +109,60 @@ const MemberProfile = () => {
     return null;
   }
 
-  const handleFollow = () => {
-    console.log(`handleFollow action`);
-    setIsFollow(!isFollow);
+  //follow user
+  const fetchFollowerData = async () => {
+    let res = await getFollowerByUserId(currentUser?.accessToken, axiosJWT, username);
+    if (+res?.status === 200 || +res?.data?.status === 200) {
+      setFollowers(res?.data?.data);
+      isCurrentUserFollowerUser(res?.data?.data);
+    } else {
+      console.log(res?.data?.message);
+    }
   }
+
+  const fetchFollowingData = async () => {
+    let res = await getFollowingByUserId(currentUser?.accessToken, axiosJWT, username);
+    if (+res?.status === 200 || +res.data?.status === 200) {
+      setFollowings(res?.data?.data);
+    } else {
+      console.log(res?.data?.message);
+    }
+  }
+
+  const isCurrentUserFollowerUser = (followers) => {
+    if (followers.length > 0) {
+      let result = followers?.some(follower => follower.username === currentUser.username);
+      setIsFollow(result);
+    } else {
+      setIsFollow(false);
+    }
+  }
+
+
+
+  const handleFollow = async () => {
+    let followData = {
+      followerUserId: +userInfo.id,
+      followingUserId: +currentUser.id,
+    }
+    let res = await postRegisterFollow(currentUser?.accessToken, axiosJWT, followData);
+    if (+res?.status === 200 || +res?.data?.status === 200) {
+      toast.success("Follow user was changed successfully");
+      fetchFollowerData();
+    } else {
+      toast.error("Follow user was changed failed");
+    }
+  }
+
+  const fetchAllBadge = async () => {
+    let res = await getAllBadge(currentUser?.accessToken, axiosJWT);
+    if (+res.status === 200 || +res.data.status === 200) {
+      setBadges(res?.data?.data);
+    } else {
+      console.log(res?.data?.message);
+    }
+  }
+
 
   function buttonFollow() {
     if (username === currentUser.username) {
@@ -125,20 +174,14 @@ const MemberProfile = () => {
         </button>
       );
     }
-
-    if (isFollow) {
-      return (
-        <button className="btn ml-auto" onClick={handleFollow}>
-          <i className="fa-solid fa-user-minus fa-xl"></i>
-          <span className="d-none d-lg-inline-block mx-2">UnFollow</span>
-        </button>
-      )
-    }
-
+    const className = "fa-solid fa-xl "
+      + (isFollow ? "fa-minus-square" : "fa-plus-square");
     return (
-      <button className="btn ml-auto" onClick={handleFollow}>
-        <i className="fa-solid fa-user-plus fa-xl"></i>
-        <span className="d-none d-lg-inline-block mx-2">Follow</span>
+      <button className={"btn ml-auto " + (isFollow ? "" : "btn-primary")} onClick={handleFollow}>
+        <i className={className}></i>
+        <span className="d-none d-lg-inline-block mx-2">
+          {isFollow ? "Un Follow" : "Follow"}
+        </span>
       </button>
     )
   }
@@ -153,20 +196,19 @@ const MemberProfile = () => {
     if (userInfo.avatar) {
       return fetchImage(userInfo.avatar);
     }
-
     return noAvatar;
   }
 
 
 
   useEffect(() => {
-    if (!currentUser.accessToken) {
-      createAxios(currentUser, dispatch, loginSuccess);
-    }
     getDataUserInfo();
     urlAvatarUser();
-
+    fetchFollowerData();
+    fetchFollowingData();
+    fetchAllBadge();
   }, [username]);
+
 
   useEffect(() => {
     setUserEdit({
@@ -179,9 +221,7 @@ const MemberProfile = () => {
       bio: userInfo?.person?.bio,
       email: userInfo?.email
     });
-  }, [userInfo])
-
-
+  }, [userInfo]);
 
 
 
@@ -194,12 +234,11 @@ const MemberProfile = () => {
         />
       </Col>
       <Col>
-        {/* <AccountInfo username={username} userInfo={userInfo} /> */}
-        <Card className="card-user">
+        <div className="card card-user">
           <div className="image">
             <img alt="banner" src={banner} />
           </div>
-          <CardBody>
+          <div className='card-body'>
             <Row className="py-0">
               <Col md="4" className="author mb-3 h-100">
                 <img
@@ -218,16 +257,19 @@ const MemberProfile = () => {
 
               <Col md="8" className='mb-3'>
                 <h5 className="title">{userInfo?.name ?? userInfo?.email}</h5>
-                <div className="">
-                  {userInfo?.badge ? "Badge: " + userInfo?.badge : "Badge: ..."}
-                </div>
-                <div className="">
-                  Start from: {userInfo?.createdAt ? formatDate(userInfo?.createdAt) : ""}
+
+                <div className='row'>
+                  <div className="col-6">
+                    {userInfo?.stat?.badge ? "Badge: " + userInfo?.stat?.badge?.name : "Badge: ..."}
+                  </div>
+                  <div className="col-6">
+                    Start from: {userInfo?.createdAt ? formatDate(userInfo?.createdAt) : ""}
+                  </div>
                 </div>
 
-                <div className="d-flex justify-content-between col-10">
-                  <div>Birthday: {userInfo?.person?.birthDate ? formatDate(userInfo?.person?.birthDate) : "..."}</div>
-                  <div className='mx-2'>- Gender: {userInfo?.person?.gender ?? "..."}</div>
+                <div className="row">
+                  <div className='col-6'>Birthday: {userInfo?.person?.birthDate ? formatDate(userInfo?.person?.birthDate) : "..."}</div>
+                  <div className='col-6'>Gender: {userInfo?.person?.gender ?? "..."}</div>
                 </div>
                 <div className=''> Address: {userInfo?.person?.address ?? "..."}</div>
 
@@ -240,15 +282,15 @@ const MemberProfile = () => {
                 </div>
                 <div className="d-flex justify-content-end mt-3">
                   {buttonFollow()}
-                  <Button>
+                  <button className='btn'>
                     <i className="fa-solid fa-message fa-xl"></i>
                     <span className="d-none d-lg-inline-block mx-2">Chat</span>
-                  </Button>
+                  </button>
                 </div>
               </Col>
             </Row>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       </Col>
       <Col>
         <Tabs
@@ -261,14 +303,16 @@ const MemberProfile = () => {
           <Tab eventKey="home" title="Save Bookmark">
             <ListBookmark username={username} />
           </Tab>
-          <Tab eventKey="activities" title="Activities">
+          <Tab eventKey="activities" title={"Activities"}>
             <ActivitiesProfile username={username} userInfo={userInfo} />
           </Tab>
 
           <Tab eventKey="intro" title="Intro">
-            <Card>
-              <IntroProfile username={username} />
-            </Card>
+            <IntroProfile
+              followers={followers}
+              followings={followings}
+              badges={badges}
+            />
           </Tab>
 
 

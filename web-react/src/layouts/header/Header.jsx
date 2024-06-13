@@ -35,11 +35,11 @@ function Header() {
   const id = currentUser?.id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
   let avatarUser = useSelector(state => state.avatar?.avatar?.name);
 
   const handleLogout = () => {
+    let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
     logOut(dispatch, id, navigate, accessToken, axiosJWT);
   }
   const [isOpen, setIsOpen] = React.useState(false);
@@ -120,10 +120,10 @@ function Header() {
     if (avatarUser && avatarUser !== null) {
       return fetchImage(avatarUser);
     }
-    if (currentUser?.imageUrl !== null) {
+    if (currentUser?.imageUrl) {
       return currentUser.imageUrl;
     }
-    if (currentUser.avatar !== null) {
+    if (currentUser?.avatar) {
       return fetchImage(currentUser.avatar);
     }
     return avatar;

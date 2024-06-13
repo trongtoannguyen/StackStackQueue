@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.controller;
 
+import com.springboot.app.admin.dto.DataForumGroupResponse;
 import com.springboot.app.bagdes.Badge;
 import com.springboot.app.accounts.entity.Person;
 import com.springboot.app.accounts.entity.User;
@@ -11,6 +12,8 @@ import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.repository.DiscussionDAO;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ public class UserStatController {
 	@Autowired
 	private PersonService personService;
 
+
 	@GetMapping("")
 	public ResponseEntity<PaginateResponse> getUserStats(
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
@@ -58,46 +62,6 @@ public class UserStatController {
 	) {
 		return ResponseEntity.ok(userStatService.getAllUserStatsWithIgnoreAdmin(page, size, orderBy, sort,search));
 	}
-
-	@GetMapping("/{username}/comments")
-	public ResponseEntity<PaginateResponse> getCommentByUsername(
-			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
-			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
-			@PathVariable String username
-	) {
-		return ResponseEntity.ok(userStatService.getCommentByUsername(page, size, orderBy, sort,username));
-	}
-
-	@GetMapping("/{username}/discussions")
-	public ResponseEntity<PaginateResponse> getDiscussionByUsername(
-			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
-			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
-			@PathVariable String username
-	) {
-		return ResponseEntity.ok(userStatService.getDiscussionByUsername(page, size, orderBy, sort,username));
-	}
-
-	@GetMapping("/{username}/personal")
-	public ResponseEntity<ObjectResponse> getPersonByUsername(@PathVariable String username) {
-		ServiceResponse<Person> response = userStatService.getPersonByUsername(username);
-		if (response.getAckCode().equals(AckCodeType.SUCCESS)) {
-			return ResponseEntity.ok(new ObjectResponse("200","Success user",response.getDataObject()));
-		} else {
-			return ResponseEntity.badRequest().body(new ObjectResponse("404","User not found",null));
-		}
-	}
-
-	@GetMapping("/{username}/badges")
-	public ResponseEntity<ServiceResponse<List<Badge>>> getBadgesByUsername(
-			@PathVariable String username
-	) {
-		return ResponseEntity.ok(userStatService.getBadgesByUsername(username));
-	}
-
 	/*
 	 * Read the image file from the storage and send it as a response to the client
 	 */
@@ -142,5 +106,8 @@ public class UserStatController {
 			return ResponseEntity.notFound().build(); //404
 		}
 	}
+
+
+
 
 }

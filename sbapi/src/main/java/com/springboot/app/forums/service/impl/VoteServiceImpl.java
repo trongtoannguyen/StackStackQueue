@@ -54,6 +54,11 @@ public class VoteServiceImpl implements VoteService {
 			response.setAckCode(AckCodeType.FAILURE);
 			return response;
 		}
+		if(comment.getCreatedBy().equals(voteName)) {
+			response.addMessage("User cannot vote on own comment");
+			response.setAckCode(AckCodeType.FAILURE);
+			return response;
+		}
 
 		CommentVote commentVote = comment.getCommentVote();
 		Vote vote = getVote(commentVote, voteName);
@@ -66,11 +71,11 @@ public class VoteServiceImpl implements VoteService {
 
 			//update commentVote
 			commentVote.getVotes().add(vote);
-			if(voteValue == 1) {
+			if(voteValue == 10) {
 				commentVote.setVoteDownCount(commentVote.getVoteUpCount() + 1);
 				addReputationAfterVote(comment, 10);
 			}
-			else if(voteValue == -1) {
+			else if(voteValue == -2) {
 				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
 				addReputationAfterVote(comment, -2);
 			}
@@ -80,13 +85,13 @@ public class VoteServiceImpl implements VoteService {
 		}else if(vote.getVoteValue() != voteValue) {
 			vote.setVoteValue(voteValue);
 			voteRepository.save(vote);
-
-			if(voteValue == 1) {
+			// update commentVote count and reputation of user who voted
+			if(voteValue == 10) {
 				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
 				commentVote.setVoteUpCount(commentVote.getVoteUpCount() - 1);
 				addReputationAfterVote(comment, 12);
 			}
-			else if(voteValue == -1) {
+			else if(voteValue == -2) {
 				commentVote.setVoteDownCount(commentVote.getVoteDownCount() - 1);
 				commentVote.setVoteUpCount(commentVote.getVoteUpCount() + 1);
 				addReputationAfterVote(comment, -12);

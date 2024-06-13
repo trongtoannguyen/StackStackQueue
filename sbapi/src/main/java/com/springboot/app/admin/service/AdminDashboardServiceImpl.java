@@ -8,7 +8,9 @@ import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumGroup;
 import com.springboot.app.forums.repository.*;
+import com.springboot.app.repository.DiscussionDAO;
 import com.springboot.app.tags.TagRepository;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,9 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	@Autowired
 	private TagRepository tagRepository;
 
+	@Resource
+	private DiscussionDAO discussionDAO;
+
 	@Override
 	public ServiceResponse<DashBoardResponse> getDashboardData() {
 		ServiceResponse<DashBoardResponse> response = new ServiceResponse<>();
@@ -58,18 +63,8 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	@Override
 	public ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup() {
 		ServiceResponse<List<DataForumGroupResponse>> response = new ServiceResponse<>();
-		List<DataForumGroupResponse> dataForumGroupResponses = new java.util.ArrayList<>();
-		List<ForumGroup> forumGroups = forumGroupRepository.findAll();
-		List<Forum> forums = forumRepository.findAll();
+		List<DataForumGroupResponse> dataForumGroupResponses = discussionDAO.getForumGroupData();
 		response.setDataObject(dataForumGroupResponses);
 		return response;
 	}
-
-	@Override
-	public ServiceResponse<List<PieChartResponse>> getDataForPieChart() {
-		return null;
-	}
-
-
-
 }

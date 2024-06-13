@@ -13,6 +13,7 @@ import com.springboot.app.follows.dto.response.BookmarkResponse;
 import com.springboot.app.follows.entity.Bookmark;
 import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.response.ReplyItem;
 import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.*;
 import com.springboot.app.repository.VoteDAO;
@@ -172,7 +173,8 @@ public class CommentServiceImpl implements CommentService {
 		viewCommentResponse.setContent(comment.getContent());
 		viewCommentResponse.setHidden(comment.isHidden());
 		if(comment.getReplies()!=null && !comment.getReplies().isEmpty()){
-			viewCommentResponse.setReplyTo(comment.getReplyTo().getId());
+			List<ReplyItem> replyResponses = comment.getReplies().stream().map(this::mapReplyToReplyResponse).toList();
+			viewCommentResponse.setReplies(replyResponses);
 		}
 		//votes
 		CommentVote commentVote = comment.getCommentVote();
@@ -188,6 +190,18 @@ public class CommentServiceImpl implements CommentService {
 			viewCommentResponse.setBookmarks(bookmarkResponses);
 		}
 		return viewCommentResponse;
+	}
+
+	private ReplyItem mapReplyToReplyResponse(Comment reply) {
+		ReplyItem replyItem = new ReplyItem();
+		replyItem.setReplyId(reply.getId());
+		replyItem.setContent(reply.getContent());
+		replyItem.setCreatedAt(reply.getCreatedAt());
+		//author
+		Author author = new Author();
+		author.setUsername(reply.getCreatedBy());
+		replyItem.setAuthor(author);
+		return replyItem;
 	}
 
 	private BookmarkResponse mapBookmarkToBookmarkResponse(Bookmark bookmark) {

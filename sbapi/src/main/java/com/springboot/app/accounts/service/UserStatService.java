@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service;
 
+import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.bagdes.Badge;
 import com.springboot.app.accounts.entity.Person;
 import com.springboot.app.dto.response.PaginateResponse;
@@ -13,14 +14,8 @@ public interface UserStatService {
 
 	PaginateResponse getAllUserStatsWithIgnoreAdmin(int page, int size, String orderBy, String sortDirection, String search);
 
-	PaginateResponse getCommentByUsername(int page, int size, String orderBy, String sortDirection,String username);
+	ServiceResponse<UserStat> updateProfileViewed(String username);
 
-	PaginateResponse getDiscussionByUsername(int page, int size, String orderBy, String sortDirection,String username);
-
-	ServiceResponse<Person> getPersonByUsername(String username);
-
-	ServiceResponse<List<Badge>> getBadgesByUsername(String username);
-
-
+	ServiceResponse<UserStat> syncUserStat(String username);
 }
 

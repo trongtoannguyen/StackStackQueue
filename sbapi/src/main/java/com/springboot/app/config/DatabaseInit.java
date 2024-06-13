@@ -134,9 +134,9 @@ public class DatabaseInit {
 		userRepository.save(ad);
 		logger.info("Account of admin added to th database.");
 
-		Forum forum = createAnouncementsForum(ad);
-		Discussion discussion = createWelcomeDiscussion(ad, forum);
-		createBulletinTag(discussion);
+//		Forum forum = createAnouncementsForum(ad);
+//		Discussion discussion = createWelcomeDiscussion(ad, forum);
+//		createBulletinTag(discussion);
 
 	}
 

@@ -12,6 +12,4 @@ public interface AdminDashboardService {
 
 	ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup();
 
-	ServiceResponse<List<PieChartResponse>> getDataForPieChart();
-
 }

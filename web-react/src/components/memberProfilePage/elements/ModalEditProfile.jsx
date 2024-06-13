@@ -49,7 +49,7 @@ const ModalEditProfile = (props) => {
       phone,
       email,
       gender,
-      birthDate,
+      birthday: new Date(birthDate),
       bio
     };
     console.log(`Check dataEdit `, dataEdit);
@@ -163,10 +163,10 @@ const ModalEditProfile = (props) => {
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder="Enter phone number" />
+            <small className={!validPhone ? "text-danger" : ""} role="alert" hidden={validPhone}>
+              <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}Phone number is not empty
+            </small>
           </div>
-          <small className={!validPhone ? "text-danger" : ""} role="alert" hidden={validPhone}>
-            <i className="fa fa-info-circle" aria-hidden="true"></i>{" "}Phone number is not empty
-          </small>
         </Row>
 
         <Row>

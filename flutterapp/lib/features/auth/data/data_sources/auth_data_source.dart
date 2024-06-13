@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutterapp/core/exceptions/error.dart';
 import 'package:flutterapp/core/storage/storage.dart';
+import 'package:flutterapp/data_sources/api_urls.dart';
+import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutterapp/features/auth/data/models/user_model.dart';
@@ -17,7 +19,8 @@ abstract class AuthDataSource {
   Future<String> changeProfilePic(File file);
 }
 
-const uri = 'http://localhost:8080/api/auth';
+// const uri = 'http://192.168.2.10:8080/api/auth';
+const uri = '${ApiUrls.API_BASE_URL}/auth';
 const uri1 = 'http://localhost:8080/api/auth/changePic';
 
 class AuthDataSourceImp implements AuthDataSource {
@@ -67,7 +70,7 @@ class AuthDataSourceImp implements AuthDataSource {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'email': email,
+        'username': email,
         'password': password,
       }),
     );
@@ -75,9 +78,11 @@ class AuthDataSourceImp implements AuthDataSource {
     print(res.body);
 
     if (res.statusCode == 200) {
-      String userId = jsonResponse['user']['_id'];
+      String userId = jsonResponse['username'];
       _saveUserId(userId);
-      return jsonResponse['token'];
+      UserEntity currentUser = UserEntity.fromJson(jsonResponse);
+      _saveCurrentUser(currentUser);
+      return jsonResponse['accessToken'];
     } else {
       throw Exception();
     }
@@ -86,6 +91,11 @@ class AuthDataSourceImp implements AuthDataSource {
 
   Future<void> _saveUserId(String userId) async {
     await Storage().secureStorage.write(key: 'userId', value: userId);
+  }
+
+  Future<void> _saveCurrentUser(UserEntity user) async {
+    String userString = json.encode(user);
+    await Storage().secureStorage.write(key: 'currentUser', value: userString);
   }
   //---------------------------------------------------------
 

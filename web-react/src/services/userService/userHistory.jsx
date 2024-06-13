@@ -2,20 +2,20 @@ import { pathParams } from '../../utils/Helper';
 //user profile page
 
 //get list bookmark by username
-export const getAllBookmarkByUsername = async (pageData, axiosJWT, accessToken) => {
+export const getAllBookmarkByUsername = async (pageData, axiosJWT, accessToken, navigate) => {
   try {
     let path = pathParams(pageData);
     return await axiosJWT.get(`user-history/bookmarks?${path}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
   } catch (err) {
-    console.log(`${err?.response.status}`);
     console.log(`Error:`, JSON.stringify(err?.message));
+    navigate("/login");
   }
 }
 
 //get list comment by username
-export const getAllCommentByUsername = async (pageData, axiosJWT, accessToken) => {
+export const getAllCommentByUsername = async (pageData, axiosJWT, accessToken, navigate) => {
   try {
 
     let path = pathParams(pageData);
@@ -23,7 +23,7 @@ export const getAllCommentByUsername = async (pageData, axiosJWT, accessToken) =
       headers: { Authorization: `Bearer ${accessToken}` },
     });
   } catch (err) {
-    console.log(`${err?.response.status}`);
+    console.log(`Error:`, JSON.stringify(err));
     console.log(`Error:`, JSON.stringify(err?.message));
   }
 }

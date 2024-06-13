@@ -1,7 +1,7 @@
 package com.springboot.app.admin.dto;
 
 public class DataForumGroupResponse {
-	private String name;
+	private String name; //forum group name
 	private Long discussions;
 	private Long comments;
 	private Long users;
@@ -37,4 +37,7 @@ public class DataForumGroupResponse {
 	public void setUsers(Long users) {
 		this.users = users;
 	}
+
+
+
 }

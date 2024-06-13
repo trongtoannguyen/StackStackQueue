@@ -23,6 +23,10 @@ import java.util.Map;
 public class AdminDashboardController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AdminDashboardController.class);
+
+
+
+
 	@Autowired
 	private AdminDashboardService adminDashboardService;
 
@@ -42,15 +46,6 @@ public class AdminDashboardController {
 	@GetMapping("/chart-by-forum")
 	public ResponseEntity<ObjectResponse> getCountUsersByForum() {
 		ServiceResponse<List<DataForumGroupResponse>> response = adminDashboardService.getDataByForumGroup();
-		if (response.getAckCode() == AckCodeType.SUCCESS) {
-			return ResponseEntity.ok(new ObjectResponse("200", "Success", response.getDataObject()));
-		}
-		return ResponseEntity.ok(new ObjectResponse("404", "Not found", null));
-	}
-
-	@GetMapping("/chart-by-pie")
-	public ResponseEntity<ObjectResponse> getDataForPieChart() {
-		ServiceResponse<List<PieChartResponse>> response = adminDashboardService.getDataForPieChart();
 		if (response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok(new ObjectResponse("200", "Success", response.getDataObject()));
 		}

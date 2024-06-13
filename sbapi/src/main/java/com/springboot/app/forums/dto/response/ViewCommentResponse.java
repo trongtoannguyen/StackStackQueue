@@ -29,7 +29,7 @@ public class ViewCommentResponse {
 	private String title;
 	private String content;
 	private boolean hidden;
-	private Long replyTo;
+	private List<ReplyItem> replies;
 
 	//votes
 	private Long totalVotes; // vote up count - vote down count
@@ -41,3 +41,4 @@ public class ViewCommentResponse {
 	private boolean acceptedAnswer;
 
 }
+
