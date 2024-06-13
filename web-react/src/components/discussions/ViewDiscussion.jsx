@@ -9,8 +9,8 @@ import { Card, Row, Col, Button } from "reactstrap";
 //Service
 import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
-import { getDiscussionById } from "../../services/forum/Discussion";
-import { createComment } from "../../services/forum/Comment";
+import { getDiscussionById } from "../../services/forumService/DiscussionService";
+import { createComment } from "../../services/forumService/CommentService";
 import { upVote, downVote } from "../../services/voteService/voteService";
 
 //Modal
@@ -118,13 +118,13 @@ const ViewDiscussion = () => {
 
 	const isBookmarkOfCurrentUser = () => {
 		const listBookmark = commentsByTitle[0]?.bookmarks;
-		listBookmark?.map(item => {
+		listBookmark?.map((item) => {
 			if (item?.bookmarkBy === currentUser?.username) {
 				return true;
 			}
 		});
 		return false;
-	}
+	};
 
 	const handleUpVote = async (commentId) => {
 		//check this comment had vote by username
@@ -141,7 +141,7 @@ const ViewDiscussion = () => {
 		} else {
 			toast.error("Error when voting");
 		}
-	}
+	};
 
 	const handleDownVote = async (commentId) => {
 		//check this comment had vote by username
@@ -158,8 +158,7 @@ const ViewDiscussion = () => {
 		} else {
 			toast.error("Error when voting");
 		}
-	}
-
+	};
 
 	return (
 		<section className="discussion-details content mb-3">
@@ -173,43 +172,56 @@ const ViewDiscussion = () => {
 						<section className="card mb-3 p-3">
 							<Row>
 								<div className="col-1 vote-container">
-									<button className="vote fa-solid fa-caret-up" onClick={() => handleUpVote(commentsByTitle[0]?.id)}></button>
-									<button className="vote-count px-2 rounded-circle">100</button>
-									<button className="vote fa-solid fa-caret-down" onClick={() => handleDownVote(commentsByTitle[0]?.id)}></button>
+									<button
+										className="vote fa-solid fa-caret-up"
+										onClick={() => handleUpVote(commentsByTitle[0]?.id)}
+									></button>
+									<button className="vote-count px-2 rounded-circle">
+										100
+									</button>
+									<button
+										className="vote fa-solid fa-caret-down"
+										onClick={() => handleDownVote(commentsByTitle[0]?.id)}
+									></button>
 
 									<button className="fa-solid fa-check text-success mb-3"></button>
-									{isBookmark ?
+									{isBookmark ? (
 										<button className="fa-solid fa-bookmark fa-2x"></button>
-										:
+									) : (
 										<button className="fa-regular fa-bookmark"></button>
-									}
+									)}
 								</div>
 								<div className="col-11">
 									<div className="card-header d-flex justify-content-between">
 										{/* <strong>{commentsByTitle[0].createdBy}</strong> */}
 										{commentsByTitle[0] && (
 											<span className="ml-0 me-auto">
-												<Avatar username={"@"+commentsByTitle[0]?.createdBy} height={50} width={50} />
+												<Avatar
+													username={"@" + commentsByTitle[0]?.createdBy}
+													height={50}
+													width={50}
+												/>
 												<small>
 													post at:{formatDate(commentsByTitle[0].createdAt)}
 													<button className="fa-solid fa-user-plus"></button>
 													<br />
-													<i className="fa-solid fa-star" alt="reputation"></i> 12
-													|| <i className="fa-solid fa-pen"></i> 12
+													<i
+														className="fa-solid fa-star"
+														alt="reputation"
+													></i>{" "}
+													12 || <i className="fa-solid fa-pen"></i> 12
 												</small>
 											</span>
 										)}
 
-
-										{commentsByTitle[0] && currentUser.username === commentsByTitle[0]?.createdBy && (
-											<small className="ml-auto me-0 d-inline-block">
-												<button className="mx-2 fa-solid fa-edit fa-2x"></button>
-												<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
-											</small>
-										)}
-
-
-
+										{commentsByTitle[0] &&
+											currentUser.username ===
+												commentsByTitle[0]?.createdBy && (
+												<small className="ml-auto me-0 d-inline-block">
+													<button className="mx-2 fa-solid fa-edit fa-2x"></button>
+													<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
+												</small>
+											)}
 									</div>
 									<hr />
 									<div className="card-body">
@@ -225,14 +237,22 @@ const ViewDiscussion = () => {
 									<hr />
 									<div className="card-footer d-flex justify-content-between">
 										<span>
-											<button><i className="fa-solid fa-reply"></i>Reply</button>
+											<button>
+												<i className="fa-solid fa-reply"></i>Reply
+											</button>
 										</span>
 										<span>
-											<button><i className="fa-regular fa-flag"></i>Report</button>
+											<button>
+												<i className="fa-regular fa-flag"></i>Report
+											</button>
 										</span>
 
 										<span>
-											<small>Edit at: {commentsByTitle[0]?.updatedAt && formatDate(commentsByTitle[0].updatedAt)}</small>
+											<small>
+												Edit at:{" "}
+												{commentsByTitle[0]?.updatedAt &&
+													formatDate(commentsByTitle[0].updatedAt)}
+											</small>
 										</span>
 									</div>
 								</div>

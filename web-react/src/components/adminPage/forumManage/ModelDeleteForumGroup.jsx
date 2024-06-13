@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 //Service
 import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
-import { deleteForumGroup } from "../../../services/forum/ForumGroup";
+import { deleteForumGroup } from "../../../services/forumService/ForumGroupService";
 
 const ModelDeleteForumGroup = (props) => {
 	const {

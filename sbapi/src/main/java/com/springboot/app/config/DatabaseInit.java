@@ -6,9 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.springboot.app.bagdes.Badge;
-import com.springboot.app.bagdes.BadgeService;
-import com.springboot.app.dto.response.ServiceResponse;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +24,9 @@ import com.springboot.app.accounts.enumeration.AccountStatus;
 import com.springboot.app.accounts.enumeration.RoleName;
 import com.springboot.app.accounts.repository.RoleRepository;
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.bagdes.Badge;
+import com.springboot.app.bagdes.BadgeService;
+import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.emails.entity.EmailOption;
 import com.springboot.app.emails.entity.RegistrationOption;
 import com.springboot.app.emails.repository.EmailOptionRepository;
@@ -134,9 +134,9 @@ public class DatabaseInit {
 		userRepository.save(ad);
 		logger.info("Account of admin added to th database.");
 
-		Forum forum = createAnouncementsForum(ad);
-		Discussion discussion = createWelcomeDiscussion(ad, forum);
-		createBulletinTag(discussion);
+//		Forum forum = createAnouncementsForum(ad);
+//		Discussion discussion = createWelcomeDiscussion(ad, forum);
+//		createBulletinTag(discussion);
 
 	}
 
@@ -161,7 +161,7 @@ public class DatabaseInit {
 		forum.setIcon("fa fa-bullhorn");
 		forum.setColor("ff7e00");
 
-		ForumDTO forumdto = forumService.addForum(forum, null,user.getUsername()).getDataObject();
+		ForumDTO forumdto = forumService.addForum(forum, null, user.getUsername()).getDataObject();
 		forum = modelMapper.map(forumdto, Forum.class);
 
 		logger.info("Announcements forum created.");
@@ -308,7 +308,7 @@ public class DatabaseInit {
 		ServiceResponse<List<Badge>> response = badgeService.getAllBadges();
 		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
 			logger.info("Badge default already exists.");
-		}else {
+		} else {
 			logger.info("Badge default not exists. Create badge default.");
 			badgeService.createBadge();
 			badgeService.createTraineeBadge();

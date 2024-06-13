@@ -6,17 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.springboot.app.accounts.repository.UserRepository;
-import com.springboot.app.dto.response.PaginateResponse;
-import com.springboot.app.follows.dto.response.BookmarkHistoryResponse;
-import com.springboot.app.follows.dto.response.BookmarkResponse;
-import com.springboot.app.follows.entity.Bookmark;
-import com.springboot.app.forums.dto.response.Author;
-import com.springboot.app.forums.dto.response.DiscussionResponse;
-import com.springboot.app.forums.dto.response.ViewCommentResponse;
-import com.springboot.app.forums.entity.*;
-import com.springboot.app.repository.VoteDAO;
-import com.springboot.app.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,10 +16,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.dto.response.AckCodeType;
+import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.dto.DiscussionDTO;
+import com.springboot.app.follows.dto.response.BookmarkResponse;
+import com.springboot.app.follows.entity.Bookmark;
 import com.springboot.app.forums.dto.UploadedFileData;
+import com.springboot.app.forums.dto.response.Author;
+import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.response.ViewCommentResponse;
+import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.CommentInfo;
+import com.springboot.app.forums.entity.CommentVote;
+import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.DiscussionStat;
+import com.springboot.app.forums.entity.FileInfo;
+import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.entity.ForumStat;
+import com.springboot.app.forums.entity.Vote;
 import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
@@ -41,6 +45,7 @@ import com.springboot.app.repository.CommentDAO;
 import com.springboot.app.repository.GenericDAO;
 import com.springboot.app.service.FileInfoHelper;
 import com.springboot.app.service.FileService;
+import com.springboot.app.tags.Tag;
 import com.springboot.app.utils.JSFUtils;
 
 import net.htmlparser.jericho.Source;
@@ -94,22 +99,18 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir, Long discussionId) {
+	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
+			Long discussionId) {
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
 
-		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
 		Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
 		Page<ViewCommentResponse> itemsPage = commentRepository.findAllByDiscussion(discussion, pageable)
 				.map(this::mapCommentToViewCommentResponse);
 
-		return new PaginateResponse(
-				itemsPage.getNumber()+1,
-				itemsPage.getSize(),
-				itemsPage.getTotalPages(),
-				itemsPage.getContent().size(),
-				itemsPage.isLast(),
-				itemsPage.getContent());
+		return new PaginateResponse(itemsPage.getNumber() + 1, itemsPage.getSize(), itemsPage.getTotalPages(),
+				itemsPage.getContent().size(), itemsPage.isLast(), itemsPage.getContent());
 	}
 
 	@Override
@@ -157,34 +158,35 @@ public class CommentServiceImpl implements CommentService {
 		viewCommentResponse.setAuthor(author);
 
 		viewCommentResponse.setDiscussionId(comment.getDiscussion().getId());
-		//check if first comment of discussion
+		// check if first comment of discussion
 		Comment firstComment = commentRepository.findFirstCommentByDiscussion(comment.getDiscussion());
 		viewCommentResponse.setFirstComment(firstComment.getId().equals(comment.getId()));
 
 		Discussion discussion = comment.getDiscussion();
-		if(discussion.getTags()!=null && !discussion.getTags().isEmpty()){
+		if (discussion.getTags() != null && !discussion.getTags().isEmpty()) {
 			List<Tag> tags = discussion.getTags();
 			viewCommentResponse.setTags(tags);
 		}
 		viewCommentResponse.setClosed(discussion.isClosed());
-		//comment info
+		// comment info
 		viewCommentResponse.setTitle(comment.getTitle());
 		viewCommentResponse.setContent(comment.getContent());
 		viewCommentResponse.setHidden(comment.isHidden());
-		if(comment.getReplies()!=null && !comment.getReplies().isEmpty()){
+		if (comment.getReplyTo() != null) {
 			viewCommentResponse.setReplyTo(comment.getReplyTo().getId());
 		}
-		//votes
+		// votes
 		CommentVote commentVote = comment.getCommentVote();
-		if(commentVote != null && commentVote.getVotes() != null && !commentVote.getVotes().isEmpty()){
+		if (commentVote != null && commentVote.getVotes() != null && !commentVote.getVotes().isEmpty()) {
 			viewCommentResponse.setVotes(commentVote.getVotes());
-			//get total votes on comment
+			// get total votes on comment
 			Long totalVotes = commentVote.getVotes().stream().mapToLong(Vote::getVoteValue).sum();
 			viewCommentResponse.setTotalVotes(totalVotes);
 		}
-		//bookmark
-		if(comment.getBookmarks() != null && !comment.getBookmarks().isEmpty()){
-			List<BookmarkResponse> bookmarkResponses = comment.getBookmarks().stream().map(this::mapBookmarkToBookmarkResponse).toList();
+		// bookmark
+		if (comment.getBookmarks() != null && !comment.getBookmarks().isEmpty()) {
+			List<BookmarkResponse> bookmarkResponses = comment.getBookmarks().stream()
+					.map(this::mapBookmarkToBookmarkResponse).toList();
 			viewCommentResponse.setBookmarks(bookmarkResponses);
 		}
 		return viewCommentResponse;
@@ -337,13 +339,18 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username,
+	public ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
 			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
 		ServiceResponse<Comment> response = new ServiceResponse<>();
 
-		ServiceResponse<DiscussionDTO> discussion = discussionService.getById(discussionId);
+		if (replyToId != null) {
+			Comment replyTo = commentRepository.findById(replyToId)
+					.orElseThrow(() -> new IllegalArgumentException("Invalid replyToId"));
+			comment.setReplyTo(replyTo);
+		}
 
-		Discussion discussionEntity = modelMapper.map(discussion.getDataObject(), Discussion.class);
+		Discussion discussionEntity = discussionRepository.findById(discussionId)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid discussionId"));
 
 		comment.setCreatedBy(username);
 		comment.setIpAddress(JSFUtils.getRemoteIPAddress());
@@ -364,6 +371,10 @@ public class CommentServiceImpl implements CommentService {
 		// Update the Discussion Stat
 		updateDiscussionLastComment(discussionEntity, comment, username);
 
+		// Update the Forum Stat
+		ForumStat forumStat = updateForumStat(discussionEntity.getForum(), username, discussionEntity);
+		discussionEntity.getForum().setStat(forumStat);
+
 		// Save the Forum
 		Forum forum = discussionEntity.getForum();
 		forum.getDiscussions().add(discussionEntity);
@@ -371,6 +382,15 @@ public class CommentServiceImpl implements CommentService {
 
 		response.setDataObject(comment);
 		return response;
+	}
+
+	private ForumStat updateForumStat(Forum forum, String username, Discussion discussion) {
+		ForumStat forumStat = forum.getStat();
+		forumStat.setUpdatedAt(LocalDateTime.now());
+		forumStat.setUpdatedBy(username);
+		forumStat.setCommentCount(forumStat.getCommentCount() + 1);
+		forumStat.setLastComment(discussion.getStat().getLastComment());
+		return forumStat;
 	}
 
 	private DiscussionStat updateDiscussionLastComment(Discussion discussion, Comment comment, String username) {

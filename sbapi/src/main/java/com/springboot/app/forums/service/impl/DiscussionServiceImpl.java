@@ -7,11 +7,16 @@ import java.util.Map;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
@@ -21,6 +26,7 @@ import com.springboot.app.forums.entity.CommentVote;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.DiscussionStat;
 import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
@@ -98,11 +104,25 @@ public class DiscussionServiceImpl implements DiscussionService {
 		// so all DB managed fields (id, createDate, ect) are available
 		populateDiscussionStat(comment, newDiscussion, username);
 
+		// populate forum stat
+		ForumStat forumStat = populateForumStat(newDiscussion.getForum(), username, newDiscussion);
+		newDiscussion.getForum().setStat(forumStat);
+
 		Forum forum = newDiscussion.getForum();
 		forum.getDiscussions().add(newDiscussion);
 		forumRepository.save(forum);
 		response.setDataObject(newDiscussion);
 		return response;
+	}
+
+	private ForumStat populateForumStat(Forum forum, String username, Discussion discussion) {
+		ForumStat forumStat = forum.getStat();
+		forumStat.setCreatedBy(username);
+		forumStat.setCreatedAt(LocalDateTime.now());
+		forumStat.setDiscussionCount(forumStat.getDiscussionCount() + 1);
+		forumStat.setCommentCount(forumStat.getCommentCount() + 1);
+		forumStat.setLastComment(discussion.getStat().getLastComment());
+		return forumStat;
 	}
 
 	@Override
@@ -134,7 +154,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 		discussionStat.setCreatedBy(username);
 		discussionStat.setCreatedAt(LocalDateTime.now());
 		discussionStat.setCommentors(new java.util.HashMap<>());
-		discussionStat.setCommentCount(1);
+		discussionStat.setCommentCount(discussionStat.getCommentCount() + 1);
 		discussionStat.setLastComment(lastComment);
 		discussionStat.getCommentors().put(username, 1);
 		discussionStat.setThumbnailCount(comment.getThumbnails().size());
@@ -297,6 +317,36 @@ public class DiscussionServiceImpl implements DiscussionService {
 		}
 		response.setDataObject(dtos);
 		return response;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ServiceResponse<Discussion> getDiscussionsById(Long id) {
+		ServiceResponse<Discussion> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(id).orElse(null);
+		response.setDataObject(discussion);
+		return response;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginateResponse getAllDiscussion(int pageNo, int pageSize, String orderBy, String sortDir, String keyword,
+			Long forumId) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
+				: Sort.by(orderBy).descending();
+
+		// create Pageable instance
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+		// get the list of users from the UserRepository and return it as a Page object
+		Page<Discussion> discussionPage = discussionRepository.searchByTitle(keyword, forumId, pageable);
+
+		// map the list of discussions to list of DiscussionDTO
+		Page<DiscussionDTO> discussionDTOPage = discussionPage
+				.map(discussion -> modelMapper.map(discussion, DiscussionDTO.class));
+
+		return new PaginateResponse(discussionDTOPage.getNumber() + 1, discussionDTOPage.getSize(),
+				discussionDTOPage.getTotalPages(), discussionDTOPage.getContent().size(), discussionDTOPage.isLast(),
+				discussionDTOPage.getContent());
 	}
 
 }

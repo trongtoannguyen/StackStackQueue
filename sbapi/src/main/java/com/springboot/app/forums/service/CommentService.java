@@ -9,15 +9,18 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
-import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.FileInfo;
 
 public interface CommentService {
-	PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir, Long discussionId);
+	PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
+			Long discussionId);
+
 	ServiceResponse<DiscussionResponse> getFirstCommentByDiscussionId(Long discussionId);
+
 	ServiceResponse<Void> addReply(Comment reply, User user, List<UploadedFileData> thumbnailList,
 			List<UploadedFileData> attachmentList);
+
 	ServiceResponse<Comment> addCommentThumbnail(Comment comment, UploadedFileData uploadedFile);
 
 	ServiceResponse<Comment> addCommentAttachment(Comment comment, UploadedFileData uploadedFile);
@@ -32,6 +35,6 @@ public interface CommentService {
 
 	ServiceResponse<Boolean> isFirstComment(Comment comment);
 
-	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username,
+	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
 			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles);
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
@@ -6,8 +6,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../../services/createInstance";
 
 //Service
-import { addForumGroup } from "../../../services/forum/ForumGroup";
+import { addForumGroup } from "../../../services/forumService/ForumGroupService";
 import { logOutSuccess } from "../../../redux/authSlice";
+import { getUserModerator } from "../../../services/userService/UserService";
 
 //Color Picker
 import { ChromePicker } from "react-color";
@@ -48,11 +49,20 @@ const ModelAddForumGroup = (props) => {
 	const [title, setTitle] = useState("");
 	const [icon, setIcon] = useState("");
 	const [color, setColor] = useState("#ffffff");
+	const [roleName, setRoleName] = useState("");
 
-	// const navigate = useNavigate();
+	const [listModerator, setListModerator] = useState([]);
+
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
+
+	const ListUserModerator = async () => {
+		let res = await getUserModerator(currentUser?.accessToken, axiosJWT);
+		if (res && +res.status === 200) {
+			setListModerator(res.data);
+		}
+	};
 
 	const addForumGroupObject = {
 		title: title,
@@ -63,6 +73,7 @@ const ModelAddForumGroup = (props) => {
 	const handleSaveForumGroup = async () => {
 		let res = await addForumGroup(
 			addForumGroupObject,
+			roleName,
 			currentUser?.accessToken,
 			axiosJWT
 		);
@@ -76,6 +87,7 @@ const ModelAddForumGroup = (props) => {
 				title: title,
 				icon: icon,
 				color: color,
+				manager: roleName,
 			});
 			toast.success(res.data.message);
 		} else {
@@ -152,17 +164,23 @@ const ModelAddForumGroup = (props) => {
 				return null;
 		}
 	};
-
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
 	};
+
+	useEffect(() => {
+		if (show) {
+			ListUserModerator();
+			setRoleName(listModerator[0]?.username || "");
+		}
+	}, [show, listModerator]);
 
 	return (
 		<Modal
 			show={show}
 			onHide={handleClose}
 			backdrop="static"
-			size="lg"
+			size="md"
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
@@ -170,6 +188,21 @@ const ModelAddForumGroup = (props) => {
 			</Modal.Header>
 
 			<Modal.Body>
+				<div className="form-group mb-3">
+					<label className="form-label">Select Moderators</label>
+					<select
+						className="form-control mb-3"
+						id="roleName"
+						value={roleName}
+						onChange={(event) => setRoleName(event.target.value)}
+					>
+						{listModerator.map((item) => (
+							<option key={item.id} value={item.username}>
+								{item.username}
+							</option>
+						))}
+					</select>
+				</div>
 				<div className="form-group mb-3">
 					<label className="form-label" htmlFor="title">
 						Title
@@ -188,13 +221,28 @@ const ModelAddForumGroup = (props) => {
 						Icon
 					</label>
 					<Dropdown onSelect={handleSelectIcon}>
-						<Dropdown.Toggle variant="success" id="dropdown-basic">
+						<Dropdown.Toggle
+							variant="success"
+							id="dropdown-basic"
+							style={{ width: "50%" }}
+						>
 							{icon ? renderIcon(icon) : "Select an Icon"}
 						</Dropdown.Toggle>
 
-						<Dropdown.Menu>
+						<Dropdown.Menu
+							style={{
+								maxHeight: "200px",
+								overflow: "auto",
+								marginLeft: "20px",
+								width: "50%",
+							}}
+						>
 							{iconOptions.map((opt) => (
-								<Dropdown.Item key={opt.value} eventKey={opt.value}>
+								<Dropdown.Item
+									className="d-flex align-items-center justify-content-between px-3"
+									key={opt.value}
+									eventKey={opt.value}
+								>
 									{opt.label}
 									{opt.icon}
 								</Dropdown.Item>

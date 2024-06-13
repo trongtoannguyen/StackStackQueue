@@ -1,21 +1,15 @@
 package com.springboot.app.tags;
 
+import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.entity.CommentInfo;
-
-import java.util.List;
 
 public interface TagService {
-	ServiceResponse<List<Tag>> getAllTags();
+	PaginateResponse getAllTags(int pageNo, int pageSize, String orderBy, String sortDir, String keyword);
 
-	ServiceResponse<Long> createNewTag(Tag newTag);
+	ServiceResponse<Tag> createNewTag(Tag newTag);
+
+	ServiceResponse<Tag> updateTag(Tag tagToUpdate);
 
 	ServiceResponse<Void> deleteTag(Tag tagToDelete);
-
-	ServiceResponse<List<Tag>> getActiveTags();
-
-	ServiceResponse<Long> countCommentsForTag(Tag tag);
-
-	ServiceResponse<CommentInfo> getLatestCommentInfoForTag(Tag tag);
 
 }

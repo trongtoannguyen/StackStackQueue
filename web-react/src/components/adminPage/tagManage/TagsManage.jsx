@@ -1,84 +1,323 @@
-import { useCallback, useEffect, useState } from "react";
+import Table from "react-bootstrap/Table";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import _ from "lodash";
 
+//Service
 import { createAxios } from "../../../services/createInstance";
+import { getAllTags } from "../../../services/tagService/tagService";
 import { loginSuccess } from "../../../redux/authSlice";
 
-import { getAllTags } from "../../../services/tagService/tagService";
+//Modal
+import ModalAddNewTags from "./ModalAddNewTags";
+import ModalUpdateTags from "./ModalUpdateTags";
+import ModalSetStatusTags from "./ModalSetStatusTags";
 
-import Table from 'react-bootstrap/Table';
+//Icon
 import {
-  Card,
-  Row,
-  Col,
-} from "react-bootstrap";
+	FaBeer,
+	FaCoffee,
+	FaApple,
+	FaAndroid,
+	FaHome,
+	FaUser,
+	FaEnvelope,
+	FaBell,
+	FaHeart,
+	FaStar,
+	FaComment,
+	FaThumbsUp,
+	FaThumbsDown,
+	FaCheck,
+	FaTimes,
+	FaSearch,
+	FaCog,
+	FaTrash,
+	FaEdit,
+	FaSave,
+} from "react-icons/fa";
 
+//Paginate
+import Pagination from "../../pagination/Pagination";
+
+//Scss
+// import "./Tags.scss";
 
 const TagsManage = () => {
+	//Login
+	const dispatch = useDispatch();
+	const currentUser = useSelector((state) => state.auth.login?.currentUser);
+	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
-  const [tags, setTags] = useState([]);
+	//Icon
+	const renderIcon = (iconName) => {
+		switch (iconName) {
+			case "FaBeer":
+				return <FaBeer />;
+			case "FaCoffee":
+				return <FaCoffee />;
+			case "FaApple":
+				return <FaApple />;
+			case "FaAndroid":
+				return <FaAndroid />;
+			case "FaHome":
+				return <FaHome />;
+			case "FaUser":
+				return <FaUser />;
+			case "FaEnvelope":
+				return <FaEnvelope />;
+			case "FaBell":
+				return <FaBell />;
+			case "FaHeart":
+				return <FaHeart />;
+			case "FaStar":
+				return <FaStar />;
+			case "FaComment":
+				return <FaComment />;
+			case "FaThumbsUp":
+				return <FaThumbsUp />;
+			case "FaThumbsDown":
+				return <FaThumbsDown />;
+			case "FaCheck":
+				return <FaCheck />;
+			case "FaTimes":
+				return <FaTimes />;
+			case "FaSearch":
+				return <FaSearch />;
+			case "FaCog":
+				return <FaCog />;
+			case "FaTrash":
+				return <FaTrash />;
+			case "FaEdit":
+				return <FaEdit />;
+			case "FaSave":
+				return <FaSave />;
+			default:
+				return null;
+		}
+	};
 
-  let currentUser = useSelector(state => state.auth.login?.currentUser);
-  const dispatch = useDispatch();
-  let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
+	//All Tags
+	const [listTags, setListTags] = useState([]);
 
-  const fetchAllTag = useCallback(async () => {
-    let res = await getAllTags(currentUser.accessToken, axiosJWT);
-    if (+res.status === 200 || +res.data.status === 200) {
-      console.log(res?.data?.data);
-      setTags(res?.data?.data);
-    } else {
-      console.log(res?.data?.message);
-    }
-  }, [currentUser, axiosJWT]);
+	//Pagination
+	const [page, setPage] = useState(1);
+	const [size, setSize] = useState(5);
+	const [totalPages, setTotalPages] = useState(0);
+	const [orderBy, setOrderBy] = useState("id");
+	const [sort, setSort] = useState("ASC");
+	const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchAllTag();
-  }, []);
+	const handlePageClick = (event) => {
+		setPage(event.selected + 1);
+	};
 
+	const getAllTagsData = async () => {
+		const res = await getAllTags(
+			page,
+			size,
+			orderBy,
+			sort,
+			search,
+			currentUser?.accessToken,
+			axiosJWT
+		);
+		if (res && +res.status === 201) {
+			setListTags(res.data.data);
+			setTotalPages(res.data.totalPages);
+			toast.success(res?.data?.message);
+		} else {
+			toast.error(res?.data?.message);
+		}
+	};
 
-  return (
-    <div className="content">
-      <Row>
-        <Col md="12">
-          <Card>
-            <Card.Header>
-              <Card.Title as="h4">Tags Manage</Card.Title>
-            </Card.Header>
-            <Card.Body>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Tag Name</th>
-                    <th>Tag Description</th>
-                    <th>Sort Order</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    tags.length>0 ?
-                    tags.map((tag, index) => (
-                      <tr key={tag.id}>
-                        <td>{index + 1}</td>
-                        <td>{tag.name}</td>
-                        <td>{tag.description}</td>
-                        <td>{tag.sortOrder}</td>
-                      </tr>
-                    )) :
-                    <tr>
-                        <td colSpan="4">No data</td>
-                    </tr>
-                  }
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </div>
-  )
-}
+	//Close Modal
+	const handleClose = () => {
+		setShowAddNewModal(false);
+		setShowEditModalTag(false);
+		setShowSetStatusModal(false);
+	};
+
+	//Create Tags
+	const [showAddNewModal, setShowAddNewModal] = useState(false);
+	const handleUpdateAddNewTags = (tag) => {
+		setListTags([...listTags, tag]);
+	};
+
+	//Update Tags
+	const [showEditModalTag, setShowEditModalTag] = useState(false);
+	const [dataEditTag, setDataEditTag] = useState({});
+	const handleEditModalTag = (tag) => {
+		setShowEditModalTag(true);
+		setDataEditTag(tag);
+	};
+
+	const handleUpdateEditTags = (tag) => {
+		console.log(tag);
+		let cloneListTags = _.cloneDeep(listTags);
+		let index = cloneListTags.findIndex((t) => t.id === tag.id);
+		cloneListTags[index] = tag;
+		setListTags(cloneListTags);
+	};
+
+	//Set Status
+	const [showSetStatusModal, setShowSetStatusModal] = useState(false);
+	const handleSetStatusModal = (tag) => {
+		setShowSetStatusModal(true);
+		setDataEditTag(tag);
+	};
+
+	useEffect(() => {
+		getAllTagsData(1);
+	}, [page, size, orderBy, sort, search]);
+
+	return (
+		<div className="content">
+			<div className="d-flex justify-content-between align-items-center">
+				<button
+					onClick={() => setShowAddNewModal(true)}
+					type="button"
+					className="btn btn-primary"
+				>
+					Add New Tag
+				</button>
+
+				<div className="filter-item">
+					<select
+						className="form-control"
+						onChange={(e) => setSize(e.target.value)}
+						value={size}
+					>
+						<option value="5">5</option>
+						<option value="8">8</option>
+						<option value="10">10</option>
+					</select>
+				</div>
+
+				<div>
+					<input
+						type="text"
+						className="form-control"
+						placeholder="Search"
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+				</div>
+			</div>
+			<Table striped bordered hover size="sm">
+				<thead>
+					<tr>
+						<th className="sort_header">
+							Id
+							<span>
+								<i
+									className="fa-solid fa-arrow-down-long"
+									onClick={() => {
+										setOrderBy("id");
+										setSort("desc");
+									}}
+								></i>
+								<i
+									className="fa-solid fa-arrow-up-long"
+									onClick={() => {
+										setOrderBy("id");
+										setSort("asc");
+									}}
+								></i>
+							</span>
+						</th>
+						<th className="sort_header">
+							Label
+							<span>
+								<i
+									className="fa-solid fa-arrow-down-long"
+									onClick={() => {
+										setOrderBy("id");
+										setSort("desc");
+									}}
+								></i>
+								<i
+									className="fa-solid fa-arrow-up-long"
+									onClick={() => {
+										setOrderBy("id");
+										setSort("asc");
+									}}
+								></i>
+							</span>
+						</th>
+						<th>Icon</th>
+						<th>Color</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					{listTags?.map((tag) => (
+						<tr key={tag.id}>
+							<td>{tag.id}</td>
+							<td>{tag.label}</td>
+							<td>{renderIcon(tag.icon)}</td>
+							<td>
+								<div
+									style={{
+										backgroundColor: tag.color,
+										width: 20,
+										height: 20,
+									}}
+								></div>
+							</td>
+							<td
+								className={
+									tag.disabled
+										? "text-success"
+										: "text-danger" + " fw-bold btn-sm"
+								}
+							>
+								{tag.disabled ? "Enable" : "Disable"}
+							</td>
+							<td>
+								<button onClick={() => handleEditModalTag(tag)}>
+									<i className="fa-solid fa-pencil"></i>
+								</button>
+								<button
+									onClick={() => handleSetStatusModal(tag)}
+									className="btn-sm btn-primary"
+								>
+									Set status
+								</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</Table>
+
+			<div className="pagination pagination-end">
+				<Pagination
+					handlePageClick={handlePageClick}
+					pageSize={+page}
+					totalPages={+totalPages}
+				/>
+			</div>
+			{/* Modal */}
+			<ModalAddNewTags
+				handleClose={handleClose}
+				show={showAddNewModal}
+				handleUpdateAddNewTags={handleUpdateAddNewTags}
+			/>
+			<ModalUpdateTags
+				handleClose={handleClose}
+				show={showEditModalTag}
+				dataEditTag={dataEditTag}
+				handleUpdateEditTags={handleUpdateEditTags}
+			/>
+			<ModalSetStatusTags
+				handleClose={handleClose}
+				show={showSetStatusModal}
+				dataEditTag={dataEditTag}
+				handleUpdateEditTags={handleUpdateEditTags}
+			/>
+		</div>
+	);
+};
 
 export default TagsManage;

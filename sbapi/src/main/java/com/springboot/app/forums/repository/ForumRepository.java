@@ -12,7 +12,6 @@ import com.springboot.app.forums.entity.Forum;
 
 @Repository("forumRepository")
 public interface ForumRepository extends JpaRepository<Forum, Long> {
-	// select forum by id = foundGroup id
 	@Query("SELECT f FROM Forum f WHERE f.forumGroup.id = :id")
 	List<Forum> findForumByForumGroupId(@Param("id") Long id);
 
@@ -20,7 +19,7 @@ public interface ForumRepository extends JpaRepository<Forum, Long> {
 	Integer findTopBySortOrder();
 
 	// findTopbySortOrder by id for Forum
-	@Query("SELECT MAX(fg.sortOrder) FROM Forum fg WHERE fg.forumGroup.id = :id")
+	@Query("SELECT MAX(fg.sortOrder) FROM Forum fg WHERE :id is null or fg.forumGroup.id = :id")
 	Integer findTopBySortOrderForForum(@Param("id") Long id);
 
 	@Modifying

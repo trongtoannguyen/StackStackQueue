@@ -1,18 +1,18 @@
 package com.springboot.app.tags;
 
-import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.forums.entity.CommentInfo;
-import com.springboot.app.forums.entity.Discussion;
-import com.springboot.app.forums.service.SystemInfoService;
-import com.springboot.app.repository.DiscussionDAO;
-import com.springboot.app.repository.GenericDAO;
-import com.springboot.app.search.SortSpec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
+import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.service.SystemInfoService;
+import com.springboot.app.repository.DiscussionDAO;
+import com.springboot.app.repository.GenericDAO;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -28,31 +28,51 @@ public class TagServiceImpl implements TagService {
 	@Autowired
 	private DiscussionDAO discussionDAO;
 
+	@Override
 	@Transactional(readOnly = true)
-	public ServiceResponse<List<Tag>> getAllTags(){
-		ServiceResponse<List<Tag>> response = new ServiceResponse<>();
-		response.setDataObject(tagRepository.findAll());
-		return response;
+	public PaginateResponse getAllTags(int pageNo, int pageSize, String orderBy, String sortDir, String keyword) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
+				: Sort.by(orderBy).descending();
+
+		// create Pageable instance
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+		// get the list of users from the UserRepository and return it as a Page object
+		Page<Tag> tagsPage = tagRepository.searchByLable(keyword, pageable);
+
+		return new PaginateResponse(tagsPage.getNumber() + 1, tagsPage.getSize(), tagsPage.getTotalPages(),
+				tagsPage.getContent().size(), tagsPage.isLast(), tagsPage.getContent());
 	}
 
+	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Long> createNewTag(Tag newTag){
-		ServiceResponse<Long> response = new ServiceResponse<>();
+	public ServiceResponse<Tag> createNewTag(Tag newTag) {
+		ServiceResponse<Tag> response = new ServiceResponse<>();
 
-		Integer maxSortOrder = genericDAO.getMaxNumber(Tag.class, "sortOrder", null).intValue();
+		Integer maxSortOrder = tagRepository.findTopSortOrder();
+		if (maxSortOrder == null) {
+			maxSortOrder = 1;
+		} else {
+			maxSortOrder++;
+		}
 
-		newTag.setSortOrder(maxSortOrder + 1);
-
+		newTag.setSortOrder(maxSortOrder);
+		newTag.setDisabled(true);
 		tagRepository.save(newTag);
-
-		SystemInfoService.Statistics systemStat = systemInfoService.getStatistics().getDataObject();
-		systemStat.addTagCount(1);
-
-		response.setDataObject(newTag.getId());
+		response.setDataObject(newTag);
 
 		return response;
 	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<Tag> updateTag(Tag tagToUpdate) {
+		ServiceResponse<Tag> response = new ServiceResponse<>();
+		tagRepository.save(tagToUpdate);
+		response.setDataObject(tagToUpdate);
+		return response;
+	}
+
+	@Override
 	@Transactional(readOnly = false)
 	public ServiceResponse<Void> deleteTag(Tag tagToDelete) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
@@ -64,68 +84,5 @@ public class TagServiceImpl implements TagService {
 
 		return response;
 	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Tag>> getActiveTags(){
-		ServiceResponse<List<Tag>> response = new ServiceResponse<>();
-
-		List<Tag> tags = genericDAO.getEntities(Tag.class,
-				Collections.singletonMap("disabled", Boolean.FALSE),
-				new SortSpec("sortOrder", SortSpec.Direction.DESC));
-		response.setDataObject(tags);
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Discussion>> getDiscussionsByTag(Tag tag, int size){
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		List<Discussion> discussions = discussionDAO.findByTag(tag, 0, size, null, null);
-		response.setDataObject(discussions);
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Discussion>> getDiscussionsByTag(Tag tag, int startPosition,
-	                                                             int maxResult, String sortField, Boolean descending){
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		List<Discussion> discussions = discussionDAO.findByTag(tag, startPosition, maxResult, sortField, descending);
-		response.setDataObject(discussions);
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<Long> countCommentsForTag(Tag tag){
-		ServiceResponse<Long> response = new ServiceResponse<>();
-
-		Number count = discussionDAO.countCommentsForTag(tag);
-		response.setDataObject(count.longValue());
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<Long> countDiscussionsForTag(Tag tag){
-		ServiceResponse<Long> response = new ServiceResponse<>();
-
-		Number count = discussionDAO.countDiscussionsForTag(tag);
-		response.setDataObject(count.longValue());
-
-		return response;
-	}
-
-	public ServiceResponse<CommentInfo> getLatestCommentInfoForTag(Tag tag){
-		ServiceResponse<CommentInfo> response = new ServiceResponse<>();
-
-		CommentInfo commentInfo = discussionDAO.getLatestCommentInfoForTag(tag);
-		response.setDataObject(commentInfo);
-
-		return response;
-	}
-
 
 }

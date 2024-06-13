@@ -1,10 +1,7 @@
 package com.springboot.app.forums.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -23,6 +20,7 @@ import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.repository.DiscussionRepository;
 import com.springboot.app.forums.repository.ForumGroupRepository;
 import com.springboot.app.forums.repository.ForumRepository;
+import com.springboot.app.forums.repository.ForumStatRepository;
 import com.springboot.app.forums.service.ForumService;
 import com.springboot.app.forums.service.SystemInfoService;
 import com.springboot.app.repository.GenericDAO;
@@ -42,6 +40,9 @@ public class ForumServiceImpl implements ForumService {
 	private DiscussionRepository discussionRepository;
 
 	@Autowired
+	private ForumStatRepository forumStatRepository;
+
+	@Autowired
 	private SystemInfoService systemInfoService;
 
 	@Autowired
@@ -49,25 +50,6 @@ public class ForumServiceImpl implements ForumService {
 
 	@Autowired
 	private ModelMapper modelMapper;
-
-	// TODO: THIS METHOD AND getChildForumsAndForumGroups METHOD BY HUY WAS DUPLICATED, PLEASE REMOVE ONE
-	@Override
-	@Transactional(readOnly = true)
-	public ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> getChildForumsAndForumGroups(
-			ForumGroup forumGroup) {
-		ServiceResponse<Map.Entry<List<Forum>, List<ForumGroup>>> response = new ServiceResponse<>();
-
-		List<Forum> forums = genericDAO.getEntities(Forum.class, Collections.singletonMap("forumGroup", forumGroup));
-
-		List<ForumGroup> forumGroups = genericDAO.getEntities(ForumGroup.class,
-				Collections.singletonMap("parent", forumGroup));
-
-		AbstractMap.SimpleEntry<List<Forum>, List<ForumGroup>> dataObject = new AbstractMap.SimpleEntry<List<Forum>, List<ForumGroup>>(
-				forums, forumGroups);
-
-		response.setDataObject(dataObject);
-		return response;
-	}
 
 	private ForumGroupDTO convertToDTO(ForumGroup forumGroup) {
 		return modelMapper.map(forumGroup, ForumGroupDTO.class);
@@ -80,8 +62,17 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ForumGroupDTO> getChildForumsAndForumGroups() {
-		List<ForumGroup> topLevelForumGroups = forumGroupRepository.findByParentIsNull();
+		List<ForumGroup> topLevelForumGroups = forumGroupRepository.findAll();
 		return topLevelForumGroups.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<ForumStat> getForumStat(Long id) {
+		ServiceResponse<ForumStat> response = new ServiceResponse<>();
+		ForumStat forumStat = forumStatRepository.findById(id).orElse(null);
+		response.setDataObject(forumStat);
+		return response;
 	}
 
 	@Override
@@ -101,11 +92,6 @@ public class ForumServiceImpl implements ForumService {
 		// reset all discussions to the root forum group
 		resetDiscussions(forumGroup);
 
-		ForumGroup parentGroup = forumGroup.getParent();
-		if (parentGroup != null) {
-			parentGroup.getSubGroups().remove(forumGroup);
-			forumGroupRepository.save(parentGroup);
-		}
 		// delete the forum group and its subgroups recursively
 		forumGroupRepository.delete(forumGroup);
 
@@ -116,21 +102,24 @@ public class ForumServiceImpl implements ForumService {
 		for (Forum forum : forumGroup.getForums()) {
 			discussionRepository.moveDiscussion(forum, null);
 		}
-		for (ForumGroup subGroup : forumGroup.getSubGroups()) {
-			resetDiscussions(subGroup);
-		}
 	}
 
 	@Override
 	public ServiceResponse<ForumDTO> addForum(Forum newForum, ForumGroup forumGroup, String username) {
 		ServiceResponse<ForumDTO> response = new ServiceResponse<>();
 
+		if (forumGroup == null) {
+			logger.error("Forum group is null");
+			return response;
+		}
 		Integer maxSortOrder = forumRepository.findTopBySortOrderForForum(forumGroup.getId());
-		if(maxSortOrder == null) {
+
+		if (maxSortOrder == null) {
 			maxSortOrder = 1;
-		}else{
+		} else {
 			maxSortOrder++;
 		}
+
 		newForum.setSortOrder(maxSortOrder);
 		newForum.setActive(true);
 
@@ -170,27 +159,21 @@ public class ForumServiceImpl implements ForumService {
 	}
 
 	@Override
-	public ServiceResponse<ForumGroup> addForumGroup(ForumGroup newForumGroup, ForumGroup parent) {
+	public ServiceResponse<ForumGroup> addForumGroup(ForumGroup newForumGroup, String roleName) {
 
 		ServiceResponse<ForumGroup> response = new ServiceResponse<>();
 
 		Integer maxSortOrder = forumRepository.findTopBySortOrder();
-
-		if(maxSortOrder == null) {
+		if (maxSortOrder == null) {
 			maxSortOrder = 1;
-		}else{
+		} else {
 			maxSortOrder++;
 		}
 		newForumGroup.setSortOrder(maxSortOrder);
+		newForumGroup.setManager(roleName);
 
-		newForumGroup.setParent(null);
 		forumGroupRepository.save(newForumGroup);
 		response.setDataObject(newForumGroup);
-
-		if (parent != null) {
-			parent.getSubGroups().add(newForumGroup);
-			forumGroupRepository.save(parent);
-		}
 
 		// increment forum group count
 		SystemInfoService.Statistics systemStat = systemInfoService.getStatistics().getDataObject();

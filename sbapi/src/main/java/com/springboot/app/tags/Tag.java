@@ -1,17 +1,27 @@
 package com.springboot.app.tags;
 
-import com.springboot.app.model.BaseEntity;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.springboot.app.forums.entity.Discussion;
-import jakarta.persistence.*;
+import com.springboot.app.model.BaseEntity;
+
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Entity
-@Table(name="tags")
+@Table(name = "tags")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,6 +32,7 @@ public class Tag extends BaseEntity {
 		LocalDateTime now = LocalDateTime.now();
 		this.setCreatedAt(now);
 	}
+
 	@PreUpdate
 	public void preUpdate() {
 		LocalDateTime now = LocalDateTime.now();
@@ -32,26 +43,26 @@ public class Tag extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name="lable", length=100, unique = true)
+	@Column(name = "lable", length = 100, unique = true)
 	private String label;
 
-	@Column(name="icon", length=30)
+	@Column(name = "icon", length = 30)
 	private String icon;
 
-	@Column(name="color", length=30)
+	@Column(name = "color", length = 30)
 	private String color;
 
-	@Column(name="disabled")
+	@Column(name = "disabled")
 	private boolean disabled;
 
-	@Column(name="sort_order")
+	@Column(name = "sort_order")
 	private Integer sortOrder;
 	/**
-	 * Note: @Transient thuộc tính này không liên quan gì tới một cột nào dưới database.
-	 * fix error: “java.sql.SQLSyntaxErrorException: Unknown column ‘additionalPropery’ in ‘field list'”.
+	 * Note: @Transient thuộc tính này không liên quan gì tới một cột nào dưới
+	 * database. fix error: “java.sql.SQLSyntaxErrorException: Unknown column
+	 * ‘additionalPropery’ in ‘field list'”.
 	 */
 	@Transient
 	private List<Discussion> discussions;
-
 
 }

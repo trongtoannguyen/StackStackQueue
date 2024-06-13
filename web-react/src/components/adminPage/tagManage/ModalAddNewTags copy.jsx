@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../../services/createInstance";
 
 //Service
-import { addForum } from "../../../services/forumService/ForumService";
+import { createTag } from "../../../services/tagService/tagService";
 import { loginSuccess } from "../../../redux/authSlice";
 
 //Color Picker
@@ -36,50 +36,39 @@ import {
 	FaSave,
 } from "react-icons/fa";
 
-const ModelAddForum = (props) => {
-	const { show, handleClose, handleUpdateForum, idForumGroup } = props;
+const ModalAddNewTags = (props) => {
+	const { show, handleClose, handleUpdateAddNewTags } = props;
 
-	ModelAddForum.propTypes = {
+	ModalAddNewTags.propTypes = {
 		show: PropTypes.bool.isRequired,
 		handleClose: PropTypes.func.isRequired,
-		handleUpdateForum: PropTypes.func.isRequired,
-		idForumGroup: PropTypes.number.isRequired,
+		handleUpdateAddNewTags: PropTypes.func.isRequired,
 	};
 
-	const [title, setTitle] = useState("");
+	const [label, setLabel] = useState("");
 	const [icon, setIcon] = useState("");
 	const [color, setColor] = useState("#ffffff");
-	const [description, setDescription] = useState("");
 
-	// const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
-	const addForumObject = {
-		idForumGroup: idForumGroup,
-		title: title,
+	const addNewTag = {
+		label: label,
 		icon: icon,
 		color: color,
-		description: description,
 	};
 
-	const handleSaveForum = async () => {
-		let res = await addForum(
-			addForumObject,
-			currentUser?.accessToken,
-			axiosJWT
-		);
+	const handleSaveTag = async () => {
+		let res = await createTag(addNewTag, currentUser?.accessToken, axiosJWT);
 		if (res && +res.data?.status === 201) {
 			handleClose();
-			setTitle("");
+			setLabel("");
 			setIcon(null);
 			setColor("#ffffff");
-			setDescription("");
-			handleUpdateForum({
+			handleUpdateAddNewTags({
 				id: res.data.data.id,
-				description: description,
-				title: title,
+				label: label,
 				icon: icon,
 				color: color,
 			});
@@ -172,33 +161,21 @@ const ModelAddForum = (props) => {
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Add New Forum</Modal.Title>
+				<Modal.label>Add New Tag</Modal.label>
 			</Modal.Header>
 
-			<Modal.Body>
+			{/* <Modal.Body>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
-						Title
+					<label className="form-label" htmlFor="label">
+						label
 					</label>
 					<input
 						className="form-control"
-						id="title"
+						id="label"
 						type="text"
-						value={title}
-						onChange={(event) => setTitle(event.target.value)}
-						placeholder="Enter Title"
-					/>
-				</div>
-				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="description">
-						Description
-					</label>
-					<textarea
-						className="form-control"
-						id="description"
-						value={description}
-						onChange={(event) => setDescription(event.target.value)}
-						placeholder="Enter Description"
+						value={label}
+						onChange={(event) => setLabel(event.target.value)}
+						placeholder="Enter label"
 					/>
 				</div>
 				<div className="form-group mb-3">
@@ -236,7 +213,7 @@ const ModelAddForum = (props) => {
 					</Dropdown>
 				</div>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
+					<label className="form-label" htmlFor="label">
 						Color
 					</label>
 					<ChromePicker
@@ -244,13 +221,13 @@ const ModelAddForum = (props) => {
 						onChangeComplete={(color) => setColor(color.hex)}
 					/>
 				</div>
-			</Modal.Body>
+			</Modal.Body> */}
 
 			<Modal.Footer>
 				<Button variant="secondary" onClick={handleClose}>
 					Close
 				</Button>
-				<Button variant="primary" onClick={() => handleSaveForum()}>
+				<Button variant="primary" onClick={() => handleSaveTag()}>
 					Add new
 				</Button>
 			</Modal.Footer>
@@ -258,4 +235,4 @@ const ModelAddForum = (props) => {
 	);
 };
 
-export default ModelAddForum;
+export default ModalAddNewTags;
