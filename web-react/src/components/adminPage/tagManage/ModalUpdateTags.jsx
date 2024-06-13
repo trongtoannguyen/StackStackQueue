@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal, Dropdown } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../../services/createInstance";
 
 //Service
-import { addForum } from "../../../services/forumService/ForumService";
+import { updateTag } from "../../../services/tagService/tagService";
 import { loginSuccess } from "../../../redux/authSlice";
 
 //Color Picker
@@ -36,50 +36,42 @@ import {
 	FaSave,
 } from "react-icons/fa";
 
-const ModelAddForum = (props) => {
-	const { show, handleClose, handleUpdateForum, idForumGroup } = props;
+const ModalUpdateTags = (props) => {
+	const { show, handleClose, handleUpdateEditTags, dataEditTag } = props;
 
-	ModelAddForum.propTypes = {
+	ModalUpdateTags.propTypes = {
 		show: PropTypes.bool.isRequired,
 		handleClose: PropTypes.func.isRequired,
-		handleUpdateForum: PropTypes.func.isRequired,
-		idForumGroup: PropTypes.number.isRequired,
+		handleUpdateEditTags: PropTypes.func.isRequired,
+		dataEditTag: PropTypes.object.isRequired,
 	};
 
-	const [title, setTitle] = useState("");
+	const [label, setLabel] = useState("");
 	const [icon, setIcon] = useState("");
 	const [color, setColor] = useState("#ffffff");
-	const [description, setDescription] = useState("");
 
-	// const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
-	const addForumObject = {
-		idForumGroup: idForumGroup,
-		title: title,
+	const addNewTag = {
+		...dataEditTag,
+		label: label,
 		icon: icon,
 		color: color,
-		description: description,
 	};
-
-	const handleSaveForum = async () => {
-		let res = await addForum(
-			addForumObject,
-			currentUser?.accessToken,
-			axiosJWT
-		);
-		if (res && +res.data?.status === 201) {
+	const handleSaveTag = async () => {
+		let res = await updateTag(addNewTag, currentUser?.accessToken, axiosJWT);
+		console.log(res);
+		if (res && +res.data?.status === 200) {
 			handleClose();
-			setTitle("");
+			setLabel("");
 			setIcon(null);
 			setColor("#ffffff");
-			setDescription("");
-			handleUpdateForum({
+			handleUpdateEditTags({
+				...dataEditTag,
 				id: res.data.data.id,
-				description: description,
-				title: title,
+				label: label,
 				icon: icon,
 				color: color,
 			});
@@ -163,6 +155,14 @@ const ModelAddForum = (props) => {
 		setIcon(iconValue);
 	};
 
+	useEffect(() => {
+		if (dataEditTag) {
+			setLabel(dataEditTag?.label);
+			setIcon(dataEditTag?.icon);
+			setColor(dataEditTag?.color);
+		}
+	}, [dataEditTag]);
+
 	return (
 		<Modal
 			show={show}
@@ -172,33 +172,21 @@ const ModelAddForum = (props) => {
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Add New Forum</Modal.Title>
+				<Modal.Title>Update Tag</Modal.Title>
 			</Modal.Header>
 
 			<Modal.Body>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
-						Title
+					<label className="form-label" htmlFor="label">
+						Label
 					</label>
 					<input
 						className="form-control"
-						id="title"
+						id="label"
 						type="text"
-						value={title}
-						onChange={(event) => setTitle(event.target.value)}
-						placeholder="Enter Title"
-					/>
-				</div>
-				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="description">
-						Description
-					</label>
-					<textarea
-						className="form-control"
-						id="description"
-						value={description}
-						onChange={(event) => setDescription(event.target.value)}
-						placeholder="Enter Description"
+						value={label}
+						onChange={(event) => setLabel(event.target.value)}
+						placeholder="Enter label"
 					/>
 				</div>
 				<div className="form-group mb-3">
@@ -236,7 +224,7 @@ const ModelAddForum = (props) => {
 					</Dropdown>
 				</div>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
+					<label className="form-label" htmlFor="label">
 						Color
 					</label>
 					<ChromePicker
@@ -250,12 +238,12 @@ const ModelAddForum = (props) => {
 				<Button variant="secondary" onClick={handleClose}>
 					Close
 				</Button>
-				<Button variant="primary" onClick={() => handleSaveForum()}>
-					Add new
+				<Button variant="primary" onClick={() => handleSaveTag()}>
+					Save
 				</Button>
 			</Modal.Footer>
 		</Modal>
 	);
 };
 
-export default ModelAddForum;
+export default ModalUpdateTags;

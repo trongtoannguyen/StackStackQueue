@@ -1,77 +1,60 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import ReactQuill from "react-quill";
-import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 
 //Service
-import { createAxios } from "../../services/createInstance";
 import { loginSuccess } from "../../redux/authSlice";
-import { updateDiscussion } from "../../services/forumService/DiscussionService";
+import { createAxios } from "../../services/createInstance";
+import { createComment } from "../../services/forumService/CommentService";
 
-const ModalUpdateDiscussion = (props) => {
-	const {
-		show,
-		handleClose,
-		handleEditDiscussionFromModel,
-		dataUpdateDiscussion,
-	} = props;
-	const { forumId } = useParams();
-
-	ModalUpdateDiscussion.propTypes = {
-		show: PropTypes.bool.isRequired,
-		handleClose: PropTypes.func.isRequired,
-		handleEditDiscussionFromModel: PropTypes.func.isRequired,
-		dataUpdateDiscussion: PropTypes.object.isRequired,
-	};
+const ModalAddNewReply = (props) => {
+	const { show, handleClose, handleUpdateAddReply, replyToId = null } = props;
+	const { discussionId } = useParams();
 
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
-	const [comment, setComments] = useState([]);
 
-	const discussion = {
-		...dataUpdateDiscussion,
+	const commentAdd = {
 		title: title,
-		closed: false,
-		sticky: false,
-		important: false,
+		content: content,
 	};
 
+	// const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
-	const handleSaveDiscussion = async () => {
+	const handleSaveReply = async () => {
 		try {
-			let res = await updateDiscussion(
-				dataUpdateDiscussion.id,
-				forumId,
-				discussion,
-				content,
+			let res = await createComment(
+				discussionId,
+				commentAdd,
+				replyToId,
 				currentUser?.accessToken,
 				axiosJWT
 			);
-
-			if (res && +res.data?.status === 200) {
+			console.log(res);
+			if (res && +res.data?.status === 201) {
 				handleClose();
 				setContent("");
 				setTitle("");
-				handleEditDiscussionFromModel({
-					...discussion,
+				handleUpdateAddReply({
+					replyToId: replyToId,
+					id: res.data.data.id,
+					title: title,
 					content: content,
-					forum: res.data.data.forum,
-					stat: res.data.data.stat,
-					createdAt: res.data.data.createdAt,
 				});
 				toast.success(res.data.message);
 			} else {
-				toast.error("Error when creating Forum");
+				toast.error("Error when creating Comment");
 			}
 		} catch (error) {
 			console.error("Error:", error);
-			toast.error("Error when creating Forum");
+			toast.error("Error when creating Comment");
 		}
 	};
 
@@ -100,19 +83,6 @@ const ModalUpdateDiscussion = (props) => {
 		toolbar: toolbarOptions,
 	};
 
-	useEffect(() => {
-		if (show) {
-			const matchingComment = dataUpdateDiscussion.comments.find(
-				(comment) => comment.title === dataUpdateDiscussion.title
-			);
-			if (matchingComment) {
-				setComments([matchingComment]);
-				setContent(matchingComment.content);
-			}
-			setTitle(dataUpdateDiscussion.title);
-		}
-	}, [dataUpdateDiscussion, setComments, show]);
-
 	return (
 		<Modal
 			show={show}
@@ -122,7 +92,7 @@ const ModalUpdateDiscussion = (props) => {
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Update discussion</Modal.Title>
+				<Modal.Title>Add New Reply</Modal.Title>
 			</Modal.Header>
 
 			<Modal.Body>
@@ -151,28 +121,25 @@ const ModalUpdateDiscussion = (props) => {
 						placeholder="Enter content here"
 					/>
 				</div>
-
-				<div className="form-group mb-3">
-					<label htmlFor="tags">Tags</label>
-					<input
-						type="text"
-						className="form-control"
-						id="tags"
-						placeholder="Enter tags here"
-					/>
-				</div>
 			</Modal.Body>
 
 			<Modal.Footer>
 				<Button variant="secondary" onClick={handleClose}>
 					Close
 				</Button>
-				<Button variant="primary" onClick={() => handleSaveDiscussion()}>
-					Save
+				<Button variant="primary" onClick={() => handleSaveReply()}>
+					Add new
 				</Button>
 			</Modal.Footer>
 		</Modal>
 	);
 };
 
-export default ModalUpdateDiscussion;
+ModalAddNewReply.propTypes = {
+	show: PropTypes.bool.isRequired,
+	handleClose: PropTypes.func.isRequired,
+	handleUpdateAddReply: PropTypes.func.isRequired,
+	replyToId: PropTypes.number,
+};
+
+export default ModalAddNewReply;

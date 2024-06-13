@@ -4,8 +4,8 @@ import BannerTop from "../bannerTop/BannerTop";
 import { Col, Row, Card, ListGroup } from "react-bootstrap";
 
 //Service
-import { getAllForumGroup } from "../../services/forum/ForumGroup";
-import { getAllForum } from "../../services/forum/Forum";
+import { getAllForumGroup } from "../../services/forumService/ForumGroupService";
+import { getAllForum } from "../../services/forumService/ForumService";
 
 //Page
 import ForumInfo from "./ForumInfo";
@@ -144,7 +144,13 @@ const ForumGroup = () => {
 																			</div>
 																			<div className="ms-2 me-auto">
 																				<div className="fw-bold">
-																					<Link to={`/forum/${forum.id}`}>
+																					<Link
+																						to={`/forum/${forum.id}`}
+																						style={{
+																							textDecoration: "none",
+																							color: "black",
+																						}}
+																					>
 																						{forum.title}
 																					</Link>
 																				</div>

@@ -2,6 +2,7 @@ package com.springboot.app.forums.service;
 
 import java.util.List;
 
+import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
@@ -20,5 +21,10 @@ public interface DiscussionService {
 	ServiceResponse<List<DiscussionDTO>> getDiscussionsByForum(Long id);
 
 	ServiceResponse<List<DiscussionDTO>> getAllDiscussions();
+
+	ServiceResponse<Discussion> getDiscussionsById(Long id);
+
+	PaginateResponse getAllDiscussion(int pageNo, int pageSize, String orderBy, String sortDir, String keyword,
+			Long forumId);
 
 }

@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import _ from "lodash";
 
 //Service
-import { getAllForumGroup } from "../../../services/forum/ForumGroup";
-import { getAllForum } from "../../../services/forum/Forum";
+import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
+import { getAllForum } from "../../../services/forumService/ForumService";
+
+//Utils
+import { formatDate } from "../../../utils/FormatDateTimeHelper";
 
 //Modal
 import ModelAddForumGroup from "./ModelAddForumGroup";
@@ -40,6 +43,7 @@ import {
 	FaEdit,
 	FaSave,
 } from "react-icons/fa";
+
 const ForumManage = () => {
 	const [forumGroup, setForumGroup] = useState([]);
 	const [forum, setForum] = useState([]);
@@ -59,10 +63,14 @@ const ForumManage = () => {
 
 	const [showModelUpdateForum, setShowModelUpdateForum] = useState(false);
 	const [dataUpdateForum, setDataUpdateForum] = useState({});
+
 	const [forumIsActive, setForumIsActive] = useState(true);
 
 	const [showModelUpdateActiveForum, setShowModelUpdateActiveForum] =
 		useState(false);
+
+	const [sortBy, setSortBy] = useState("");
+	const [sortField, setSortField] = useState("");
 
 	const handleClose = () => {
 		setShowModelNewForumGroup(false);
@@ -81,6 +89,7 @@ const ForumManage = () => {
 		let res = await getAllForumGroup();
 		if (res && res.data) {
 			setForumGroup(res.data);
+			console.log(res.data);
 		}
 	};
 
@@ -148,6 +157,19 @@ const ForumManage = () => {
 		setForumIsActive(isActive);
 	};
 
+	const handleSort = (sortBy, sortField) => {
+		setSortBy(sortBy);
+		setSortField(sortField);
+
+		let cloneListForumGroup = _.cloneDeep(forumGroup);
+		cloneListForumGroup = _.orderBy(
+			cloneListForumGroup,
+			[sortField],
+			[sortBy === "asc" ? "asc" : "desc"]
+		);
+		setForumGroup(cloneListForumGroup);
+	};
+
 	useEffect(() => {
 		listForumGroup();
 		listForums();
@@ -205,30 +227,28 @@ const ForumManage = () => {
 			<Container>
 				<Row className="col-12">
 					<Col xs={12} lg={9} className="forum-list">
-						<Row className="mb-3 col-12">
-							<Col xs={12} lg={9}>
+						<div className="d-flex justify-content-between mb-3">
+							<div>
 								<button
 									className="btn btn-success"
-									onClick={() => setShowModelNewForumGroup(true)}
+									onClick={() => handleSort("desc", "id")}
 								>
 									<i className="fa-solid fa-up-long"></i>
 								</button>
 								<button
 									className="btn btn-success"
-									onClick={() => setShowModelNewForumGroup(true)}
+									onClick={() => handleSort("asc", "id")}
 								>
 									<i className="fa-solid fa-down-long"></i>
 								</button>
-							</Col>
-							<Col xs={12} lg={3}>
-								<button
-									className="btn btn-success"
-									onClick={() => setShowModelNewForumGroup(true)}
-								>
-									<i className="fa-solid fa-plus"></i> Forum Group
-								</button>
-							</Col>
-						</Row>
+							</div>
+							<button
+								className="btn btn-success"
+								onClick={() => setShowModelNewForumGroup(true)}
+							>
+								<i className="fa-solid fa-plus"></i> Forum Group
+							</button>
+						</div>
 						{forumGroup?.map((forumGroup, index) => {
 							return (
 								<Card key={(forumGroup.id, index)}>
@@ -257,93 +277,77 @@ const ForumManage = () => {
 										<ListGroup as="ol" numbered>
 											{forum?.map((forum) => {
 												if (forum.idForumGroup == forumGroup.id) {
-													if (forum.active == false) {
-														return (
-															<Row key={forum.id}>
-																<Col>
-																	<ListGroup.Item
-																		as="li"
-																		className="d-flex justify-content-between align-items-start"
-																	>
+													return (
+														<Row key={forum.id}>
+															<Col>
+																<ListGroup.Item
+																	as="li"
+																	key={forum.id}
+																	className="d-flex justify-content-between align-items-start"
+																>
+																	<div className="d-flex align-items-center">
 																		<div className="my-2">
 																			{renderIcon(forum.icon)}
 																		</div>
 																		<div className="ms-2 me-auto">
-																			<div className="fw-bold">
+																			<div className="fw-bold d-flex ">
 																				{forum.title}
+																				<span
+																					style={{
+																						color: "green",
+																						fontSize: "12px",
+																						paddingLeft: "5px",
+																					}}
+																				>
+																					<span
+																						className={
+																							forum.active
+																								? "bg-success badge"
+																								: "bg-danger badge"
+																						}
+																					>
+																						{" "}
+																						{forum.active === true
+																							? "active"
+																							: "inactive"}
+																					</span>
+																				</span>
 																			</div>
 																			{forum.description}
 																		</div>
-																		<div className="btn-forum">
-																			<input
-																				type="checkbox"
-																				onChange={() =>
-																					handleEditActionForumFromModel(
-																						forum,
-																						true
-																					)
-																				}
-																			/>
-																			<button
-																				onClick={() =>
-																					handleEditForumFromModel(
-																						forum,
-																						forum.active
-																					)
-																				}
-																			>
-																				<i className="fa-solid fa-pen-to-square"></i>
-																			</button>
-																		</div>
-																	</ListGroup.Item>
-																</Col>
-															</Row>
-														);
-													}
-													if (forum.active == true) {
-														return (
-															<Row key={forum.id}>
-																<Col>
-																	<ListGroup.Item
-																		as="li"
-																		className="d-flex justify-content-between align-items-start"
-																	>
-																		<div className="my-2">
-																			{renderIcon(forum.icon)}
-																		</div>
-																		<div className="ms-2 me-auto">
-																			<div className="fw-bold">
-																				{forum.title}
-																			</div>
-																			{forum.description}
-																		</div>
-																		<div className="btn-forum">
-																			<input
-																				checked
-																				type="checkbox"
-																				onChange={() =>
-																					handleEditActionForumFromModel(
-																						forum,
-																						false
-																					)
-																				}
-																			/>
-																			<button
-																				onClick={() =>
-																					handleEditForumFromModel(
-																						forum,
-																						forum.active
-																					)
-																				}
-																			>
-																				<i className="fa-solid fa-pen-to-square"></i>
-																			</button>
-																		</div>
-																	</ListGroup.Item>
-																</Col>
-															</Row>
-														);
-													}
+																	</div>
+																	<span>
+																		Create: {formatDate(forum.createdAt)}
+																		<br />
+																		Update: {formatDate(forum.updatedAt)}
+																	</span>
+																	<div className="btn-forum">
+																		<input
+																			checked={forum.active}
+																			readOnly
+																			type="checkbox"
+																			onChange={() =>
+																				handleEditActionForumFromModel(
+																					forum,
+																					forum.active == true ? false : true
+																				)
+																			}
+																		/>
+																		<button
+																			onClick={() =>
+																				handleEditForumFromModel(
+																					forum,
+																					forum.active
+																				)
+																			}
+																		>
+																			<i className="fa-solid fa-pen-to-square"></i>
+																		</button>
+																	</div>
+																</ListGroup.Item>
+															</Col>
+														</Row>
+													);
 												}
 											})}
 										</ListGroup>

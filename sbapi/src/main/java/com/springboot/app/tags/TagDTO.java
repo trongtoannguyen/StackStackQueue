@@ -1,4 +1,4 @@
-package com.springboot.app.forums.dto;
+package com.springboot.app.tags;
 
 import java.time.LocalDateTime;
 
@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ForumGroupDTO {
+public class TagDTO {
 	private Long id;
-	private String title;
-	private String icon;
-	private String color;
+	private String label;
 	private Integer sortOrder;
+	private Boolean disabled;
+	private String color;
+	private String icon;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private String createdBy;
 	private String updatedBy;
-	private String manager;
+
 }

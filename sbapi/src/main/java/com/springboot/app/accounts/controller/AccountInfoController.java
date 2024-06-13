@@ -1,5 +1,19 @@
 package com.springboot.app.accounts.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.springboot.app.accounts.dto.request.AccountInfo;
 import com.springboot.app.accounts.dto.request.NewPasswordRequest;
 import com.springboot.app.accounts.dto.responce.AccountInfoResponse;
@@ -12,13 +26,8 @@ import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.security.jwt.JwtUtils;
+
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/account-info")
@@ -56,17 +65,19 @@ public class AccountInfoController {
 	}
 
 	@PutMapping("/update-info/{username}")
-	public ResponseEntity<ObjectResponse> updateAccountInfo(@PathVariable String username, @RequestBody AccountInfo accountInfo) {
+	public ResponseEntity<ObjectResponse> updateAccountInfo(@PathVariable String username,
+			@RequestBody AccountInfo accountInfo) {
 		User user = userService.findByUsername(username).orElse(null);
 		if (user == null) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("404", "User not found", null));
 		}
 		logger.info("Update account info for user {}: {}", username, accountInfo.toString());
-		ServiceResponse<Void> response= personService.updatePersonalInfo(user,accountInfo);
-		if(response.getAckCode()!= AckCodeType.SUCCESS){
+		ServiceResponse<Void> response = personService.updatePersonalInfo(user, accountInfo);
+		if (response.getAckCode() != AckCodeType.SUCCESS) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", response.getMessages().getFirst(), null));
 		}
-		return ResponseEntity.ok(new ObjectResponse("200", "Update account info successfully", user));}
+		return ResponseEntity.ok(new ObjectResponse("200", "Update account info successfully", user));
+	}
 
 	@PostMapping("/update-password")
 	public ResponseEntity<ObjectResponse> updateNewPassword(@Valid @RequestBody NewPasswordRequest newPasswordRequest) {
@@ -82,34 +93,34 @@ public class AccountInfoController {
 		return ResponseEntity.ok(new ObjectResponse("200", "Update password successfully", null));
 	}
 
-
 	@PostMapping("/update-avatar/{username}")
-	public ResponseEntity<ObjectResponse> updateAvatar(@RequestParam("file") MultipartFile file, @PathVariable String username){
+	public ResponseEntity<ObjectResponse> updateAvatar(@RequestParam("file") MultipartFile file,
+			@PathVariable String username) {
 		String usernameSession = null;
-		try{
+		try {
 			var sessionUser = JwtUtils.getSession();
 			usernameSession = sessionUser.getUsername();
-			if(!usernameSession.equals(username)){
+			if (!usernameSession.equals(username)) {
 				throw new Exception("Unauthorized");
 			}
-		}catch (Exception e){
+		} catch (Exception e) {
 			logger.error("Error: {}", e.getMessage());
 			return ResponseEntity.status(401).body(new ObjectResponse("401", "Unauthorized", null));
 		}
-		logger.info("Update avatar for user {}: {}",username, file.getOriginalFilename());
-		if(file.isEmpty()){
+		logger.info("Update avatar for user {}: {}", username, file.getOriginalFilename());
+		if (file.isEmpty()) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "File is empty", null));
 		}
 		User user = userService.findByUsername(username).orElse(null);
-		if(user == null){
+		if (user == null) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "User not found", null));
 		}
-		//delete old avatar
-		if(user.getAvatar() != null){
+		// delete old avatar
+		if (user.getAvatar() != null) {
 			storageService.deleteFile(user.getAvatar());
 		}
-		ServiceResponse<String> response = storageService.storeFile(file, "avatar_"+user.getId());
-		if(response.getAckCode()!= AckCodeType.SUCCESS){
+		ServiceResponse<String> response = storageService.storeFile(file, "avatar_" + user.getId());
+		if (response.getAckCode() != AckCodeType.SUCCESS) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", response.getMessages().getFirst(), null));
 		}
 		String fileName = response.getDataObject();

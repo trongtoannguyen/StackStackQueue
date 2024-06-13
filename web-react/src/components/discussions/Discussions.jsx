@@ -9,13 +9,16 @@ import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
 import _ from "lodash";
 
 //Model
-import ForumInfo from "../forumsPage/ForumInfo";
+import ForumInfo from "./ForumInfo";
 import ModalAddDiscussion from "./ModalAddDiscussion";
 import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
 
 //Services
-import { getForumById } from "../../services/forum/Forum";
-import { getAllDiscussion } from "../../services/forum/Discussion";
+import { getForumById } from "../../services/forumService/ForumService";
+import { getAllDiscussion } from "../../services/forumService/DiscussionService";
+
+//Util
+import { formatDate } from "../../utils/FormatDateTimeHelper";
 
 //Scss
 import "./Discussion.scss";
@@ -66,6 +69,7 @@ const Discussion = () => {
 
 	const handleUpdateAddDiscussion = (discussion) => {
 		setListDiscussions([discussion, ...listDiscussions]);
+		listForums();
 	};
 
 	const handleEditDiscussion = (discussion) => {
@@ -84,16 +88,9 @@ const Discussion = () => {
 	};
 
 	useEffect(() => {
-		if (listDiscussions.length === 0) listDiscussionsByForum();
-		// listDiscussionsByForum();
+		listDiscussionsByForum();
 		listForums();
 	}, []);
-	const formatDate = (dateString) => {
-		const options = { year: "numeric", month: "long", day: "numeric" };
-		return new Intl.DateTimeFormat("en-US", options).format(
-			new Date(dateString)
-		);
-	};
 
 	return (
 		<section className="discussion-container content mb-3">
@@ -104,26 +101,6 @@ const Discussion = () => {
 				<Row>
 					<Col md="8" lg="9">
 						<Card>
-							<div className="pagination pagination-top">
-								<ReactPaginate
-									breakLabel="..."
-									nextLabel="next >"
-									onPageChange={handlePageClick}
-									pageRangeDisplayed={5}
-									pageCount={15}
-									previousLabel="< previous"
-									pageClassName="page-item"
-									pageLinkClassName="page-link"
-									previousClassName="page-item"
-									previousLinkClassName="page-link"
-									nextClassName="page-item"
-									nextLinkClassName="page-link"
-									breakClassName="page-item"
-									breakLinkClassName="page-link"
-									containerClassName="pagination"
-									activeClassName="active"
-								/>
-							</div>
 							<Table striped responsive hover>
 								<thead>
 									<tr>
@@ -140,7 +117,10 @@ const Discussion = () => {
 											<tr key={item.id} className="m-2">
 												<td>
 													<h4>
-														<Link to={`/discussion/${item.id}`}>
+														<Link
+															to={`/discussion/${item.id}`}
+															className="text-decoration-none text-dark"
+														>
 															{item.title}
 														</Link>
 														{item.createdBy === currentUser.username && (
@@ -153,7 +133,7 @@ const Discussion = () => {
 													</h4>
 													<span>{item.createdBy} </span>
 													<span>{formatDate(item.createdAt)}</span>
-													<span>{item.tags}</span>
+													{/* <span>{item.tags}</span> */}
 												</td>
 												<td>{item.stat.commentCount}</td>
 												<td>{item.stat.viewCount}</td>
@@ -200,7 +180,7 @@ const Discussion = () => {
 							</button>
 						</Card>
 						<Card>
-							<ForumInfo />
+							<ForumInfo forum={forum} listDiscussions={listDiscussions} />
 						</Card>
 					</Col>
 				</Row>

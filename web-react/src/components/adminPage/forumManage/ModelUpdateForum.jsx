@@ -7,7 +7,8 @@ import { useSelector, useDispatch } from "react-redux";
 //Service
 import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
-import { updateForum } from "../../../services/forum/Forum";
+import { updateForum } from "../../../services/forumService/ForumService";
+import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
 
 //Color Picker
 import { ChromePicker } from "react-color";
@@ -53,11 +54,33 @@ const ModelUpdateForum = (props) => {
 		handleUpdateForumFromModel: PropTypes.func.isRequired,
 	};
 
-	const [title, setTitle] = useState("");
-	const [icon, setIcon] = useState("");
-	const [color, setColor] = useState("#ffffff");
-	const [isActive, setIsActive] = useState(true);
-	const [description, setDescription] = useState("");
+	const [forumGroup, setForumGroup] = useState([]);
+	const [updateForumByGroupId, setUpdateForumByGroupId] = useState("");
+	const [titleForumGroup, setTitleForumGroup] = useState("");
+
+	const handleSelectForumTitle = (event) => {
+		const selectedTitle = event.target.value;
+		setTitleForumGroup(selectedTitle);
+		const selectedForum = forumGroup.find((f) => f.title === selectedTitle);
+		if (selectedForum) {
+			setUpdateForumByGroupId(selectedForum.id);
+		}
+	};
+
+	const listForums = async () => {
+		let res = await getAllForumGroup();
+		if (res && res.data) {
+			setForumGroup(res.data);
+		}
+	};
+
+	const [title, setTitle] = useState(dataUpdateForum?.title || "");
+	const [icon, setIcon] = useState(dataUpdateForum?.icon || "");
+	const [color, setColor] = useState(dataUpdateForum?.color || "#ffffff");
+	const [isActive, setIsActive] = useState(forumIsActive || true);
+	const [description, setDescription] = useState(
+		dataUpdateForum?.description || ""
+	);
 
 	// const navigate = useNavigate();
 	const dispatch = useDispatch();
@@ -76,6 +99,7 @@ const ModelUpdateForum = (props) => {
 	const handleSaveForum = async () => {
 		let res = await updateForum(
 			dataUpdateForum.id,
+			updateForumByGroupId,
 			updateForumObject,
 			currentUser?.accessToken,
 			axiosJWT
@@ -172,20 +196,24 @@ const ModelUpdateForum = (props) => {
 	};
 
 	useEffect(() => {
-		if (show) {
-			setTitle(dataUpdateForum.title);
-			setIcon(dataUpdateForum.icon);
-			setColor(dataUpdateForum.color);
-			setDescription(dataUpdateForum.description);
+		if (show && dataUpdateForum) {
+			setTitle(dataUpdateForum.title || "");
+			setIcon(dataUpdateForum.icon || "");
+			setColor(dataUpdateForum.color || "#ffffff");
+			setDescription(dataUpdateForum.description || "");
 			setIsActive(forumIsActive);
+			setTitleForumGroup(dataUpdateForum.forumGroup?.title || "");
+			setUpdateForumByGroupId(dataUpdateForum.forumGroup?.id || 0);
 		}
+		listForums();
 	}, [dataUpdateForum, forumIsActive, show]);
+
 	return (
 		<Modal
 			show={show}
 			onHide={handleClose}
 			backdrop="static"
-			size="lg"
+			size="md"
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
@@ -193,6 +221,23 @@ const ModelUpdateForum = (props) => {
 			</Modal.Header>
 
 			<Modal.Body>
+				<div className="form-group mb-3">
+					<label className="form-label" htmlFor="forumGroupTitle">
+						Select Forum Group
+					</label>
+					<select
+						className="form-control mb-3"
+						id="forumGroupTitle"
+						value={titleForumGroup}
+						onChange={handleSelectForumTitle}
+					>
+						{forumGroup.map((item) => (
+							<option key={item.id} value={item.title}>
+								{item.title}
+							</option>
+						))}
+					</select>
+				</div>
 				<div className="form-group mb-3">
 					<label className="form-label" htmlFor="title">
 						Title
@@ -206,25 +251,43 @@ const ModelUpdateForum = (props) => {
 						placeholder="Enter Title"
 					/>
 				</div>
+				<label className="form-label mb-3" htmlFor="description">
+					Description
+				</label>
 				<textarea
-					className="form-control"
+					className="form-control mb-3"
 					id="description"
 					value={description}
 					onChange={(event) => setDescription(event.target.value)}
 					placeholder="Enter Description"
-				></textarea>
+				/>
 				<div className="form-group mb-3">
 					<label className="form-label" htmlFor="icon">
 						Icon
 					</label>
 					<Dropdown onSelect={handleSelectIcon}>
-						<Dropdown.Toggle variant="success" id="dropdown-basic">
+						<Dropdown.Toggle
+							variant="success"
+							id="dropdown-basic"
+							style={{ width: "50%" }}
+						>
 							{icon ? renderIcon(icon) : "Select an Icon"}
 						</Dropdown.Toggle>
 
-						<Dropdown.Menu>
+						<Dropdown.Menu
+							style={{
+								maxHeight: "200px",
+								overflow: "auto",
+								marginLeft: "20px",
+								width: "50%",
+							}}
+						>
 							{iconOptions.map((opt) => (
-								<Dropdown.Item key={opt.value} eventKey={opt.value}>
+								<Dropdown.Item
+									className="d-flex align-items-center justify-content-between px-3"
+									key={opt.value}
+									eventKey={opt.value}
+								>
 									{opt.label}
 									{opt.icon}
 								</Dropdown.Item>
@@ -233,7 +296,7 @@ const ModelUpdateForum = (props) => {
 					</Dropdown>
 				</div>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
+					<label className="form-label" htmlFor="color">
 						Color
 					</label>
 					<ChromePicker
@@ -247,7 +310,7 @@ const ModelUpdateForum = (props) => {
 				<Button variant="secondary" onClick={handleClose}>
 					Close
 				</Button>
-				<Button variant="primary" onClick={() => handleSaveForum()}>
+				<Button variant="primary" onClick={handleSaveForum}>
 					Save
 				</Button>
 			</Modal.Footer>

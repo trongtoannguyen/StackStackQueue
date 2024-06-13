@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.AddForumGroupDTO;
 import com.springboot.app.forums.dto.ForumDTO;
+import com.springboot.app.forums.dto.UpdateForum;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumGroup;
 import com.springboot.app.forums.repository.ForumRepository;
@@ -50,12 +52,12 @@ public class ForumManagementController {
 	private ModelMapper modelMapper;
 
 	@PostMapping("/forum-groups")
-	public ResponseEntity<ObjectResponse> createForumGroup(@Valid @RequestBody ForumGroup newForumGroup,
+	public ResponseEntity<ObjectResponse> createForumGroup(@Valid @RequestBody AddForumGroupDTO newForumGroup,
 			BindingResult bindingResult) {
 		try {
 			var userSession = JwtUtils.getSession();
 			String username = userSession.getUsername();
-			newForumGroup.setCreatedBy(username);
+			newForumGroup.getForumGroup().setCreatedBy(username);
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
@@ -64,16 +66,16 @@ public class ForumManagementController {
 			return ResponseEntity.ok(new ObjectResponse("400", "Invalid Forum Group data", null));
 		}
 
-		ForumGroup parent = null;
-		ServiceResponse<ForumGroup> response = forumService.addForumGroup(newForumGroup, parent);
+		ServiceResponse<ForumGroup> response = forumService.addForumGroup(newForumGroup.getForumGroup(),
+				newForumGroup.getRoleName());
 
 		if (response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok(new ObjectResponse("201",
-					String.format("Created Forum Group %s successfully", newForumGroup.getTitle()),
+					String.format("Created Forum Group %s successfully", newForumGroup.getForumGroup().getTitle()),
 					response.getDataObject()));
 		}
 		return ResponseEntity.ok(new ObjectResponse("400",
-				String.format("Could not create Forum Group: %s", newForumGroup.getTitle()), null));
+				String.format("Could not create Forum Group: %s", newForumGroup.getForumGroup().getTitle()), null));
 	}
 
 	@DeleteMapping("/forum-groups/delete/{id}")
@@ -103,13 +105,14 @@ public class ForumManagementController {
 	}
 
 	@PutMapping("/forum-groups/update/{id}")
-	public ResponseEntity<ObjectResponse> editForumGroup(@PathVariable Long id, @RequestBody ForumGroup newForumGroup) {
+	public ResponseEntity<ObjectResponse> editForumGroup(@PathVariable Long id,
+			@RequestBody AddForumGroupDTO newForumGroup) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			var userSession = JwtUtils.getSession();
 			String username = userSession.getUsername();
-			newForumGroup.setUpdatedBy(username);
-			newForumGroup.setUpdatedAt(now);
+			newForumGroup.getForumGroup().setUpdatedBy(username);
+			newForumGroup.getForumGroup().setUpdatedAt(now);
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
@@ -119,14 +122,16 @@ public class ForumManagementController {
 					.ok(new ObjectResponse("404", String.format("Forum Group with id %d not found", id), null));
 		}
 
-		ServiceResponse<ForumGroup> response = genericService.updateEntity(newForumGroup);
+		newForumGroup.getForumGroup().setManager(newForumGroup.getRoleName());
+
+		ServiceResponse<ForumGroup> response = genericService.updateEntity(newForumGroup.getForumGroup());
 		if (response.getAckCode() != AckCodeType.FAILURE) {
 			return ResponseEntity.ok(new ObjectResponse("200",
-					String.format("Updated Forum Group %s successfully", newForumGroup.getTitle()),
+					String.format("Updated Forum Group %s successfully", newForumGroup.getForumGroup().getTitle()),
 					response.getDataObject()));
 		}
 		return ResponseEntity.ok(new ObjectResponse("400",
-				String.format("Could not update Forum Group: %s", newForumGroup.getTitle()), null));
+				String.format("Could not update Forum Group: %s", newForumGroup.getForumGroup().getTitle()), null));
 
 	}
 
@@ -180,13 +185,13 @@ public class ForumManagementController {
 	}
 
 	@PatchMapping("/forums/update/{id}")
-	public ResponseEntity<ObjectResponse> editForum(@PathVariable Long id, @RequestBody Forum newForum) {
+	public ResponseEntity<ObjectResponse> editForum(@PathVariable Long id, @RequestBody UpdateForum newForum) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			var userSession = JwtUtils.getSession();
 			String username = userSession.getUsername();
-			newForum.setUpdatedBy(username);
-			newForum.setUpdatedAt(now);
+			newForum.getForum().setUpdatedBy(username);
+			newForum.getForum().setUpdatedAt(now);
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
@@ -195,16 +200,24 @@ public class ForumManagementController {
 			return ResponseEntity.ok(new ObjectResponse("404", String.format("Forum with id %d not found", id), null));
 		}
 
-		ServiceResponse<Forum> response = genericService.updateEntity(newForum);
+		ForumGroup forumGroup = genericService.findEntity(ForumGroup.class, newForum.getForumGroupId()).getDataObject();
+		if (forumGroup == null) {
+			return ResponseEntity.ok(new ObjectResponse("404",
+					String.format("Forum Group with id %d not found", newForum.getForumGroupId()), null));
+		}
+
+		newForum.getForum().setForumGroup(forumGroup);
+
+		ServiceResponse<Forum> response = genericService.updateEntity(newForum.getForum());
 
 		// map newForum to ForumDTO
 		ForumDTO newForumDTO = modelMapper.map(newForum, ForumDTO.class);
 
 		if (response.getAckCode() != AckCodeType.FAILURE) {
 			return ResponseEntity.ok(new ObjectResponse("200",
-					String.format("Updated Forum %s successfully", newForum.getTitle()), newForumDTO));
+					String.format("Updated Forum %s successfully", newForum.getForum().getTitle()), newForumDTO));
 		}
-		return ResponseEntity
-				.ok(new ObjectResponse("400", String.format("Could not update Forum: %s", newForum.getTitle()), null));
+		return ResponseEntity.ok(new ObjectResponse("400",
+				String.format("Could not update Forum: %s", newForum.getForum().getTitle()), null));
 	}
 }

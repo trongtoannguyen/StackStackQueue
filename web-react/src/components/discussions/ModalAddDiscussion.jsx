@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 //Service
 import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
-import { createDiscussion } from "../../services/forum/Discussion";
+import { createDiscussion } from "../../services/forumService/DiscussionService";
 
 const ModalAddDiscussion = (props) => {
 	const { show, handleClose, handleUpdateAddDiscussion } = props;
@@ -47,11 +47,14 @@ const ModalAddDiscussion = (props) => {
 			);
 
 			if (res && +res.data?.status === 201) {
+				console.log(res.data);
 				handleClose();
 				setContent("");
 				setTitle("");
 				handleUpdateAddDiscussion({
 					...discussion,
+					createdBy: res.data.data.createdBy,
+					id: res.data.data.id,
 					content: content,
 					forum: res.data.data.forum,
 					stat: res.data.data.stat,
@@ -101,7 +104,7 @@ const ModalAddDiscussion = (props) => {
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Add New Forum</Modal.Title>
+				<Modal.Title>Add New Discussion</Modal.Title>
 			</Modal.Header>
 
 			<Modal.Body>
@@ -128,16 +131,6 @@ const ModalAddDiscussion = (props) => {
 						onChange={setContent}
 						id="content"
 						placeholder="Enter content here"
-					/>
-				</div>
-
-				<div className="form-group mb-3">
-					<label htmlFor="tags">Tags</label>
-					<input
-						type="text"
-						className="form-control"
-						id="tags"
-						placeholder="Enter tags here"
 					/>
 				</div>
 			</Modal.Body>

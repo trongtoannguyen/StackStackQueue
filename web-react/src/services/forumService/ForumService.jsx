@@ -15,13 +15,20 @@ const addForum = async (forum, accessToken, axiosJWT) => {
 	return res;
 };
 
-const updateForum = async (id, forum, accessToken, axiosJWT) => {
-	const res = await axiosJWT.patch(`/admin/forums/update/${id}`, forum, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${accessToken}`,
+const updateForum = async (id, forumGroupId, forum, accessToken, axiosJWT) => {
+	const res = await axiosJWT.patch(
+		`/admin/forums/update/${id}`,
+		{
+			forumGroupId,
+			forum,
 		},
-	});
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
 	//
 	return res;
 };

@@ -7,7 +7,8 @@ import { useSelector, useDispatch } from "react-redux";
 //Service
 import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
-import { updateForumGroup } from "../../../services/forum/ForumGroup";
+import { updateForumGroup } from "../../../services/forumService/ForumGroupService";
+import { getUserModerator } from "../../../services/userService/UserService";
 
 //Color Picker
 import { ChromePicker } from "react-color";
@@ -50,26 +51,25 @@ const ModelUpdateForumGroup = (props) => {
 	const [title, setTitle] = useState("");
 	const [icon, setIcon] = useState("");
 	const [color, setColor] = useState("#ffffff");
+	const [roleName, setRoleName] = useState("");
+	const [listModerator, setListModerator] = useState([]);
 
-	// const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
 	const updateForumGroupObject = {
-		id: dataEditForumGroup.id,
-		createdAt: dataEditForumGroup.createdAt,
-		createdBy: dataEditForumGroup.createdBy,
+		...dataEditForumGroup,
 		title: title,
 		icon: icon,
 		color: color,
-		sortOrder: dataEditForumGroup.sortOrder,
 	};
 
 	const handleSaveForumGroup = async () => {
 		let res = await updateForumGroup(
 			dataEditForumGroup.id,
 			updateForumGroupObject,
+			roleName,
 			currentUser?.accessToken,
 			axiosJWT
 		);
@@ -77,14 +77,22 @@ const ModelUpdateForumGroup = (props) => {
 		if (res && +res.data?.status === 200) {
 			handleClose();
 			handleUpdateForumGroup({
+				...dataEditForumGroup,
 				id: dataEditForumGroup.id,
 				title: title,
 				icon: icon,
 				color: color,
+				manager: roleName,
 			});
 			toast.success(res.data.message);
 		} else {
 			toast.error("Error when updating Forum Group");
+		}
+	};
+	const ListUserModerator = async () => {
+		let res = await getUserModerator(currentUser?.accessToken, axiosJWT);
+		if (res && +res.status === 200) {
+			setListModerator(res.data);
 		}
 	};
 
@@ -161,20 +169,22 @@ const ModelUpdateForumGroup = (props) => {
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
 	};
-
+	console.log(roleName);
 	useEffect(() => {
 		if (show) {
 			setTitle(dataEditForumGroup.title);
 			setIcon(dataEditForumGroup.icon);
 			setColor(dataEditForumGroup.color);
+			setRoleName(dataEditForumGroup.manager);
 		}
+		ListUserModerator();
 	}, [dataEditForumGroup, show]);
 	return (
 		<Modal
 			show={show}
 			onHide={handleClose}
 			backdrop="static"
-			size="lg"
+			size="md"
 			keyboard={false}
 		>
 			<Modal.Header closeButton>
@@ -182,6 +192,23 @@ const ModelUpdateForumGroup = (props) => {
 			</Modal.Header>
 
 			<Modal.Body>
+				<div className="form-group mb-3">
+					<label className="form-label" htmlFor="roleName">
+						Select Moderators
+					</label>
+					<select
+						className="form-control mb-3"
+						id="roleName"
+						value={roleName}
+						onChange={(event) => setRoleName(event.target.value)}
+					>
+						{listModerator.map((item) => (
+							<option key={item.id} value={item.username}>
+								{item.username}
+							</option>
+						))}
+					</select>
+				</div>
 				<div className="form-group mb-3">
 					<label className="form-label" htmlFor="title">
 						Title
@@ -200,13 +227,28 @@ const ModelUpdateForumGroup = (props) => {
 						Icon
 					</label>
 					<Dropdown onSelect={handleSelectIcon}>
-						<Dropdown.Toggle variant="success" id="dropdown-basic">
+						<Dropdown.Toggle
+							variant="success"
+							id="dropdown-basic"
+							style={{ width: "50%" }}
+						>
 							{icon ? renderIcon(icon) : "Select an Icon"}
 						</Dropdown.Toggle>
 
-						<Dropdown.Menu>
+						<Dropdown.Menu
+							style={{
+								maxHeight: "200px",
+								overflow: "auto",
+								marginLeft: "20px",
+								width: "50%",
+							}}
+						>
 							{iconOptions.map((opt) => (
-								<Dropdown.Item key={opt.value} eventKey={opt.value}>
+								<Dropdown.Item
+									className="d-flex align-items-center justify-content-between px-3"
+									key={opt.value}
+									eventKey={opt.value}
+								>
 									{opt.label}
 									{opt.icon}
 								</Dropdown.Item>

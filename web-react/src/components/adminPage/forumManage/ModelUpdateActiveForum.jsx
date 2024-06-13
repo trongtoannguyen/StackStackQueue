@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 //Service
 import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
-import { updateForum } from "../../../services/forum/Forum";
+import { updateForum } from "../../../services/forumService/ForumService";
 
 const ModelUpdateActiveForum = (props) => {
 	const {
@@ -38,9 +38,12 @@ const ModelUpdateActiveForum = (props) => {
 		active: forumIsActive,
 	};
 
+	console.log(updateForumObject);
+
 	const handleSaveForum = async () => {
 		let res = await updateForum(
 			dataUpdateForum.id,
+			dataUpdateForum.idForumGroup,
 			updateForumObject,
 			currentUser?.accessToken,
 			axiosJWT

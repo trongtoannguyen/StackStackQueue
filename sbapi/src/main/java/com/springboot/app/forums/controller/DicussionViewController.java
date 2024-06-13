@@ -3,20 +3,22 @@ package com.springboot.app.forums.controller;
 
 import java.util.List;
 
-import com.springboot.app.dto.response.AckCodeType;
-import com.springboot.app.dto.response.PaginateResponse;
-import com.springboot.app.forums.dto.response.DiscussionResponse;
-import com.springboot.app.forums.dto.response.ViewCommentResponse;
-import com.springboot.app.forums.service.CommentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
+import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.service.CommentService;
 import com.springboot.app.forums.service.DiscussionService;
 
 @RestController
@@ -60,12 +62,11 @@ public class DicussionViewController {
 	@GetMapping("/details")
 	public ResponseEntity<?> getDiscussionDetails(
 			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
-			@RequestParam(value = "size",defaultValue = "10",required = false) int size,
-			@RequestParam(value="orderBy",defaultValue = "id",required = false) String orderBy,
-			@RequestParam(value="sort",defaultValue = "ASC",required = false) String sort,
-			@RequestParam(value="discussionId",defaultValue = "",required = true) Long discussionId
-	) {
-		if(discussionId == null || discussionId == 0){
+			@RequestParam(value = "size", defaultValue = "10", required = false) int size,
+			@RequestParam(value = "orderBy", defaultValue = "id", required = false) String orderBy,
+			@RequestParam(value = "sort", defaultValue = "ASC", required = false) String sort,
+			@RequestParam(value = "discussionId", defaultValue = "", required = true) Long discussionId) {
+		if (discussionId == null || discussionId == 0) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Discussion ID is required", null));
 		}
 		return ResponseEntity.ok(commentService.getAllCommentsByDiscussionId(page, size, orderBy, sort, discussionId));
@@ -73,7 +74,7 @@ public class DicussionViewController {
 
 	@GetMapping("/first-comment/{discussionId}")
 	public ResponseEntity<ObjectResponse> getFirstCommentByDiscussionId(@PathVariable Long discussionId) {
-		if(discussionId == null || discussionId == 0){
+		if (discussionId == null || discussionId == 0) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Discussion ID is required", null));
 		}
 		ServiceResponse<DiscussionResponse> response = commentService.getFirstCommentByDiscussionId(discussionId);
@@ -82,6 +83,18 @@ public class DicussionViewController {
 		} else {
 			return ResponseEntity.ok(new ObjectResponse("200", "First comment found", response.getDataObject()));
 		}
+	}
+
+	@GetMapping("")
+	public ResponseEntity<ObjectResponse> getPageDiscussions(
+			@RequestParam(value = "page", defaultValue = "1", required = false) int page,
+			@RequestParam(value = "size", defaultValue = "10", required = false) int size,
+			@RequestParam(value = "orderBy", defaultValue = "id", required = false) String orderBy,
+			@RequestParam(value = "sort", defaultValue = "ASC", required = false) String sort,
+			@RequestParam(value = "search", defaultValue = "", required = false) String search,
+			@RequestParam(value = "forumId", defaultValue = "", required = false) Long forumId) {
+		return ResponseEntity.ok(new ObjectResponse("200", "Success",
+				discussionService.getAllDiscussion(page, size, orderBy, sort, search, forumId)));
 	}
 
 }

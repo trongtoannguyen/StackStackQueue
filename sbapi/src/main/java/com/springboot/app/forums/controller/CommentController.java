@@ -60,23 +60,19 @@ public class CommentController {
 		try {
 			var userSession = JwtUtils.getSession();
 			username = userSession.getUsername();
-			System.out.println("8---------------------------------------");
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
-		System.out.println("8---------------------------------------");
 		ServiceResponse<Comment> response = commentService.addComment(discussion.getId(), newComment.getComment(),
-				username, Collections.emptyList(), Collections.emptyList());
-		System.out.println("9---------------------------------------");
+				username, newComment.getReplyToId(), Collections.emptyList(), Collections.emptyList());
 		CommentDTO commentDTO = modelMapper.map(response.getDataObject(), CommentDTO.class);
-		System.out.println("10---------------------------------------");
 		if (response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok(new ObjectResponse("201",
-					String.format("Added comment %s successfully", newComment.getComment().getContent()), commentDTO));
+					String.format("Added comment %s successfully", newComment.getComment().getTitle()), commentDTO));
 		}
 
 		return ResponseEntity.ok(new ObjectResponse("400",
-				String.format("Could not add comment: %s", newComment.getComment().getContent()), null));
+				String.format("Could not add comment: %s", newComment.getComment().getTitle()), null));
 	}
 
 }

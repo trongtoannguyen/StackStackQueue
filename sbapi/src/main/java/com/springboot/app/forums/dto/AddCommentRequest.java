@@ -6,6 +6,15 @@ public class AddCommentRequest {
 
 	private Long discussionId;
 	private Comment comment;
+	private Long replyToId;
+
+	public Long getReplyToId() {
+		return replyToId;
+	}
+
+	public void setReplyToId(Long replyToId) {
+		this.replyToId = replyToId;
+	}
 
 	public Long getDiscussionId() {
 		return discussionId;

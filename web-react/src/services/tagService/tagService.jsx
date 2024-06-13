@@ -1,72 +1,56 @@
+export const getAllTags = async (
+	page,
+	size,
+	orderBy,
+	sort,
+	search,
+	accessToken,
+	axiosJWT
+) => {
+	try {
+		const response = await axiosJWT.get("/admin/tags", {
+			params: {
+				page,
+				size,
+				orderBy,
+				sort,
+				search,
+			},
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching discussions:", error);
+		throw error; // Re-throw the error to handle it in the calling code if necessary
+	}
+};
 
-export const getAllTags = async (accessToken, axiosJWT) => {
-  try {
-    const res = await axiosJWT.get("admin/tags", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return res;
-  } catch (err) {
-    console.log(`Error getTags`,err);
-    return;
-  }
-}
+export const createTag = async (tag, accessToken, axiosJWT) => {
+	try {
+		const res = await axiosJWT.post("/admin/tags/create", tag, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		return res;
+	} catch (err) {
+		console.log(`Error createTag`, err);
+		return;
+	}
+};
 
-export const createTag = async (accessToken, axiosJWT, tag) => {
-  try {
-    const res = await axiosJWT.post("admin/tags", tag, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return res;
-  } catch (err) {
-    console.log(`Error createTag`,err);
-    return;
-  }
-}
-
-export const updateTag = async (accessToken, axiosJWT, tag) => {
-  try {
-    const res = await axiosJWT.put("admin/tags", tag, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return res;
-  } catch (err) {
-    console.log(`Error updateTag`,err);
-    return;
-  }
-}
-
-export const deleteTag = async (accessToken, axiosJWT, tag) => {
-  try {
-    const res = await axiosJWT.delete("admin/tags", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      data: tag
-    });
-    return res;
-  } catch (err) {
-    console.log(`Error deleteTag`,err);
-    return;
-  }
-}
-
-// edit sort order of tag
-export const editTagSortOrder = async (accessToken, axiosJWT, tag) => {
-  try {
-    const res = await axiosJWT.put("admin/tags/sortOrder", tag, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return res;
-  } catch (err) {
-    console.log(`Error editTagSortOrder`,err);
-    return;
-  }
-}
+export const updateTag = async (tagToUpdate, accessToken, axiosJWT) => {
+	try {
+		const res = await axiosJWT.put("/admin/tags/update", tagToUpdate, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		return res;
+	} catch (err) {
+		console.log(`Error updateTag`, err);
+		return;
+	}
+};

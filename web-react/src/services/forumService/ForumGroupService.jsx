@@ -4,21 +4,37 @@ const getAllForumGroup = async () => {
 	return await axios.get("/view/forums/get-child-forums-and-forum-groups");
 };
 
-const addForumGroup = async (newForumGroup, accessToken, axiosJWT) => {
-	const res = await axiosJWT.post("/admin/forum-groups", newForumGroup, {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${accessToken}`,
+const addForumGroup = async (forumGroup, roleName, accessToken, axiosJWT) => {
+	const res = await axiosJWT.post(
+		"/admin/forum-groups",
+		{
+			forumGroup,
+			roleName,
 		},
-	});
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
 	//
 	return res;
 };
 
-const updateForumGroup = async (id, forumGroup, accessToken, axiosJWT) => {
+const updateForumGroup = async (
+	id,
+	forumGroup,
+	roleName,
+	accessToken,
+	axiosJWT
+) => {
 	const res = await axiosJWT.put(
 		`/admin/forum-groups/update/${id}`,
-		forumGroup,
+		{
+			forumGroup,
+			roleName,
+		},
 		{
 			headers: {
 				"Content-Type": "application/json",

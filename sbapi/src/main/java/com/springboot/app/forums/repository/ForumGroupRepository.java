@@ -1,7 +1,5 @@
 package com.springboot.app.forums.repository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,9 +15,5 @@ public interface ForumGroupRepository extends JpaRepository<ForumGroup, Long> {
 	@Modifying
 	@Query("UPDATE Discussion d SET d.forum = :toForum WHERE d.forum = :fromForum")
 	Integer moveDiscussions(@Param("fromForum") Forum fromForum, @Param("toForum") Forum toForum);
-
-	@Modifying
-	@Query("SELECT fg FROM ForumGroup fg WHERE fg.parent IS NULL")
-	List<ForumGroup> findByParentIsNull();
 
 }

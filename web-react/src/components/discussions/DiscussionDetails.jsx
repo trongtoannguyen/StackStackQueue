@@ -9,21 +9,24 @@ import { Card, Row, Col, Button } from "reactstrap";
 //Service
 import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
-import { getDiscussionById } from "../../services/forum/Discussion";
-import { createComment } from "../../services/forum/Comment";
+import { createComment } from "../../services/forumService/CommentService";
 import { upVote, downVote } from "../../services/voteService/voteService";
-import { getFirstCommentByDiscussionId, getAllCommentByDiscussionId } from "../../services/forum/discussionService";
+import {
+	getFirstCommentByDiscussionId,
+	getAllCommentByDiscussionId,
+} from "../../services/forumService/DiscussionViewService";
 import { fetchImage } from "../../services/userService/UserService";
 import { registerBookmark } from "../../services/bookmarkService/bookmarkService";
+
 //Modal
 import DiscussionInfo from "./DiscussionInfo";
 import Avatar from "../avatar/Avatar";
 import "./stylecomment.scss";
+import ModalAddNewReply from "./ModalAddNewReply";
 import Pagination from "../pagination/Pagination";
+
 //util
 import { formatLongDate } from "../../utils/FormatDateTimeHelper";
-
-
 
 const toolbarOptions = [
 	["bold", "italic", "underline", "strike"], // toggled buttons
@@ -50,15 +53,12 @@ const module = {
 	toolbar: toolbarOptions,
 };
 
-
-
-const ViewDiscussion = () => {
+const DiscussionDetails = () => {
 	const { discussionId } = useParams();
 
-	const [contentByDiscussion, setContentByDiscussion] = useState("");
-	const [commentsByTitle, setCommentsByTitle] = useState([]);
 	const [comments, setComments] = useState([]);
-	const [discussion, setDiscussion] = useState({});
+
+	const [replyToId, setReplyToId] = useState(null);
 
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
@@ -78,24 +78,8 @@ const ViewDiscussion = () => {
 	const [totalPages, setTotalPages] = useState(0);
 	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const [orderBy, setOrderBy] = useState('createdAt');
-	const [sortBy, setSortBy] = useState('ASC');
-
-
-	const discussionById = async () => {
-		let res = await getDiscussionById(discussionId);
-		if (res && res.data) {
-			setDiscussion(res.data);
-			setComments(res.data.comments);
-			const matchingComment = res.data.comments.find(
-				(comment) => comment.title === res.data.title
-			);
-			if (matchingComment) {
-				setCommentsByTitle([matchingComment]);
-				setContentByDiscussion(matchingComment.content);
-			}
-		}
-	};
+	const [orderBy, setOrderBy] = useState("createdAt");
+	const [sortBy, setSortBy] = useState("ASC");
 
 	const fetchFirstCommentData = async () => {
 		let res = await getFirstCommentByDiscussionId(discussionId);
@@ -103,22 +87,22 @@ const ViewDiscussion = () => {
 			setFirstComment(res.data?.commentInfo);
 			setTitleFG({
 				id: res.data.forumGroupId,
-				title: res.data.forumGroupTitle
+				title: res.data.forumGroupTitle,
 			});
 
 			setTitleForum({
 				id: res.data.forumId,
-				title: res.data.forumTitle
+				title: res.data.forumTitle,
 			});
 
 			setTitleDisc({
 				id: res.data.discussionId,
-				title: res.data.discussionTitle
-			})
+				title: res.data.discussionTitle,
+			});
 		} else {
 			console.log(`Error`, res?.message);
 		}
-	}
+	};
 
 	const fetchAllCommentData = async () => {
 		if (discussionId === null || discussionId <= 0) {
@@ -129,10 +113,10 @@ const ViewDiscussion = () => {
 			size: pageSize,
 			orderBy: orderBy,
 			sort: sortBy,
-			discussionId
-		}
+			discussionId,
+		};
 		let res = await getAllCommentByDiscussionId(pageData);
-		console.log(`alll`,JSON.stringify(res?.data));
+		console.log("res", res);
 		if (res?.data?.length > 0) {
 			setListComment(res.data);
 			setPageSize(res.pageSize);
@@ -140,7 +124,7 @@ const ViewDiscussion = () => {
 		} else {
 			console.log("error", res?.message);
 		}
-	}
+	};
 
 	const commentAdd = {
 		title: title,
@@ -152,6 +136,7 @@ const ViewDiscussion = () => {
 			let res = await createComment(
 				discussionId,
 				commentAdd,
+				replyToId,
 				currentUser?.accessToken,
 				axiosJWT
 			);
@@ -159,19 +144,17 @@ const ViewDiscussion = () => {
 				setIsShowAddNewComment(false);
 				setContent("");
 				setTitle("");
+				fetchAllCommentData();
 				setComments([res.data.data, ...comments]);
-				discussionById();
 				toast.success(res.data.message);
 			} else {
-				toast.error("Error when creating Forum");
+				toast.error("Error when creating Comment");
 			}
 		} catch (error) {
 			console.error("Error:", error);
-			toast.error("Error when creating Forum");
+			toast.error("Error when creating Comment");
 		}
 	};
-
-
 
 	const isBookmarkOfCurrentUser = (comment) => {
 		if (!comment) {
@@ -182,9 +165,9 @@ const ViewDiscussion = () => {
 			return false;
 		}
 		const _name = currentUser?.username;
-		const result = listBookmark?.some(item => item?.bookmarkBy === _name);
+		const result = listBookmark?.some((item) => item?.bookmarkBy === _name);
 		return result;
-	}
+	};
 
 	const urlAvatarUser = (author) => {
 		if (author?.imageUrl) {
@@ -194,12 +177,12 @@ const ViewDiscussion = () => {
 			return fetchImage(author.avatar);
 		}
 		return "";
-	}
+	};
 
 	const handlePageClick = (event) => {
 		setPage(+event.selected + 1);
 		return true;
-	}
+	};
 
 	const handleUpVote = async (commentId) => {
 		const vote = {
@@ -217,7 +200,7 @@ const ViewDiscussion = () => {
 		} else {
 			toast.error("Error when voting");
 		}
-	}
+	};
 
 	const handleDownVote = async (commentId) => {
 		const vote = {
@@ -233,8 +216,7 @@ const ViewDiscussion = () => {
 		} else {
 			toast.error("Error bookmark");
 		}
-	}
-
+	};
 
 	const handleBookmark = async (comment) => {
 		if (comment === null || comment?.commentId < 0) {
@@ -243,10 +225,13 @@ const ViewDiscussion = () => {
 		const bookmarkData = {
 			commentId: comment?.commentId,
 			bookmarkBy: currentUser.username,
-			bookmarked: isBookmarkOfCurrentUser(comment)
-		}
-		let res = await registerBookmark(bookmarkData, currentUser?.accessToken, axiosJWT);
-		console.log(`bookmark`,JSON.stringify(res));
+			bookmarked: isBookmarkOfCurrentUser(comment),
+		};
+		let res = await registerBookmark(
+			bookmarkData,
+			currentUser?.accessToken,
+			axiosJWT
+		);
 		if (res && +res.data.status === 200) {
 			toast.success(res.data.message);
 			fetchFirstCommentData();
@@ -254,45 +239,73 @@ const ViewDiscussion = () => {
 		} else {
 			toast.error("Error when bookmark");
 		}
+	};
 
+	//Add new Reply
+	const [isShowAddNewReply, setIsShowAddNewReply] = useState(false);
 
-	}
+	const handleReply = (commentId) => {
+		setIsShowAddNewReply(true);
+		setReplyToId(commentId);
+	};
+
+	const handleUpdateAddReply = (reply) => {};
 
 	const breadcrumbs = [
 		{ id: 1, name: `${titleFG.title}`, link: `/forumGroup` },
 		{ id: 2, name: `${titleForum.title}`, link: `/forum/${titleForum.id}` },
-		{ id: 3, name: `${titleDisc.title}`, link: `/discussion/${discussionId}` }
+		{ id: 3, name: `${titleDisc.title}`, link: `/discussion/${discussionId}` },
 	];
 
 	const commentCard = (comment) => {
 		return (
 			<Row>
 				<div className="col-1 vote-container">
-					<button className="vote fa-solid fa-caret-up" onClick={() => handleUpVote(comment?.commentId)}></button>
-					<button className="vote-count px-2 rounded-circle">{comment?.totalVotes ?? 0}</button>
-					<button className="vote fa-solid fa-caret-down" onClick={() => handleDownVote(comment?.commentId)}></button>
+					<button
+						className="vote fa-solid fa-caret-up"
+						onClick={() => handleUpVote(comment?.commentId)}
+					></button>
+					<button className="vote-count px-2 rounded-circle">
+						{comment?.totalVotes ?? 0}
+					</button>
+					<button
+						className="vote fa-solid fa-caret-down"
+						onClick={() => handleDownVote(comment?.commentId)}
+					></button>
 
-					{!comment?.firstComment &&
+					{!comment?.firstComment && (
 						<button className="fa-solid fa-check text-success mb-3"></button>
-					}
+					)}
 
 					<button
-						className={isBookmarkOfCurrentUser(comment) ? "fa-solid fa-bookmark bookmark-checked" : "fa-regular fa-bookmark"}
+						className={
+							isBookmarkOfCurrentUser(comment)
+								? "fa-solid fa-bookmark bookmark-checked"
+								: "fa-regular fa-bookmark"
+						}
 						onClick={() => handleBookmark(comment)}
 					></button>
 				</div>
 				<div className="col-11">
 					<div className="card-header d-flex justify-content-between">
-						{comment?.author &&
+						{comment?.author && (
 							<>
 								<span className="ml-0 me-auto">
-									<Avatar src={urlAvatarUser(comment?.author)} username={"@" + comment?.author?.username} height={36} width={36} />
+									<Avatar
+										src={urlAvatarUser(comment?.author)}
+										username={"@" + comment?.author?.username}
+										height={36}
+										width={36}
+									/>
 									<small>
-										post at:{comment?.createdAt && formatLongDate(comment?.createdAt)}
+										post at:
+										{comment?.createdAt && formatLongDate(comment?.createdAt)}
 										<button className="fa-solid fa-user-plus"></button>
 										<br />
-										<i className="fa-solid fa-star" alt="reputation"></i>{comment?.author?.reputation}
-										- <i className="fa-solid fa-pen"></i> {comment?.author?.totalDiscussions}
+										<i className="fa-solid fa-star" alt="reputation"></i>
+										{comment?.author?.reputation}-{" "}
+										<i className="fa-solid fa-pen"></i>{" "}
+										{comment?.author?.totalDiscussions}
 									</small>
 								</span>
 
@@ -303,7 +316,7 @@ const ViewDiscussion = () => {
 									</small>
 								)}
 							</>
-						}
+						)}
 					</div>
 					<hr />
 					<div className="card-body">
@@ -320,20 +333,27 @@ const ViewDiscussion = () => {
 					<hr />
 					<div className="card-footer d-flex justify-content-between">
 						<span>
-							<button><i className="fa-solid fa-reply"></i>Reply</button>
+							<button onClick={() => handleReply(comment?.commentId)}>
+								<i className="fa-solid fa-reply"></i>Reply
+							</button>
 						</span>
 						<span>
-							<button><i className="fa-regular fa-flag"></i>Report</button>
+							<button>
+								<i className="fa-regular fa-flag"></i>Report
+							</button>
 						</span>
 
 						<span>
-							<small>Edit at: {comment?.updatedAt && formatLongDate(comment?.updatedAt)}</small>
+							<small>
+								Edit at:{" "}
+								{comment?.updatedAt && formatLongDate(comment?.updatedAt)}
+							</small>
 						</span>
 					</div>
 				</div>
 			</Row>
 		);
-	}
+	};
 
 	useEffect(() => {
 		fetchFirstCommentData();
@@ -350,83 +370,81 @@ const ViewDiscussion = () => {
 				<Row>
 					<Col className="mb-3 col-12 col-md-8 col-lg-9">
 						{/* first comment */}
-						{firstComment &&
+						{firstComment && (
 							<section className="card mb-3 p-3">
 								{commentCard(firstComment)}
 							</section>
-						}
+						)}
 						{/* first comment */}
 
 						{/* list comment */}
 						<section>
+							{listComment?.map(
+								(item) =>
+									item &&
+									!item.firstComment && (
+										<section className="card mb-3 p-3" key={item.commentId}>
+											{commentCard(item)}
+										</section>
+									)
+							)}{" "}
+							{isShowAddNewComment && (
+								<section className="card mb-3 p-3">
+									<div>
+										<b>Add new Comment</b>
+										<form>
+											<div className="form-group mb-3">
+												<label className="form-label" htmlFor="title">
+													Title
+												</label>
+												<input
+													className="form-control"
+													id="title"
+													type="text"
+													value={title}
+													onChange={(event) => setTitle(event.target.value)}
+													placeholder="Enter Title"
+												/>
+											</div>
+
+											<div className="form-group mb-3">
+												<label htmlFor="content">Content</label>
+												<ReactQuill
+													theme="snow"
+													modules={module}
+													value={content}
+													onChange={setContent}
+													id="content"
+													placeholder="Enter content here"
+												/>
+											</div>
+
+											<div className="mb-3">
+												<Button
+													type="reset"
+													className="btn btn-secondary w-25 mx-3"
+													onClick={() => setIsShowAddNewComment(false)}
+												>
+													Cancel
+												</Button>
+												<Button
+													className="btn btn-primary w-25"
+													onClick={() => handleAddNewComment()}
+												>
+													Add new
+												</Button>
+											</div>
+										</form>
+									</div>
+								</section>
+							)}
 							<Pagination
 								handlePageClick={handlePageClick}
 								pageSize={+pageSize}
 								totalPages={+totalPages}
 							/>
-							{
-								listComment?.map((item) => (
-									item && !item.firstComment &&
-									<section className="card mb-3 p-3" key={item.commentId}>
-										{commentCard(item)}
-									</section>
-								))
-							}
-
 						</section>
 						{/* list comment */}
-
-						{isShowAddNewComment && (
-							<section className="card mb-3 p-3">
-								<div>
-									<b>Add new Comment</b>
-									<form>
-										<div className="form-group mb-3">
-											<label className="form-label" htmlFor="title">
-												Title
-											</label>
-											<input
-												className="form-control"
-												id="title"
-												type="text"
-												value={title}
-												onChange={(event) => setTitle(event.target.value)}
-												placeholder="Enter Title"
-											/>
-										</div>
-
-										<div className="form-group mb-3">
-											<label htmlFor="content">Content</label>
-											<ReactQuill
-												theme="snow"
-												modules={module}
-												value={content}
-												onChange={setContent}
-												id="content"
-												placeholder="Enter content here"
-											/>
-										</div>
-
-										<div className="mb-3">
-											<Button
-												type="reset"
-												className="btn btn-secondary w-25 mx-3"
-												onClick={() => setIsShowAddNewComment(false)}
-											>
-												Cancel
-											</Button>
-											<Button
-												className="btn btn-primary w-25"
-												onClick={() => handleAddNewComment()}
-											>
-												Add new
-											</Button>
-										</div>
-									</form>
-								</div>
-							</section>
-						)}
-
 					</Col>
 					{/* right column */}
 					<Col className="mb-3 col-12 col-md-4 col-lg-3">
@@ -446,8 +464,14 @@ const ViewDiscussion = () => {
 					</Col>
 				</Row>
 			</Col>
+			<ModalAddNewReply
+				show={isShowAddNewReply}
+				handleClose={() => setIsShowAddNewReply(false)}
+				handleUpdateAddReply={handleUpdateAddReply}
+				replyToId={replyToId}
+			/>
 		</section>
 	);
 };
 
-export default ViewDiscussion;
+export default DiscussionDetails;
