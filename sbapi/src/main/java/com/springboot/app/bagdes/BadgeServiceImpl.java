@@ -51,9 +51,9 @@ public class BadgeServiceImpl implements BadgeService{
 		Badge badgeBeginner = new Badge();
 		badgeBeginner.setId(1L);
 		badgeBeginner.setName("Beginner User");
-		badgeBeginner.setDescription("Beginner User");
-		badgeBeginner.setIcon("fa fa-user");
-		badgeBeginner.setColor("blue");
+		badgeBeginner.setDescription("This title will appear when you create an account");
+		badgeBeginner.setIcon("fa-solid fa-shield-cat");
+		badgeBeginner.setColor("#065535");
 		badgeBeginner.setAction(true);
 		badgeBeginner.setTotalScore(0L);
 		badgeBeginner.setTotalDiscussion(0L);
@@ -69,9 +69,10 @@ public class BadgeServiceImpl implements BadgeService{
 		Badge badgeTrainee = new Badge();
 		badgeTrainee.setId(2L);
 		badgeTrainee.setName("Trainee");
-		badgeTrainee.setDescription("Trainee");
-		badgeTrainee.setIcon("fa fa-user");
-		badgeTrainee.setColor("green");
+		badgeTrainee.setDescription("This badge is worth 30 POINTS / "
+				+ "Users need to complete the request: contribute to any discussion with AT LEAST 2 POSTS and 2 COMMENT");
+		badgeTrainee.setIcon("fa-brands fa-napster");
+		badgeTrainee.setColor("#2a623d");
 		badgeTrainee.setAction(true);
 		badgeTrainee.setTotalScore(30L);
 		badgeTrainee.setTotalDiscussion(2L);
@@ -87,9 +88,10 @@ public class BadgeServiceImpl implements BadgeService{
 		Badge badgeBronze = new Badge();
 		badgeBronze.setId(3L);
 		badgeBronze.setName("Bronze User");
-		badgeBronze.setDescription("Bronze User");
-		badgeBronze.setIcon("fa fa-user");
-		badgeBronze.setColor("orange");
+		badgeBronze.setDescription("This badge is worth 100 POINTS / "
+				+ "Users need to complete the request: made more than 10 POSTS and AT LEAST 1 COMMENT to get it.");
+		badgeBronze.setIcon("fa-solid fa-star-of-david");
+		badgeBronze.setColor("#5d5d5d");
 		badgeBronze.setAction(true);
 		badgeBronze.setTotalScore(100L);
 		badgeBronze.setTotalDiscussion(10L);
@@ -105,9 +107,10 @@ public class BadgeServiceImpl implements BadgeService{
 		Badge badgeSilver = new Badge();
 		badgeSilver.setId(4L);
 		badgeSilver.setName("Silver User");
-		badgeSilver.setDescription("Silver User");
-		badgeSilver.setIcon("fa fa-user");
-		badgeSilver.setColor("violet");
+		badgeSilver.setDescription("This badge is worth 500 POINTS / "
+				+ "Users need to complete the request: posted over 100 POSTS/COMMENTS to get it.");
+		badgeSilver.setIcon("fa-regular fa-sun");
+		badgeSilver.setColor("#aaaaaa");
 		badgeSilver.setAction(true);
 		badgeSilver.setTotalScore(500L);
 		badgeSilver.setTotalDiscussion(100L);
@@ -123,9 +126,10 @@ public class BadgeServiceImpl implements BadgeService{
 		Badge badgeGold = new Badge();
 		badgeGold.setId(5L);
 		badgeGold.setName("Gold User");
-		badgeGold.setDescription("Gold User");
-		badgeGold.setIcon("fa fa-user");
-		badgeGold.setColor("red");
+		badgeGold.setDescription("This badge is worth 800 POINTS / "
+				+ "Users need to complete the request: posted over 500 POSTS/COMMENTS to get it.");
+		badgeGold.setIcon("fa-solid fa-sun");
+		badgeGold.setColor("#a67c00");
 		badgeGold.setAction(true);
 		badgeGold.setTotalScore(800L);
 		badgeGold.setTotalDiscussion(500L);
@@ -141,9 +145,10 @@ public class BadgeServiceImpl implements BadgeService{
 		// add badge Platinum User
 		Badge badgePlatinum = new Badge();
 		badgePlatinum.setName("Platinum User");
-		badgePlatinum.setDescription("Platinum User");
-		badgePlatinum.setIcon("fa fa-user");
-		badgePlatinum.setColor("purple");
+		badgePlatinum.setDescription("This badge is worth 1,000 POINTS / "
+				+ "Users need to complete the request: posted over 1,000 POSTS/COMMENTS to get it.");
+		badgePlatinum.setIcon("fa-solid fa-crown");
+		badgePlatinum.setColor("#000000");
 		badgePlatinum.setAction(true);
 		badgePlatinum.setTotalScore(1000L);
 		badgePlatinum.setTotalDiscussion(1000L);
