@@ -33,6 +33,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     ProfileScreen(ownerId: ''),
   ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

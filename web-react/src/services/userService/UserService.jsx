@@ -25,7 +25,7 @@ export const getUserInfoByUsername = async (
 		});
 		return res.data;
 	} catch (err) {
-		console.log(err);
+		console.log(err.message);
 	}
 };
 
@@ -99,30 +99,6 @@ export const postUpdateInfo = async (accessToken, axiosJWT, data) => {
 				headers: { Authorization: `Bearer ${accessToken}` },
 			}
 		);
-		return res.data;
-	} catch (err) {
-		console.log(err);
-	}
-};
-
-//use in profilePage
-export const postFollow = async (accessToken, axiosJWT, data) => {
-	try {
-		let res = await axiosJWT.post(`users/followed`, data, {
-			headers: { Authorization: `Bearer ${accessToken}` },
-		});
-		return res.data;
-	} catch (err) {
-		console.log(err);
-	}
-};
-
-//use in profilePage
-export const postUnFollow = async (accessToken, axiosJWT, data) => {
-	try {
-		let res = await axiosJWT.post(`users/un-followed`, data, {
-			headers: { Authorization: `Bearer ${accessToken}` },
-		});
 		return res.data;
 	} catch (err) {
 		console.log(err);

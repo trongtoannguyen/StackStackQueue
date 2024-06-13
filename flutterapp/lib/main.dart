@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterapp/features/forums/presentation/bloc/discussion_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme/theme_contants.dart';
 import 'config/theme/theme_manager.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/views/home_screen.dart';
 import 'features/auth/presentation/views/login_screen.dart';
 import 'features/feed/presentation/views/main_screen.dart';
 import 'injections_container.dart' as dependencyInjection;
@@ -22,11 +22,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => serviceLocator<AuthBloc>()..add(AppStarted()),
+      create: (_) => serviceLocator<AuthBloc>()..add(AppStarted()),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) =>
+                serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
+          )
+        ],
         child: ChangeNotifierProvider<ThemeService>(
           create: (context) => ThemeService(),
-          child: Consumer(builder: (context, ThemeService theme, _) {
-            return MaterialApp(
+          child: Consumer(
+            builder: (context, ThemeService theme, _) {
+              return MaterialApp(
                 title: 'TechForum',
                 debugShowCheckedModeBanner: false,
                 theme: theme.darkTheme! ? darkTheme : lightTheme,
@@ -41,8 +49,12 @@ class MyApp extends StatelessWidget {
                       return Container();
                     }
                   },
-                ));
-          }),
-        ));
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -158,5 +158,29 @@ public class StatDAO {
 		return users;
 	}
 
+	public Number countComment(String username) {
+		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(c) FROM Comment c WHERE c.createBy = :username", Number.class);
+		typedQuery.setParameter("username", username);
+
+		return typedQuery.getSingleResult();
+	}
+
+	public Number countDiscussion(String username) {
+
+		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(d) FROM Discussion d WHERE d.createBy = :username", Number.class);
+		typedQuery.setParameter("username", username);
+
+		return typedQuery.getSingleResult();
+	}
+
+	public Comment getLatestComment(Discussion discussion) {
+		TypedQuery<Comment> typedQuery = entityManager.createQuery("SELECT c FROM Comment c WHERE c.discussion = :discussion ORDER BY c.id DESC", Comment.class);
+		typedQuery.setParameter("discussion", discussion);
+
+		List<Comment> resultList = typedQuery.setMaxResults(1).getResultList();
+
+		return resultList.isEmpty() ? null : resultList.get(0);
+	}
+
 }
 

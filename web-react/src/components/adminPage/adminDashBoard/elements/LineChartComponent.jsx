@@ -7,15 +7,6 @@ const LineChartComponent = (props) => {
 
   const { dataChart, updateData } = props;
 
-  const data = [
-    { name: 'Group A', discussions: 400, comments: 2400 },
-    { name: 'Group B', discussions: 3000, comments: 1398 },
-    { name: 'Group C', discussions: 2000, comments: 9800},
-    { name: 'Group D', discussions: 2780, comments: 3908 },
-    { name: 'Group E', discussions: 1890, comments: 4800 },
-  ];
-
-
   return (
     <Card className="card-chart">
       <Card.Header>
@@ -27,7 +18,7 @@ const LineChartComponent = (props) => {
         style={{ maxHeight: "300px", width: "100%", overflow: "hidden" }}
       >
 
-        <LineChart width={700} height={300} data={data}
+        <LineChart width={700} height={300} data={dataChart}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
@@ -48,9 +39,9 @@ const LineChartComponent = (props) => {
           <i className="fa fa-circle text-warning" /> BMW 5 Series
         </div> */}
         <hr />
-        <div className="card-stats">
+        <button className="card-stats" onClick={updateData}>
           <i className="fa fa-history" /> Updated 3 minutes ago.
-        </div>
+        </button>
       </Card.Footer>
     </Card>
   )

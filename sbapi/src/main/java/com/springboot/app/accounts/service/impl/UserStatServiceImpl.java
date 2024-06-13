@@ -10,8 +10,18 @@ import com.springboot.app.accounts.repository.UserStatRepository;
 import com.springboot.app.accounts.service.UserStatService;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.entity.Comment;
+import com.springboot.app.forums.entity.CommentInfo;
+import com.springboot.app.forums.repository.CommentInfoRepository;
 import com.springboot.app.forums.repository.CommentRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
+import com.springboot.app.repository.CommentDAO;
+import com.springboot.app.repository.StatDAO;
+import com.springboot.app.repository.VoteDAO;
+import com.springboot.app.security.jwt.JwtUtils;
+import jakarta.annotation.Resource;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.TextExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +45,13 @@ public class UserStatServiceImpl implements UserStatService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private DiscussionRepository discussionRepository;
+	private StatDAO statDAO;
 	@Autowired
-	private CommentRepository commentRepository;
+	private VoteDAO voteDAO;
+	@Autowired
+	private CommentDAO commentDAO;
+	@Autowired
+	private CommentInfoRepository commentInfoRepository;
 
 	@Override
 	public PaginateResponse getAllUserStats(int pageNo, int pageSize, String orderBy, String sortDir,String search) {
@@ -77,26 +91,90 @@ public class UserStatServiceImpl implements UserStatService {
 	}
 
 
-	@Override
-	public PaginateResponse getCommentByUsername(int page, int size, String orderBy, String sortDirection, String username) {
-		return null;
+	public ServiceResponse<UserStat> updateProfileViewed(String username){
+		ServiceResponse<UserStat> response = new ServiceResponse<>();
+		var session = JwtUtils.getSession();
+		if(session.getUsername().equals(username)){
+			response.addMessage("You can't view your own profile view count");
+			return response;
+		}
+
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user == null){
+			response.addMessage("User not found");
+			return response;
+		}
+		UserStat userStat = user.getStat();
+		userStat.setProfileViewed(userStat.getProfileViewed()+1);
+		userStatRepository.save(userStat);
+
+		response.setDataObject(userStat);
+		response.addMessage("Profile viewed updated successfully");
+		return response;
 	}
 
-	@Override
-	public PaginateResponse getDiscussionByUsername(int page, int size, String orderBy, String sortDirection, String username) {
-		return null;
+	/**
+	 * User statistics
+	 */
+
+	public ServiceResponse<UserStat> syncUserStat(String username){
+		ServiceResponse<UserStat> response = new ServiceResponse<>();
+		UserStat userStat = refreshUserStat(username);
+		response.setDataObject(userStat);
+		return response;
 	}
 
-	@Override
-	public ServiceResponse<Person> getPersonByUsername(String username) {
-		return null;
+	private UserStat refreshUserStat(String username){
+		User user = userRepository.findByUsername(username).orElse(null);
+		if(user == null){
+			return null;
+		}
+		UserStat userStat = user.getStat();
+
+		//set user statistics
+		userStat.setCommentCount(statDAO.countComment(username).longValue());
+		userStat.setDiscussionCount(statDAO.countDiscussion(username).longValue());
+		userStat.setReputation(voteDAO.getReputation4User(username).longValue());
+
+		//comment info
+		Comment lastComment = null;
+		List<Comment> comments = commentDAO.getLatestCommentsForUser(username,1);
+
+		if(!comments.isEmpty()){
+			lastComment = comments.getFirst();
+		}
+		CommentInfo latestCommentInfo = userStat.getLastComment();
+
+		if(lastComment!=null){
+			if(latestCommentInfo==null){
+				// create new comment info
+				latestCommentInfo = copyToCommentInfo(lastComment);
+				commentInfoRepository.save(latestCommentInfo);
+				userStat.setLastComment(latestCommentInfo);
+			}
+		}else{
+			// remove last comment info if no comment found for user in the system
+			if(latestCommentInfo!=null){
+				userStat.setLastComment(null);
+				commentInfoRepository.delete(latestCommentInfo);
+			}
+		}
+
+		userStatRepository.save(userStat);
+		return userStat;
 	}
 
-	@Override
-	public ServiceResponse<List<Badge>> getBadgesByUsername(String username) {
-		return null;
+	private CommentInfo copyToCommentInfo(Comment comment) {
+		CommentInfo commentInfo = new CommentInfo();
+		commentInfo.setCommenter(comment.getCreatedBy());
+		commentInfo.setCommentId(comment.getId());
+		commentInfo.setCommentDate(comment.getCreatedAt());
+		commentInfo.setTitle(comment.getTitle());
+
+		String contentAbbr = new TextExtractor(new Source(comment.getContent())).toString();
+		commentInfo.setContentAbbr(contentAbbr.length() > 100 ?
+				contentAbbr.substring(0, 97) + "..." : contentAbbr);
+		return commentInfo;
 	}
-
-
 
 }

@@ -24,7 +24,7 @@ const MemberList = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [orderBy, setOrderBy] = useState('id'); //default orderBy userId
   const [sortBy, setSortBy] = useState('ASC');
 
@@ -78,7 +78,7 @@ const MemberList = () => {
             <i className="fas fa-sync fa-spin fa-5x"></i>
             <br />
           </span>
-          <h5>Loading...</h5>
+          <h5>No data</h5>
         </div>
       );
     }
@@ -203,7 +203,7 @@ const MemberList = () => {
           <div className="card-header">
             <div className="row d-flex justify-content-around">
               <span className="col-md-4 mb-2 mb-lg-0">
-                <h4>Total: {totalUsers} user(s)/page{page}</h4>
+                <h5>Total: {totalUsers} user(s)/page{page}</h5>
               </span>
 
               <span className="col-md-2 d-flex align-items-center">

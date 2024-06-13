@@ -6,6 +6,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.dto.response.PaginateResponse;
+import com.springboot.app.follows.dto.response.BookmarkHistoryResponse;
+import com.springboot.app.follows.dto.response.BookmarkResponse;
+import com.springboot.app.follows.entity.Bookmark;
+import com.springboot.app.forums.dto.response.Author;
+import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.response.ReplyItem;
+import com.springboot.app.forums.dto.response.ViewCommentResponse;
+import com.springboot.app.forums.entity.*;
+import com.springboot.app.repository.VoteDAO;
+import com.springboot.app.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -172,8 +184,9 @@ public class CommentServiceImpl implements CommentService {
 		viewCommentResponse.setTitle(comment.getTitle());
 		viewCommentResponse.setContent(comment.getContent());
 		viewCommentResponse.setHidden(comment.isHidden());
-		if (comment.getReplyTo() != null) {
-			viewCommentResponse.setReplyTo(comment.getReplyTo().getId());
+		if(comment.getReplies()!=null && !comment.getReplies().isEmpty()){
+			List<ReplyItem> replyResponses = comment.getReplies().stream().map(this::mapReplyToReplyResponse).toList();
+			viewCommentResponse.setReplies(replyResponses);
 		}
 		// votes
 		CommentVote commentVote = comment.getCommentVote();
@@ -190,6 +203,18 @@ public class CommentServiceImpl implements CommentService {
 			viewCommentResponse.setBookmarks(bookmarkResponses);
 		}
 		return viewCommentResponse;
+	}
+
+	private ReplyItem mapReplyToReplyResponse(Comment reply) {
+		ReplyItem replyItem = new ReplyItem();
+		replyItem.setReplyId(reply.getId());
+		replyItem.setContent(reply.getContent());
+		replyItem.setCreatedAt(reply.getCreatedAt());
+		//author
+		Author author = new Author();
+		author.setUsername(reply.getCreatedBy());
+		replyItem.setAuthor(author);
+		return replyItem;
 	}
 
 	private BookmarkResponse mapBookmarkToBookmarkResponse(Bookmark bookmark) {

@@ -94,7 +94,7 @@ function UserListManage() {
       sort: sortBy
     }
     let res = await getAllUsers(currentUser?.accessToken, dispatch, axiosJWT, pageData);
-    if (res?.data.length > 0) {
+    if (res?.data?.length > 0) {
       setUserList(res.data);
       setPageSize(res.pageSize);
       setTotalPages(res.totalPages);
@@ -138,7 +138,7 @@ function UserListManage() {
   };
 
   const handleUpdateStatus = async (id, accountStatus) => {
-    let res = await updateStatusUser(id, accountStatus, axiosJWT,currentUser.accessToken);
+    let res = await updateStatusUser(id, accountStatus, axiosJWT, currentUser.accessToken);
     if (+res.data.status === 200) {
       toast.success("Update status successfully");
       setShowEdit(false);

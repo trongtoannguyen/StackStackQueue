@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public PaginateResponse getAllUsers(int pageNo, int pageSize, String orderBy, String sortDir, String keyword) {
+		logger.info("Fetching all users from the database");
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
 
