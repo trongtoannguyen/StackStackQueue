@@ -38,9 +38,12 @@ const ModelUpdateActiveForum = (props) => {
 		active: forumIsActive,
 	};
 
+	console.log(updateForumObject);
+
 	const handleSaveForum = async () => {
 		let res = await updateForum(
 			dataUpdateForum.id,
+			dataUpdateForum.idForumGroup,
 			updateForumObject,
 			currentUser?.accessToken,
 			axiosJWT

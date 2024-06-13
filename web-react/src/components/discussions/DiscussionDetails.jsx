@@ -53,7 +53,7 @@ const module = {
 	toolbar: toolbarOptions,
 };
 
-const ViewDiscussion = () => {
+const DiscussionDetails = () => {
 	const { discussionId } = useParams();
 
 	const [comments, setComments] = useState([]);
@@ -474,4 +474,4 @@ const ViewDiscussion = () => {
 	);
 };
 
-export default ViewDiscussion;
+export default DiscussionDetails;

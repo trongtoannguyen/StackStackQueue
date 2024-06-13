@@ -5,11 +5,10 @@ import ForumGroup from "../components/forumsPage/ForumGroup";
 import LoginForm from "../components/authPage/LoginForm";
 import RegisterForm from "../components/authPage/RegisterForm";
 import OAuth2RedirectHandler from "../components/authPage/oauth2/OAuth2RedirectHandler";
-import EmailConfirm from '../components/authPage/EmailConfirmPage';
+import EmailConfirm from "../components/authPage/EmailConfirmPage";
 
 import Discussion from "../components/discussions/Discussions";
-// import ViewDiscussion from "../components/discussions/ViewDiscussion";
-import ViewDiscussion from "../components/discussions/DiscussionDetails";
+import DiscussionDetails from "../components/discussions/DiscussionDetails";
 import ListDiscussions from "../components/discussions/ListDiscussions";
 
 import MemberList from "../components/memberPage/MemberListPage";
@@ -23,7 +22,6 @@ import RequireAuth from "../components/authPage/RequireAuth";
 import TermsAndConditions from "../components/otherPage/TermsAndConditions";
 import PrivacyPolicy from "../components/otherPage/PrivacyPolicy";
 import RedirectHandlerAfterLogin from "../components/authPage/RedirectHandlerAfterLogin";
-
 
 const ROLES = {
 	ADMIN: "ROLE_ADMIN",
@@ -55,7 +53,10 @@ function AppRoutes() {
 				<Route path="/forumGroup" element={<ForumGroup />} />
 
 				<Route path="/forum/:forumId" element={<Discussion />} />
-				<Route path="/discussion/:discussionId" element={<ViewDiscussion />} />
+				<Route
+					path="/discussion/:discussionId"
+					element={<DiscussionDetails />}
+				/>
 
 				<Route path="/list-discussion" element={<ListDiscussions />} />
 
@@ -68,8 +69,10 @@ function AppRoutes() {
 				>
 					<Route path="/redirect-to" element={<RedirectHandlerAfterLogin />} />
 					<Route path="/member-profile/:username" element={<MemberProfile />} />
-					<Route path="/change-password/:username" element={<ChangePassword />} />
-
+					<Route
+						path="/change-password/:username"
+						element={<ChangePassword />}
+					/>
 				</Route>
 
 				{/* catch all */}

@@ -299,9 +299,18 @@ const ForumManage = () => {
 																						paddingLeft: "5px",
 																					}}
 																				>
-																					{forum.active === true
-																						? "active"
-																						: "inactive"}
+																					<span
+																						className={
+																							forum.active
+																								? "bg-success badge"
+																								: "bg-danger badge"
+																						}
+																					>
+																						{" "}
+																						{forum.active === true
+																							? "active"
+																							: "inactive"}
+																					</span>
 																				</span>
 																			</div>
 																			{forum.description}
