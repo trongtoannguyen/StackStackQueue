@@ -63,7 +63,7 @@ const renderActiveShape = (props) => {
         y={ey}
         textAnchor={textAnchor}
         fill="#333"
-      >{`Thread ${value}`}</text>
+      >{`Post cmt ${value}`}</text>
       <text
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
@@ -81,15 +81,6 @@ const ForumsStatisticsPieChart = (props) => {
 
   const { dataChart, updateData } = props;
 
-  // const [updateAt, setUpdateAt] = useState("abc");
-
-  const data = [
-    { name: "ForumGroup A", value: 400 },
-    { name: "ForumGroup B", value: 300 },
-    { name: "ForumGroup C", value: 300 },
-    { name: "ForumGroup D", value: 200 }
-  ];
-
   const [activeIndex, setActiveIndex] = useState(0);
   const onPieEnter = useCallback(
     (_, index) => {
@@ -104,7 +95,7 @@ const ForumsStatisticsPieChart = (props) => {
       <Card.Header>
         <Card.Title tag="h5">Forums Statistics</Card.Title>
         <p className="card-category">
-          Number of discussions thread per forum group
+          Number of post comment per forum group
         </p>
       </Card.Header>
       <Card.Body
@@ -115,13 +106,13 @@ const ForumsStatisticsPieChart = (props) => {
             <Pie
               activeIndex={activeIndex}
               activeShape={renderActiveShape}
-              data={data}
+            data={dataChart}
               cx={240}
               cy={240}
               innerRadius={60}
               outerRadius={80}
               fill="#8884d8"
-              dataKey="value"
+              dataKey="comments"
               onMouseEnter={onPieEnter}
             />
           </PieChart>
@@ -135,9 +126,9 @@ const ForumsStatisticsPieChart = (props) => {
           <i className="fa fa-circle text-gray" /> Unopened
         </div> */}
         <hr />
-        <div className="stats">
-          <i className="fa fa-history" />Updated 3 minutes ago
-        </div>
+        <button className="stats" onClick={updateData}>
+          <i className="fa fa-history" />Updated
+        </button>
       </Card.Footer>
     </Card>
   )
