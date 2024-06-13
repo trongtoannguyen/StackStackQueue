@@ -107,7 +107,7 @@ public class BadgeServiceImpl implements BadgeService{
 		badgeSilver.setName("Silver User");
 		badgeSilver.setDescription("Silver User");
 		badgeSilver.setIcon("fa fa-user");
-		badgeSilver.setColor("yellow");
+		badgeSilver.setColor("violet");
 		badgeSilver.setAction(true);
 		badgeSilver.setTotalScore(500L);
 		badgeSilver.setTotalDiscussion(100L);

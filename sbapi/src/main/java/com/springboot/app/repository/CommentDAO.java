@@ -88,16 +88,4 @@ public class CommentDAO {
 
 		return users;
 	}
-
-	/**
-	 * This method is useful for determining if the comment is the first in the discussion
-	 */
-	public Boolean isFirstComment(Comment comment) {
-
-		String nativeQuery = "SELECT MIN(C.ID) FROM COMMENT_T C WHERE C.DISCUSSION_ID = ?1";
-
-		Query query = entityManager.createNativeQuery(nativeQuery).setParameter(1, comment.getDiscussion().getId());
-
-		return ((Number)query.getSingleResult()).longValue() == comment.getId();
-	}
 }

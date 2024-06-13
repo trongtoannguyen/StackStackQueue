@@ -110,6 +110,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signout")
+	@PreAuthorize("hasRole('USER')")
 	public ResponseEntity<?> logoutUser(HttpServletRequest request) {
 		String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
 
@@ -117,10 +118,10 @@ public class AuthController {
 		log.info("User logout: {}", sessionUser.getId());
 
 		ServiceResponse<Void> response = refreshTokenService.deleteByToken(refreshToken, sessionUser.getId());
-		if (response.getAckCode() != AckCodeType.SUCCESS) {
-			String errorMessage = String.join(", ", response.getMessages());
-			return ResponseEntity.badRequest().body(new ObjectResponse("400","User not logged out. "+errorMessage,null));
-		}
+//		if (response.getAckCode() != AckCodeType.SUCCESS) {
+//			String errorMessage = String.join(", ", response.getMessages());
+//			return ResponseEntity.badRequest().body(new ObjectResponse("400","User not logged out. "+errorMessage,null));
+//		}
 		ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
 		ResponseCookie jwtRefreshCookie = jwtUtils.getCleanJwtRefreshCookie();
 
@@ -165,8 +166,9 @@ public class AuthController {
 		String avatar = refreshToken.getUser().getAvatar();
 		String imageUrl = refreshToken.getUser().getImageUrl();
 		String name = refreshToken.getUser().getName();
-
-		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
+		log.info("Refresh token: {}", jwtRefreshCookie.toString());
+		return ResponseEntity.ok()
+				.header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
 				.body(new JwtResponse(jwtCookie.getValue(), userDetails.getId(), userDetails.getUsername(),
 						userDetails.getEmail(), roles, avatar, imageUrl, name));
 	}

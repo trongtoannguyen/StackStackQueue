@@ -1,5 +1,7 @@
 package com.springboot.app.repository;
 
+import com.springboot.app.admin.dto.DataForumGroupResponse;
+import com.springboot.app.admin.dto.PieChartResponse;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.tags.Tag;
@@ -132,6 +134,50 @@ public class DiscussionDAO {
 
 		return typedQuery.getSingleResult();
 	}
+
+
+	public List<DataForumGroupResponse> getForumGroupData() {
+		String queryStr = "SELECT g.title, count (f.stat.discussionCount), count(f.stat.commentCount) FROM Forum f JOIN f.forumGroup g GROUP BY g.title";
+		Query query = entityManager.createQuery(queryStr);
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = query.getResultList();
+		List<DataForumGroupResponse> response = new java.util.ArrayList<>();
+		for (Object[] result : results) {
+			DataForumGroupResponse data = new DataForumGroupResponse();
+			data.setName((String) result[0]);
+			data.setDiscussions((Long) result[1]);
+			data.setComments((Long) result[2]);
+			response.add(data);
+		}
+		return response;
+	}
+
+
+	public List<DataForumGroupResponse> getForumGroupData2() {
+		String queryStr =
+				"SELECT g.title, count (d.id), count(c.id),count(c.createdBy) " +
+						"FROM Forum f " +
+						"JOIN Discussion d ON d.forum.id = f.id " +
+						"JOIN Comment c ON c.discussion.id = d.id " +
+						"JOIN f.forumGroup g " +
+						"GROUP BY g.title";
+		Query query = entityManager.createQuery(queryStr);
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = query.getResultList();
+		List<DataForumGroupResponse> response = new java.util.ArrayList<>();
+		for (Object[] result : results) {
+			DataForumGroupResponse data = new DataForumGroupResponse();
+			data.setName((String) result[0]);
+			data.setDiscussions((Long) result[1]);
+			data.setComments((Long) result[2]);
+			data.setUsers((Long) result[3]);
+			response.add(data);
+		}
+		return response;
+	}
+
+
+
 
 
 

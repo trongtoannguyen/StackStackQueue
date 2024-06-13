@@ -1,70 +1,67 @@
+import PropTypes from "prop-types";
+import { Row, Table } from "react-bootstrap";
+//service
+import { fetchImage } from "../../../services/userService/UserService";
+import { Link } from "react-router-dom";
+import Avatar from "../../avatar/Avatar";
+import { useState } from "react";
 
-import {
-  Button,
-  Row, Col,
-  Table
-} from "reactstrap";
 
+const IntroProfile = (props) => {
 
-import avatar from "../../../assets/img/default-avatar.png";
+  const { followers, followings, badges } = props;
 
-const IntroProfile = () => {
+  const [showFollower, setShowFollower] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
 
-  const badges = [
-    { id: 1, point: 200, name: "Badge 1", description: "This is the first badge", date: "16/01/2020", color: "info" },
-    { id: 2, point: 300, name: "Badge 2", description: "This is the second badge", date: "16/01/2020", color: "warning" },
-    { id: 3, point: 400, name: "Badge 3", description: "This is the third badge", date: "16/01/2020", color: "danger" },
-    { id: 4, point: 500, name: "Badge 4", description: "This is the fourth badge", date: "16/01/2020", color: "primary" },
-  ]
-
-  const setColor = (color) => {
-    switch (color) {
-      case 'primary':
-        return 'text-primary';
-      case 'info':
-        return 'text-info';
-      case 'warning':
-        return 'text-warning';
-      case 'danger':
-        return 'text-danger';
-      default:
-        return 'text-primary';
+  function getAvatar(item) {
+    if (item?.imageUrl) {
+      return item?.imageUrl;
     }
+    if (item?.avatar) {
+      return fetchImage(item?.avatar);
+    }
+    return "";
   }
 
-
-  const cardUser = () => {
+  const cardUser = (item) => {
     return (
-      <Col md="3" className=' card m-2 p-3 d-flex justify-content-center'>
-        <Row>
-          <Col md="2" xs="2">
-            <div className="avatar">
-              <img
-                alt="..."
-                className="img-circle img-no-padding img-responsive"
-                src={avatar}
-              />
+      <div className='col-12 col-xs-6 col-md-4 card m-2 d-flex justify-content-center border' style={{minWidth:400}}>
+        <Row className="p-2">
+          <div className="col-3 py-2">
+            <div className="mx-auto">
+              <Avatar
+                src={getAvatar(item)}
+                username="" height={50} width={50} />
             </div>
-          </Col>
-          <Col md="7" xs="7">
-            DJ Khaled <br />
-            <span className="text-muted">
-              <small>Offline</small>
+          </div>
+          <div className="col-7 py-2">
+            <span>{item?.name ?? item?.username ?? "Anonymous"}</span> <br />
+            <span className="text-muted row">
+              <small className="col-6"><i className="fa-solid fa-user mx-2"></i>{item?.totalFollowers ?? 0} followers; </small>
+              <small className="col-6">{item?.totalFollowing ?? 0} following;</small>
             </span>
-          </Col>
-          <Col className="text-right" md="3" xs="3">
-            <Button
+          </div>
+          <div className="col-1 py-2">
+            <Link to={`/member-profile/${item?.username}`}
               className="btn-round btn-icon"
               color="success"
               outline
               size="sm"
             >
-              <i className="fa fa-envelope" />
-            </Button>
-          </Col>
+              <i className="fa-solid fa-circle-info"></i>
+            </Link>
+          </div>
         </Row>
-      </Col>
+      </div>
     )
+  }
+
+  const galleryUser = (followers, showAll) => {
+    if (showAll) {
+      followers = followers.slice(0, 6);
+    }
+    return followers.map(item => cardUser(item));
   }
 
 
@@ -73,20 +70,17 @@ const IntroProfile = () => {
     return (
       <Table responsive>
         <tbody>
-          {badges.map((item) => (
+          {badges?.map((item) => (
             <tr key={item.id}>
               <td>
-                <h6 className={setColor(item?.color)}>
-                  {item?.point}
+                <h6 style={{ color: item?.color }}>
+                  <i className={item?.icon}></i>
                 </h6>
               </td>
               <td>
-                <div className={setColor(item?.color)}>
+                <div style={{ color: item?.color }}>
                   <h6>{item?.name}</h6> {item?.description}
                 </div>
-              </td>
-              <td className={"td-actions " + setColor(item.color)}>
-                {item?.date}
               </td>
             </tr>
           ))}
@@ -99,31 +93,31 @@ const IntroProfile = () => {
 
   return (
     <section className='w-100 px-3'>
-      <h4>Following</h4>
+      <h4>Follower:</h4>
       <Row className='w-100 d-flex justify-content-around'>
-        {cardUser()}
-        {cardUser()}
-        {cardUser()}
+        {followers?.length > 0 ? galleryUser(followers, showFollower) : <h4 className="text-center">No data</h4>}
       </Row>
-      <a className="btn btn-default btn-link ml-auto me-0" href="#">View all</a>
+      <button className="btn btn-default btn-link ml-auto me-0" onClick={() => setShowFollower(!showFollower)}>View all</button>
       <hr />
-      <h4>Followed:</h4>
+      <h4>Following:</h4>
       <Row className='w-100 d-flex justify-content-around'>
-        {cardUser()}
-        {cardUser()}
-        {cardUser()}
+        {followings?.length > 0 ? galleryUser(followings, showFollowing) : <h4 className="text-center">No data</h4>}
 
       </Row>
-      <a className="btn btn-default btn-link ml-auto me-0" href="#">View all</a>
+      <button className="btn btn-default btn-link ml-auto me-0" onClick={() => setShowFollowing(showFollowing)}>View all</button>
       <hr />
-      <h4>Badges</h4>
+      <h5>Note about badges:</h5>
       <div className="px-md-3">
         {badgeList(badges)}
       </div>
-
-
     </section>
   )
+}
+
+IntroProfile.propTypes = {
+  followers: PropTypes.array.isRequired,
+  followings: PropTypes.array.isRequired,
+  badges: PropTypes.array.isRequired
 }
 
 export default IntroProfile;

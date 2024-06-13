@@ -6,7 +6,11 @@ export const getTotalData = async (accessToken, axiosJWT) => {
 
 
 export const getDataChart = async (accessToken, axiosJWT) => {
-  return await axiosJWT.get(`admin/dashboard/data-chart`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  try {
+    return await axiosJWT.get(`admin/dashboard/chart-by-forum`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }

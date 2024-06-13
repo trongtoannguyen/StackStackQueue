@@ -28,6 +28,7 @@ export const getAllUsers = async (accessToken, dispatch, axiosJWT, pageData) => 
     return res.data;
   } catch (err) {
     dispatch(getUsersFailed());
+    console.log(`Error`,JSON.stringify(err?.message));
   }
 };
 

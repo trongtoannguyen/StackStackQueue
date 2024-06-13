@@ -6,6 +6,7 @@ import 'package:flutterapp/core/storage/storage.dart';
 import 'package:flutterapp/core/usecases/register_user_core.dart';
 
 import '../../../../core/usecases/login_user_core.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/login_user.dart';
 import '../../domain/usecases/register_user.dart';
 
@@ -47,8 +48,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoggedOut>((event, emit) async {
       Storage().token = '';
       Storage().userId = '';
+      Storage().currentUser = const UserEntity('', '', '', '', '', '', '', []);
       await _deleteToken();
       await _deleteUserId();
+      await _deleteCurrentUser();
       emit(Unauthenticated());
     });
     on<Register>((event, emit) async {
@@ -77,6 +80,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _deleteToken() async {
     await Storage().secureStorage.delete(key: 'token');
+  }
+
+  Future<void> _deleteCurrentUser() async {
+    await Storage().secureStorage.delete(key: 'currentUser');
   }
 
   Future<void> _saveToken(String token) async {

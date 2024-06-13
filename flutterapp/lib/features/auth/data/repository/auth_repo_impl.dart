@@ -5,7 +5,6 @@ import 'package:flutterapp/core/exceptions/error.dart';
 import 'package:flutterapp/core/exceptions/failure.dart';
 import 'package:flutterapp/features/auth/data/data_sources/auth_data_source.dart';
 import 'package:flutterapp/features/auth/data/models/user_model.dart';
-import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 import 'package:flutterapp/features/auth/domain/repository/auth_repo.dart';
 
 class AuthRepoImpl implements AuthRepo {

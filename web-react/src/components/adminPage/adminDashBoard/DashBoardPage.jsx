@@ -14,7 +14,6 @@ import UsersBehaviorChart from "./elements/UsersBehaviorChart";
 import ForumsStatisticsPieChart from "./elements/ForumsStatisticsPieChart";
 import LineChartComponent from "./elements/LineChartComponent";
 
-
 const DashBoard = () => {
 
   const dispatch = useDispatch();
@@ -44,8 +43,7 @@ const DashBoard = () => {
 
   const fetchDataChart = useCallback(async () => {
     let res = await getDataChart(currentUser?.accessToken, axiosJWT);
-    if (res.status === 200 || res?.data?.status === 200) {
-      console.log(res.data?.data);
+    if (res?.status === 200 || res?.data?.status === 200) {
       setDataChart(res.data?.data);
     } else {
       console.log(res?.message);
@@ -62,7 +60,7 @@ const DashBoard = () => {
 
   useEffect(() => {
     fetchData();
-    // fetchDataChart();
+    fetchDataChart();
   }, []);
 
 
