@@ -83,20 +83,20 @@ public class VoteServiceImpl implements VoteService {
 
 			response.addMessage("Vote on comment registered successfully for voter " + voteName);
 		}else if(vote.getVoteValue() != voteValue) {
-			vote.setVoteValue(voteValue);
-			voteRepository.save(vote);
 			// update commentVote count and reputation of user who voted
 			if(voteValue == 10) {
-				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
-				commentVote.setVoteUpCount(commentVote.getVoteUpCount() - 1);
-				addReputationAfterVote(comment, 12);
-			}
-			else if(voteValue == -2) {
 				commentVote.setVoteDownCount(commentVote.getVoteDownCount() - 1);
 				commentVote.setVoteUpCount(commentVote.getVoteUpCount() + 1);
-				addReputationAfterVote(comment, -12);
+				addReputationAfterVote(comment, 2);
 			}
+			else if(voteValue == -2) {
+				commentVote.setVoteUpCount(commentVote.getVoteUpCount() - 1);
+				commentVote.setVoteDownCount(commentVote.getVoteDownCount() + 1);
+				addReputationAfterVote(comment, -10);
+			}
+			commentVote.getVotes().remove(vote);
 			commentVoteRepository.save(commentVote);
+			voteRepository.delete(vote);
 
 			response.addMessage("Vote on comment updated successfully for voter " + voteName);
 		}
