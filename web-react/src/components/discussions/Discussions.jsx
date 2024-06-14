@@ -5,13 +5,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
-import _ from "lodash";
+// import _ from "lodash";
 import { useDispatch } from "react-redux";
 
 //Model
 import ForumInfo from "./ForumInfo";
 import ModalAddDiscussion from "./ModalAddDiscussion";
-import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
+// import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
 
 //Services
 import { getForumById } from "../../services/forumService/ForumService";
@@ -38,17 +38,12 @@ const Discussion = () => {
 
 	const [showModelAddDiscussion, setShowModelAddDiscussion] = useState(false);
 
-	const [showModelUpdateDiscussion, setShowModelUpdateDiscussion] =
-		useState(false);
-	const [dataUpdateDiscussion, setDataUpdateDiscussion] = useState({});
-
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 	const handleClose = () => {
 		setShowModelAddDiscussion(false);
-		setShowModelUpdateDiscussion(false);
 	};
 
 	const listForums = async () => {
@@ -81,23 +76,7 @@ const Discussion = () => {
 		listForums();
 	};
 
-	const handleEditDiscussion = (discussion) => {
-		setDataUpdateDiscussion(discussion);
-		setShowModelUpdateDiscussion(true);
-	};
-
-	const handleEditDiscussionFromModel = (lDiscussion) => {
-		let cloneListDiscussions = _.cloneDeep(listDiscussions);
-		let index = cloneListDiscussions.findIndex(
-			(discussion) => discussion.id === lDiscussion.id
-		);
-		cloneListDiscussions[index] = lDiscussion;
-		setListDiscussions(cloneListDiscussions);
-		listDiscussionsByForum();
-	};
-
 	const handelUpdateView = async (id) => {
-		console.log(id);
 		try {
 			let res = await updateViews(id, currentUser?.accessToken, axiosJWT);
 			if (res && res.data) {
@@ -144,17 +123,22 @@ const Discussion = () => {
 														>
 															{item.title}
 														</Link>
-														{item.createdBy === currentUser?.username && (
-															<button
-																onClick={() => handleEditDiscussion(item)}
-															>
-																<i className="fa-solid fa-pencil"></i>
-															</button>
-														)}
 													</h4>
 													<span>{item.createdBy} </span>
 													<span>{formatDate(item.createdAt)}</span>
-													{/* <span>{item.tags}</span> */}
+													{item?.tags?.map((tag) => (
+														<span key={tag.id}>
+															<button
+																className="btn btn-sm mx-2"
+																style={{ backgroundColor: tag.color }}
+															>
+																<i className="fa-solid fa-tag"></i>{" "}
+																<span style={{ color: "white" }}>
+																	{tag?.label}
+																</span>
+															</button>
+														</span>
+													))}
 												</td>
 												<td>{item.stat.commentCount}</td>
 												<td>{item.stat.viewCount}</td>
@@ -197,12 +181,6 @@ const Discussion = () => {
 				handleClose={handleClose}
 				forumId={forumId}
 				handleUpdateAddDiscussion={handleUpdateAddDiscussion}
-			/>
-			<ModalUpdateDiscussion
-				show={showModelUpdateDiscussion}
-				handleClose={handleClose}
-				dataUpdateDiscussion={dataUpdateDiscussion}
-				handleEditDiscussionFromModel={handleEditDiscussionFromModel}
 			/>
 		</section>
 	);

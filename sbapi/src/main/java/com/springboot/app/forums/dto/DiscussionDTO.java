@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.springboot.app.forums.entity.DiscussionStat;
 
+import com.springboot.app.tags.TagDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,5 @@ public class DiscussionDTO {
 	private List<CommentDTO> comments;
 	private ForumDTO forum;
 	private DiscussionStat stat;
+	private List<TagDTO> tags;
 }

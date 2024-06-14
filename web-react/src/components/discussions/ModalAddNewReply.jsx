@@ -38,6 +38,7 @@ const ModalAddNewReply = (props) => {
 				currentUser?.accessToken,
 				axiosJWT
 			);
+
 			if (res && +res.data?.status === 201) {
 				handleClose();
 				setContent("");

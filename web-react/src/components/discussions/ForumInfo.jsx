@@ -6,6 +6,11 @@ import { useEffect } from "react";
 const ForumInfo = (props) => {
 	const { forum, listDiscussions } = props;
 
+	const totalTags = listDiscussions.reduce(
+		(acc, discussion) => acc + discussion.tags.length,
+		0
+	);
+
 	useEffect(() => {}, [forum, listDiscussions]);
 	return (
 		<Card>
@@ -35,7 +40,7 @@ const ForumInfo = (props) => {
 							{listDiscussions?.length}
 						</Badge>
 					</ListGroup.Item>
-					{/* <ListGroup.Item
+					<ListGroup.Item
 						as="li"
 						className="d-flex justify-content-between align-items-start"
 					>
@@ -43,9 +48,9 @@ const ForumInfo = (props) => {
 							<div className="fw-bold">Discussion Tags</div>
 						</div>
 						<Badge bg="primary" pill>
-							{forum.stat?.commentCount}
+							{totalTags}
 						</Badge>
-					</ListGroup.Item> */}
+					</ListGroup.Item>
 					<ListGroup.Item
 						as="li"
 						className="d-flex justify-content-between align-items-start"

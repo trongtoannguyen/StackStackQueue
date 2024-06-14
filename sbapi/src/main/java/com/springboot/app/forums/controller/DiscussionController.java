@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import com.springboot.app.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,12 +200,15 @@ public class DiscussionController {
 				String.format("Could not update Discussion: %s",discussion.getTitle()), null));
 	}
 
-	@PutMapping("/updateViews/{id}")
-	public ResponseEntity<ObjectResponse> updateDiscussionViews(@PathVariable Long id) {
-			ServiceResponse<DiscussionStat> response = discussionService.updateDiscussionViews(id);
-		if (response.getDataObject() != null && response.getDataObject().getId() != null) {
-			return ResponseEntity.ok(new ObjectResponse("200", "Discussion views updated", response.getDataObject()));
+		@PutMapping("/{discussionId}/tags")
+		public ResponseEntity<ObjectResponse> addTagsToDiscussion(
+				@PathVariable Long discussionId,
+					@RequestBody List<Long> tagIds) {
+			System.out.println("discussionId: " + discussionId);
+			System.out.println("tagIds: " + tagIds);
+			ServiceResponse<Discussion> updatedDiscussion = discussionService.addTagsToDiscussion(discussionId, tagIds);
+			DiscussionDTO response = modelMapper.map(updatedDiscussion.getDataObject(), DiscussionDTO.class);
+
+			return ResponseEntity.ok(new ObjectResponse("200", "Tags added to discussion successfully", response));
 		}
-		return ResponseEntity.ok(new ObjectResponse("404", "Discussion not found", null));
-	}
 }

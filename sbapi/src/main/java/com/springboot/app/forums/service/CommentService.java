@@ -18,23 +18,11 @@ public interface CommentService {
 
 	ServiceResponse<DiscussionResponse> getFirstCommentByDiscussionId(Long discussionId);
 
-	ServiceResponse<Void> addReply(Comment reply, User user, List<UploadedFileData> thumbnailList,
-			List<UploadedFileData> attachmentList);
-
-	ServiceResponse<Comment> addCommentThumbnail(Comment comment, UploadedFileData uploadedFile);
-
-	ServiceResponse<Comment> addCommentAttachment(Comment comment, UploadedFileData uploadedFile);
-
-	ServiceResponse<Boolean> deleteCommentThumbnail(Comment comment, FileInfo thumbnail);
-
-	ServiceResponse<Boolean> deleteCommentAttachment(Comment comment, FileInfo attachment);
-
-	ServiceResponse<List<Comment>> getLatestCommentsForUser(String username, int maxResult);
-
-	ServiceResponse<Map<String, Integer>> getMostCommentsUsers(Date since, Integer maxResult);
-
-	ServiceResponse<Boolean> isFirstComment(Comment comment);
 
 	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
 			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles);
+
+	ServiceResponse<Comment> deleteComment(Long id);
+
+	Comment updateComment(Comment comment);
 }

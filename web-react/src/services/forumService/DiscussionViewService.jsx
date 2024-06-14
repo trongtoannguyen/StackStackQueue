@@ -9,3 +9,7 @@ export const getAllCommentByDiscussionId = async (pageData) => {
 	let path = pathParams(pageData);
 	return await axios.get(`view/discussions/details?${path}`);
 };
+
+export const viewDiscussionsByTagId = async (tagId) => {
+	return await axios.get(`view/discussions/tag/${tagId}`);
+};

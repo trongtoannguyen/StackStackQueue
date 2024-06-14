@@ -9,6 +9,7 @@ import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.DiscussionStat;
+import com.springboot.app.tags.Tag;
 
 public interface DiscussionService {
 
@@ -29,4 +30,8 @@ public interface DiscussionService {
 			Long forumId);
 
 	ServiceResponse<DiscussionStat> updateDiscussionViews(Long id); ;
+
+	ServiceResponse<Discussion> addTagsToDiscussion(Long discussionId, List<Long> tagIds);
+
+	ServiceResponse<List<DiscussionDTO>> getDiscussionsByTagId(Long tagId);
 }
