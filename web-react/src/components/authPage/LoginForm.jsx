@@ -66,8 +66,17 @@ const LoginForm = () => {
 
 	useEffect(() => {
 		if (currentUser?.accessToken && currentUser?.roles?.length > 0) {
-			const pathname = location?.state?.from?.path;
-			navigate(pathname === "/unauthorized" ? "/" : pathname);
+			// const pathname = location?.state?.from?.pathname;
+			// if (
+			// 	pathname === "/unauthorized" ||
+			// 	pathname === "/login" ||
+			// 	pathname === "/register"
+			// ) {
+			// 	navigate("/");
+			// } else {
+			// 	navigate(pathname);
+			// }
+			navigate("/");
 		}
 	}, [currentUser, error, navigate]);
 

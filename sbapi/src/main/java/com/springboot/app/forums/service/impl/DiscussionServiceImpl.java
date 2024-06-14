@@ -4,10 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.springboot.app.accounts.service.UserStatService;
 import com.springboot.app.forums.repository.*;
 import com.springboot.app.forums.service.ForumStatService;
+import com.springboot.app.tags.Tag;
+import com.springboot.app.tags.TagRepository;
+import com.springboot.app.tags.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -74,9 +78,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 	private UserStatService userStatService;
 
 	@Autowired
-	private ForumStatService forumStatService;
-    @Autowired
-    private DiscussionStatRepository discussionStatRepository;
+	private TagRepository tagRepository;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -364,7 +366,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = false)
 	public ServiceResponse<DiscussionStat> updateDiscussionViews(Long id) {
 		ServiceResponse<DiscussionStat> response = new ServiceResponse<>();
 		Discussion discussion = discussionRepository.findById(id).orElse(null);
@@ -373,12 +375,55 @@ public class DiscussionServiceImpl implements DiscussionService {
 			return response;
 		}
 		DiscussionStat discussionStat = discussion.getStat();
-		discussionStat.setViewCount(discussionStat.getViewCount() + 1);
+		discussionStat.addViewCount(1L);
 		discussionStat.setLastViewed(LocalDateTime.now());
+		System.out.println("View count: " + discussionStat.getViewCount());
 		discussion.setStat(discussionStat);
 		discussionRepository.save(discussion);
+		log.info("Discussion views " + discussion.getStat().getViewCount());
 		response.setDataObject(discussionStat);
-		System.out.println("Discussion found: " );
+		return response;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<Discussion> addTagsToDiscussion(Long discussionId, List<Long> tagIds) {
+		ServiceResponse<Discussion> response = new ServiceResponse<>();
+
+		// Retrieve the discussion from the repository
+		Optional<Discussion> discussionOpt = discussionRepository.findById(discussionId);
+		if (!discussionOpt.isPresent()) {
+			throw new RuntimeException("Discussion not found");
+		}
+
+		Discussion discussion = discussionOpt.get();
+
+		// Retrieve all tags associated with the provided tagIds
+		List<Tag> tagsToAdd = tagRepository.findAllById(tagIds);
+
+		// Remove tags that are already associated with the discussion
+		discussion.getTags().clear();
+
+		// Add new tags to the discussion
+		discussion.getTags().addAll(tagsToAdd);
+
+		// Save the updated discussion entity
+		discussionRepository.save(discussion);
+
+		response.setDataObject(discussion);
+		return response;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<List<DiscussionDTO>> getDiscussionsByTagId(Long tagId) {
+		ServiceResponse<List<DiscussionDTO>> response = new ServiceResponse<>();
+		List<Discussion> discussions = discussionRepository.findDiscussionsByTagId(tagId);
+		List<DiscussionDTO> dtos = new ArrayList<>();
+		for (Discussion d : discussions) {
+			dtos.add(modelMapper.map(d, DiscussionDTO.class));
+		}
+		response.setDataObject(dtos);
 		return response;
 	}
 }

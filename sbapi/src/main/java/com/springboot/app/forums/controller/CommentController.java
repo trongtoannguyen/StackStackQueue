@@ -1,16 +1,15 @@
 package com.springboot.app.forums.controller;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 
+import com.springboot.app.forums.dto.AddDiscussionRequest;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
@@ -73,6 +72,37 @@ public class CommentController {
 
 		return ResponseEntity.ok(new ObjectResponse("400",
 				String.format("Could not add comment: %s", newComment.getComment().getTitle()), null));
+	}
+
+	@PostMapping("/update/{id}")
+	public ResponseEntity<ObjectResponse> updateComment(@PathVariable Long id, @Valid @RequestBody CommentDTO commentDTO) {
+		Comment comment = genericService.getEntity(Comment.class, id).getDataObject();
+			try {
+				var userSession = JwtUtils.getSession();
+				String username = userSession.getUsername();
+				comment.setUpdatedAt( LocalDateTime.now());
+				comment.setUpdatedBy(username);
+			} catch (Exception e) {
+				logger.error("Error getting user session: {}", e.getMessage());
+			}
+		if (comment == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", String.format("Comment with id %s not found", id), null));
+		}
+		comment.setTitle(commentDTO.getTitle());
+		comment.setContent(commentDTO.getContent());
+
+		comment = commentRepository.save(comment);
+		commentDTO = modelMapper.map(comment, CommentDTO.class);
+		return ResponseEntity.ok(new ObjectResponse("200", String.format("Updated comment %s successfully", id), commentDTO));
+	}
+
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<ObjectResponse> deleteComment(@PathVariable Long id) {
+		ServiceResponse<Comment> comment = commentService.deleteComment(id);
+		if (comment == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", String.format("Comment with id %s not found", id), null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", String.format("Deleted comment %s successfully", id), null));
 	}
 
 }

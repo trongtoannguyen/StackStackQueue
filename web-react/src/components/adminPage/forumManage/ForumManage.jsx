@@ -21,30 +21,44 @@ import ModelAddForum from "./ModelAddForum";
 import "./ForumManage.scss";
 import { Container, Col, Row, Card, ListGroup, Badge } from "react-bootstrap";
 
-//Icon
 import {
-	FaBeer,
-	FaCoffee,
-	FaApple,
-	FaAndroid,
-	FaHome,
-	FaUser,
-	FaEnvelope,
-	FaBell,
-	FaHeart,
-	FaStar,
-	FaComment,
-	FaThumbsUp,
-	FaThumbsDown,
-	FaCheck,
-	FaTimes,
-	FaSearch,
-	FaCog,
-	FaTrash,
-	FaEdit,
-	FaSave,
+	FaCode,
+	FaLaptopCode,
+	FaMobileAlt,
+	FaServer,
+	FaDatabase,
+	FaCloud,
+	FaRobot,
+	FaMicrochip,
+	FaWifi,
+	FaSatelliteDish,
+	FaGamepad,
+	FaChess,
+	FaDice,
+	FaPuzzlePiece,
+	FaPlaystation,
+	FaXbox,
+	FaSteam,
+	FaTwitch,
+	FaTag,
+	FaTags,
+	FaBookmark,
+	FaBarcode,
+	FaBook,
+	FaCertificate,
+	FaClipboard,
+	FaFileAlt,
+	FaFolderOpen,
+	FaMoneyBill,
+	FaMoneyCheck,
+	FaChartLine,
+	FaChartBar,
+	FaWallet,
+	FaShoppingCart,
+	FaBalanceScale,
+	FaCalculator,
+	FaMoneyCheckAlt,
 } from "react-icons/fa";
-
 const ForumManage = () => {
 	const [forumGroup, setForumGroup] = useState([]);
 	const [forum, setForum] = useState([]);
@@ -71,9 +85,6 @@ const ForumManage = () => {
 		useState(false);
 
 	const [forumStat, setForumStat] = useState({});
-
-	const [sortBy, setSortBy] = useState("");
-	const [sortField, setSortField] = useState("");
 
 	const handleClose = () => {
 		setShowModelNewForumGroup(false);
@@ -168,9 +179,6 @@ const ForumManage = () => {
 	};
 
 	const handleSort = (sortBy, sortField) => {
-		setSortBy(sortBy);
-		setSortField(sortField);
-
 		let cloneListForumGroup = _.cloneDeep(forumGroup);
 		cloneListForumGroup = _.orderBy(
 			cloneListForumGroup,
@@ -187,50 +195,46 @@ const ForumManage = () => {
 	}, []);
 
 	const renderIcon = (iconName) => {
-		switch (iconName) {
-			case "FaBeer":
-				return <FaBeer />;
-			case "FaCoffee":
-				return <FaCoffee />;
-			case "FaApple":
-				return <FaApple />;
-			case "FaAndroid":
-				return <FaAndroid />;
-			case "FaHome":
-				return <FaHome />;
-			case "FaUser":
-				return <FaUser />;
-			case "FaEnvelope":
-				return <FaEnvelope />;
-			case "FaBell":
-				return <FaBell />;
-			case "FaHeart":
-				return <FaHeart />;
-			case "FaStar":
-				return <FaStar />;
-			case "FaComment":
-				return <FaComment />;
-			case "FaThumbsUp":
-				return <FaThumbsUp />;
-			case "FaThumbsDown":
-				return <FaThumbsDown />;
-			case "FaCheck":
-				return <FaCheck />;
-			case "FaTimes":
-				return <FaTimes />;
-			case "FaSearch":
-				return <FaSearch />;
-			case "FaCog":
-				return <FaCog />;
-			case "FaTrash":
-				return <FaTrash />;
-			case "FaEdit":
-				return <FaEdit />;
-			case "FaSave":
-				return <FaSave />;
-			default:
-				return null;
-		}
+		const iconMapping = {
+			FaCode: <FaCode />,
+			FaLaptopCode: <FaLaptopCode />,
+			FaMobileAlt: <FaMobileAlt />,
+			FaServer: <FaServer />,
+			FaDatabase: <FaDatabase />,
+			FaCloud: <FaCloud />,
+			FaRobot: <FaRobot />,
+			FaMicrochip: <FaMicrochip />,
+			FaWifi: <FaWifi />,
+			FaSatelliteDish: <FaSatelliteDish />,
+			FaGamepad: <FaGamepad />,
+			FaChess: <FaChess />,
+			FaDice: <FaDice />,
+			FaPuzzlePiece: <FaPuzzlePiece />,
+			FaPlaystation: <FaPlaystation />,
+			FaXbox: <FaXbox />,
+			FaSteam: <FaSteam />,
+			FaTwitch: <FaTwitch />,
+			FaTag: <FaTag />,
+			FaTags: <FaTags />,
+			FaBookmark: <FaBookmark />,
+			FaBarcode: <FaBarcode />,
+			FaBook: <FaBook />,
+			FaCertificate: <FaCertificate />,
+			FaClipboard: <FaClipboard />,
+			FaFileAlt: <FaFileAlt />,
+			FaFolderOpen: <FaFolderOpen />,
+			FaMoneyBill: <FaMoneyBill />,
+			FaMoneyCheck: <FaMoneyCheck />,
+			FaChartLine: <FaChartLine />,
+			FaChartBar: <FaChartBar />,
+			FaWallet: <FaWallet />,
+			FaShoppingCart: <FaShoppingCart />,
+			FaBalanceScale: <FaBalanceScale />,
+			FaCalculator: <FaCalculator />,
+			FaMoneyCheckAlt: <FaMoneyCheckAlt />,
+		};
+
+		return iconMapping[iconName] || null;
 	};
 
 	return (

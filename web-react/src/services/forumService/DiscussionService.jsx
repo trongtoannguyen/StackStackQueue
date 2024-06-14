@@ -120,6 +120,23 @@ const updateViews = async (id, accessToken, axiosJWT) => {
 	return res;
 };
 
+const setDataListTags = async (
+	discussionId,
+	selectedTags,
+	accessToken,
+	axiosJWT
+) => {
+	const tagIds = selectedTags.map((tag) => tag.value);
+	const res = await axiosJWT.put(`/discussions/${discussionId}/tags`, tagIds, {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	//
+	return res;
+};
+
 export {
 	createDiscussion,
 	getAllDiscussion,
@@ -128,4 +145,5 @@ export {
 	getPageDiscussion,
 	updateDetailsDiscussion,
 	updateViews,
+	setDataListTags,
 };

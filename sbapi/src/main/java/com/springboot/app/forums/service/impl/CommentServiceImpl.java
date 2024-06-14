@@ -1,10 +1,7 @@
 package com.springboot.app.forums.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.UserStatService;
@@ -200,142 +197,6 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Void> addReply(Comment reply, User user, List<UploadedFileData> thumbnailList,
-			List<UploadedFileData> attachmentList) {
-		ServiceResponse<Void> response = new ServiceResponse<>();
-		String username = user.getUsername();
-		reply.setCreatedBy(username);
-
-		Discussion discussion = reply.getDiscussion();
-		discussion.getComments().add(reply);
-
-		reply.setThumbnails(fileInfoHelper.createThumbnails(thumbnailList));
-		reply.setAttachments(fileInfoHelper.createAttachments(attachmentList));
-
-		reply.setCommentVote(new CommentVote());
-
-		commentRepository.save(reply);
-//		genericDAO.persist(reply);
-
-		Comment replyTo = reply.getReplyTo();
-		if (replyTo != null) {
-			replyTo.getReplies().add(reply);
-			commentRepository.save(replyTo);
-//			genericDAO.merge(replyTo);
-		}
-
-		genericDAO.merge(discussion);
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public ServiceResponse<Comment> addCommentThumbnail(Comment comment, UploadedFileData uploadedFile) {
-		ServiceResponse<Comment> response = new ServiceResponse<>();
-		FileInfo thumbnail = fileInfoHelper.createThumbnail(uploadedFile);
-		if (thumbnail != null) {
-			comment.getThumbnails().add(thumbnail);
-			Comment savedComment = commentRepository.save(comment);
-			response.setDataObject(savedComment);
-		} else {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("Failed to create thumbnail for uploaded file");
-		}
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public ServiceResponse<Comment> addCommentAttachment(Comment comment, UploadedFileData uploadedFile) {
-		ServiceResponse<Comment> response = new ServiceResponse<>();
-		FileInfo attachment = fileInfoHelper.createAttachment(uploadedFile);
-		if (attachment != null) {
-			comment.getAttachments().add(attachment);
-			Comment savedComment = commentRepository.save(comment);
-			response.setDataObject(savedComment);
-		} else {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.addMessage("Failed to create attachment for uploaded file");
-		}
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public ServiceResponse<Boolean> deleteCommentThumbnail(Comment comment, FileInfo thumbnail) {
-		ServiceResponse<Boolean> response = new ServiceResponse<>();
-		comment.getThumbnails().remove(thumbnail);
-		genericDAO.persist(comment);
-		genericDAO.remove(thumbnail);
-
-		ServiceResponse<Boolean> fileDeleteResponse = fileService.deleteCommentThumbnail(thumbnail.getPath());
-		if (fileDeleteResponse.getAckCode() == AckCodeType.FAILURE) {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.setMessages(fileDeleteResponse.getMessages());
-		} else {
-			response.setDataObject(true);
-		}
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public ServiceResponse<Boolean> deleteCommentAttachment(Comment comment, FileInfo attachment) {
-		ServiceResponse<Boolean> response = new ServiceResponse<>();
-		comment.getAttachments().remove(attachment);
-		genericDAO.persist(comment);
-		genericDAO.remove(attachment);
-
-		ServiceResponse<Boolean> fileDeleteResponse = fileService.deleteCommentAttachment(attachment.getPath());
-		if (fileDeleteResponse.getAckCode() == AckCodeType.FAILURE) {
-			response.setAckCode(AckCodeType.FAILURE);
-			response.setMessages(fileDeleteResponse.getMessages());
-		} else {
-			response.setDataObject(true);
-		}
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Comment>> getLatestCommentsForUser(String username, int maxResult) {
-
-		ServiceResponse<List<Comment>> response = new ServiceResponse<>();
-
-		response.setDataObject(commentDAO.getLatestCommentsForUser(username, maxResult));
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ServiceResponse<Map<String, Integer>> getMostCommentsUsers(Date since, Integer maxResult) {
-
-		ServiceResponse<Map<String, Integer>> response = new ServiceResponse<>();
-
-		response.setDataObject(commentDAO.getMostCommentsUsers(since, maxResult));
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ServiceResponse<Boolean> isFirstComment(Comment comment) {
-
-		ServiceResponse<Boolean> response = new ServiceResponse<>();
-		Comment firstComment = commentRepository.findFirstCommentByDiscussion(comment.getDiscussion());
-		response.setDataObject(firstComment.getId().equals(comment.getId()));
-
-		return response;
-	}
-
-	@Override
-	@Transactional(readOnly = false)
 	public ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
 			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
 		ServiceResponse<Comment> response = new ServiceResponse<>();
@@ -417,6 +278,42 @@ public class CommentServiceImpl implements CommentService {
 
 		return discussionStat;
 
+	}
+
+	@Override
+	@Transactional
+	public Comment updateComment(Comment comment) {
+		Optional<Comment> optionalComment = commentRepository.findById(comment.getId());
+		if (optionalComment.isPresent()) {
+			return commentRepository.save(comment);
+		} else {
+			throw new RuntimeException("Comment not found with id " + comment.getId());
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<Comment> deleteComment(Long id) {
+		ServiceResponse<Comment> response = new ServiceResponse<>();
+		Optional<Comment> optionalComment = commentRepository.findById(id);
+		if (optionalComment.isPresent()) {
+			Comment comment = optionalComment.get();
+			deleteChildComments(comment);
+			commentRepository.delete(comment);
+			response.setDataObject(comment);
+			response.setAckCode(AckCodeType.SUCCESS);
+		} else {
+			response.setAckCode(AckCodeType.FAILURE);
+		}
+        return response;
+    }
+
+	private void deleteChildComments(Comment parentComment) {
+		List<Comment> childComments = commentRepository.findByReplyTo(parentComment);
+		for (Comment childComment : childComments) {
+			deleteChildComments(childComment);
+			commentRepository.delete(childComment);
+		}
 	}
 
 }

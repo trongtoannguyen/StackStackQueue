@@ -207,7 +207,7 @@ const DiscussionManage = () => {
 							<td>
 								<Link
 									to={`/admin/discussion/${discussion.id}`}
-									className="text-decoration-none text-dark"
+									style={{ textDecoration: "none", color: "blue" }}
 								>
 									{discussion.title}
 								</Link>

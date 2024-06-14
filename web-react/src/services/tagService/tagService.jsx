@@ -1,3 +1,4 @@
+import axios from "../customize-axios";
 export const getAllTags = async (
 	page,
 	size,
@@ -52,5 +53,23 @@ export const updateTag = async (tagToUpdate, accessToken, axiosJWT) => {
 	} catch (err) {
 		console.log(`Error updateTag`, err);
 		return;
+	}
+};
+
+export const viewAllTag = async (page, size, orderBy, sort, search) => {
+	try {
+		const response = await axios.get("/view/tags", {
+			params: {
+				page,
+				size,
+				orderBy,
+				sort,
+				search,
+			},
+		});
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching discussions:", error);
+		throw error;
 	}
 };

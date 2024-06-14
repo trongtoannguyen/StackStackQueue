@@ -3,6 +3,8 @@ package com.springboot.app.forums.controller;
 
 import java.util.List;
 
+import com.springboot.app.forums.entity.Discussion;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,12 @@ public class DicussionViewController {
 
 	@Autowired
 	private DiscussionService discussionService;
+
 	@Autowired
 	private CommentService commentService;
+
+	@Autowired
+	private ModelMapper modelMapper;
 
 	@GetMapping("/byId/{id}")
 	public ResponseEntity<ObjectResponse> getDiscussionById(@PathVariable Long id) {
@@ -69,6 +75,7 @@ public class DicussionViewController {
 		if (discussionId == null || discussionId == 0) {
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Discussion ID is required", null));
 		}
+		discussionService.updateDiscussionViews(discussionId);
 		return ResponseEntity.ok(commentService.getAllCommentsByDiscussionId(page, size, orderBy, sort, discussionId));
 	}
 
@@ -95,6 +102,15 @@ public class DicussionViewController {
 			@RequestParam(value = "forumId", defaultValue = "", required = false) Long forumId) {
 		return ResponseEntity.ok(new ObjectResponse("200", "Success",
 				discussionService.getAllDiscussion(page, size, orderBy, sort, search, forumId)));
+	}
+
+	@GetMapping("/tag/{tagId}")
+	public ResponseEntity<ObjectResponse> getDiscussionsByTagId(@PathVariable Long tagId) {
+		ServiceResponse<List<DiscussionDTO>> response = discussionService.getDiscussionsByTagId(tagId);
+		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Discussions found", response));
+		}
+		return ResponseEntity.ok(new ObjectResponse("404", "Discussions not found", null));
 	}
 
 }

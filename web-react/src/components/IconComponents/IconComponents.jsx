@@ -1,25 +1,40 @@
-//Icon
 import {
-	FaBeer,
-	FaCoffee,
-	FaApple,
-	FaAndroid,
-	FaHome,
-	FaUser,
-	FaEnvelope,
-	FaBell,
-	FaHeart,
-	FaStar,
-	FaComment,
-	FaThumbsUp,
-	FaThumbsDown,
-	FaCheck,
-	FaTimes,
-	FaSearch,
-	FaCog,
-	FaTrash,
-	FaEdit,
-	FaSave,
+	FaCode,
+	FaLaptopCode,
+	FaMobileAlt,
+	FaServer,
+	FaDatabase,
+	FaCloud,
+	FaRobot,
+	FaMicrochip,
+	FaWifi,
+	FaSatelliteDish,
+	FaGamepad,
+	FaChess,
+	FaDice,
+	FaPuzzlePiece,
+	FaPlaystation,
+	FaXbox,
+	FaSteam,
+	FaTwitch,
+	FaTag,
+	FaTags,
+	FaBookmark,
+	FaBarcode,
+	FaBook,
+	FaCertificate,
+	FaClipboard,
+	FaFileAlt,
+	FaFolderOpen,
+	FaMoneyBill,
+	FaMoneyCheck,
+	FaChartLine,
+	FaChartBar,
+	FaWallet,
+	FaShoppingCart,
+	FaBalanceScale,
+	FaCalculator,
+	FaMoneyCheckAlt,
 } from "react-icons/fa";
 
 import { Dropdown } from "react-bootstrap";
@@ -30,73 +45,101 @@ const SelectIcon = (props) => {
 	const { handleSelectIcon, icon } = props;
 
 	const iconOptions = [
-		{ value: "FaBeer", label: "Beer", icon: <FaBeer /> },
-		{ value: "FaCoffee", label: "Coffee", icon: <FaCoffee /> },
-		{ value: "FaApple", label: "Apple", icon: <FaApple /> },
-		{ value: "FaAndroid", label: "Android", icon: <FaAndroid /> },
-		{ value: "FaHome", label: "Home", icon: <FaHome /> },
-		{ value: "FaUser", label: "User", icon: <FaUser /> },
-		{ value: "FaEnvelope", label: "Envelope", icon: <FaEnvelope /> },
-		{ value: "FaBell", label: "Bell", icon: <FaBell /> },
-		{ value: "FaHeart", label: "Heart", icon: <FaHeart /> },
-		{ value: "FaStar", label: "Star", icon: <FaStar /> },
-		{ value: "FaComment", label: "Comment", icon: <FaComment /> },
-		{ value: "FaThumbsUp", label: "Thumbs Up", icon: <FaThumbsUp /> },
-		{ value: "FaThumbsDown", label: "Thumbs Down", icon: <FaThumbsDown /> },
-		{ value: "FaCheck", label: "Check", icon: <FaCheck /> },
-		{ value: "FaTimes", label: "Times", icon: <FaTimes /> },
-		{ value: "FaSearch", label: "Search", icon: <FaSearch /> },
-		{ value: "FaCog", label: "Cog", icon: <FaCog /> },
-		{ value: "FaTrash", label: "Trash", icon: <FaTrash /> },
-		{ value: "FaEdit", label: "Edit", icon: <FaEdit /> },
-		{ value: "FaSave", label: "Save", icon: <FaSave /> },
-	];
+		{ value: "FaCode", label: "Code", icon: <FaCode /> },
+		{ value: "FaLaptopCode", label: "Laptop Code", icon: <FaLaptopCode /> },
+		{ value: "FaMobileAlt", label: "Mobile Alt", icon: <FaMobileAlt /> },
+		{ value: "FaServer", label: "Server", icon: <FaServer /> },
+		{ value: "FaDatabase", label: "Database", icon: <FaDatabase /> },
+		{ value: "FaCloud", label: "Cloud", icon: <FaCloud /> },
+		{ value: "FaRobot", label: "Robot", icon: <FaRobot /> },
+		{ value: "FaMicrochip", label: "Microchip", icon: <FaMicrochip /> },
+		{ value: "FaWifi", label: "Wifi", icon: <FaWifi /> },
+		{
+			value: "FaSatelliteDish",
+			label: "Satellite Dish",
+			icon: <FaSatelliteDish />,
+		},
+		{ value: "FaGamepad", label: "Gamepad", icon: <FaGamepad /> },
+		{ value: "FaChess", label: "Chess", icon: <FaChess /> },
+		{ value: "FaDice", label: "Dice", icon: <FaDice /> },
+		{ value: "FaPuzzlePiece", label: "Puzzle Piece", icon: <FaPuzzlePiece /> },
+		{ value: "FaPlaystation", label: "Playstation", icon: <FaPlaystation /> },
+		{ value: "FaXbox", label: "Xbox", icon: <FaXbox /> },
+		{ value: "FaSteam", label: "Steam", icon: <FaSteam /> },
+		{ value: "FaTwitch", label: "Twitch", icon: <FaTwitch /> },
 
+		{ value: "FaTag", label: "Tag", icon: <FaTag /> },
+		{ value: "FaTags", label: "Tags", icon: <FaTags /> },
+		{ value: "FaBookmark", label: "Bookmark", icon: <FaBookmark /> },
+		{ value: "FaBarcode", label: "Barcode", icon: <FaBarcode /> },
+		{ value: "FaBook", label: "Book", icon: <FaBook /> },
+		{ value: "FaCertificate", label: "Certificate", icon: <FaCertificate /> },
+		{ value: "FaClipboard", label: "Clipboard", icon: <FaClipboard /> },
+		{ value: "FaFileAlt", label: "File Alt", icon: <FaFileAlt /> },
+		{ value: "FaFolderOpen", label: "Folder Open", icon: <FaFolderOpen /> },
+		{ value: "FaMoneyBill", label: "Money Bill", icon: <FaMoneyBill /> },
+		{ value: "FaMoneyCheck", label: "Money Check", icon: <FaMoneyCheck /> },
+		{ value: "FaChartLine", label: "Chart Line", icon: <FaChartLine /> },
+		{ value: "FaChartBar", label: "Chart Bar", icon: <FaChartBar /> },
+		{ value: "FaWallet", label: "Wallet", icon: <FaWallet /> },
+		{
+			value: "FaShoppingCart",
+			label: "Shopping Cart",
+			icon: <FaShoppingCart />,
+		},
+		{ value: "FaCalculator", label: "Calculator", icon: <FaCalculator /> },
+		{
+			value: "FaBalanceScale",
+			label: "Balance Scale",
+			icon: <FaBalanceScale />,
+		},
+		{
+			value: "FaMoneyCheckAlt",
+			label: "Money Check Alt",
+			icon: <FaMoneyCheckAlt />,
+		},
+	];
 	const renderIcon = (iconName) => {
-		switch (iconName) {
-			case "FaBeer":
-				return <FaBeer />;
-			case "FaCoffee":
-				return <FaCoffee />;
-			case "FaApple":
-				return <FaApple />;
-			case "FaAndroid":
-				return <FaAndroid />;
-			case "FaHome":
-				return <FaHome />;
-			case "FaUser":
-				return <FaUser />;
-			case "FaEnvelope":
-				return <FaEnvelope />;
-			case "FaBell":
-				return <FaBell />;
-			case "FaHeart":
-				return <FaHeart />;
-			case "FaStar":
-				return <FaStar />;
-			case "FaComment":
-				return <FaComment />;
-			case "FaThumbsUp":
-				return <FaThumbsUp />;
-			case "FaThumbsDown":
-				return <FaThumbsDown />;
-			case "FaCheck":
-				return <FaCheck />;
-			case "FaTimes":
-				return <FaTimes />;
-			case "FaSearch":
-				return <FaSearch />;
-			case "FaCog":
-				return <FaCog />;
-			case "FaTrash":
-				return <FaTrash />;
-			case "FaEdit":
-				return <FaEdit />;
-			case "FaSave":
-				return <FaSave />;
-			default:
-				return null;
-		}
+		const iconMapping = {
+			FaCode: <FaCode />,
+			FaLaptopCode: <FaLaptopCode />,
+			FaMobileAlt: <FaMobileAlt />,
+			FaServer: <FaServer />,
+			FaDatabase: <FaDatabase />,
+			FaCloud: <FaCloud />,
+			FaRobot: <FaRobot />,
+			FaMicrochip: <FaMicrochip />,
+			FaWifi: <FaWifi />,
+			FaSatelliteDish: <FaSatelliteDish />,
+			FaGamepad: <FaGamepad />,
+			FaChess: <FaChess />,
+			FaDice: <FaDice />,
+			FaPuzzlePiece: <FaPuzzlePiece />,
+			FaPlaystation: <FaPlaystation />,
+			FaXbox: <FaXbox />,
+			FaSteam: <FaSteam />,
+			FaTwitch: <FaTwitch />,
+			FaTag: <FaTag />,
+			FaTags: <FaTags />,
+			FaBookmark: <FaBookmark />,
+			FaBarcode: <FaBarcode />,
+			FaBook: <FaBook />,
+			FaCertificate: <FaCertificate />,
+			FaClipboard: <FaClipboard />,
+			FaFileAlt: <FaFileAlt />,
+			FaFolderOpen: <FaFolderOpen />,
+			FaMoneyBill: <FaMoneyBill />,
+			FaMoneyCheck: <FaMoneyCheck />,
+			FaChartLine: <FaChartLine />,
+			FaChartBar: <FaChartBar />,
+			FaWallet: <FaWallet />,
+			FaShoppingCart: <FaShoppingCart />,
+			FaBalanceScale: <FaBalanceScale />,
+			FaCalculator: <FaCalculator />,
+			FaMoneyCheckAlt: <FaMoneyCheckAlt />,
+		};
+
+		return iconMapping[iconName] || null;
 	};
 
 	return (

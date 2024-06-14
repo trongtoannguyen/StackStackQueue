@@ -23,6 +23,7 @@ import { registerBookmark } from "../../services/bookmarkService/bookmarkService
 import DiscussionInfo from "./DiscussionInfo";
 import Avatar from "../avatar/Avatar";
 import "./stylecomment.scss";
+import ModalUpdateComment from "./ModalUpdateComment";
 
 import ModalAddNewReply from "./ModalAddNewReply";
 import Pagination from "../pagination/Pagination";
@@ -281,6 +282,25 @@ const DiscussionDetails = () => {
 		fetchAllCommentData();
 	};
 
+	//update Comment
+	const [dataUpdateComment, setDataUpdateComment] = useState(null);
+	const [showModelUpdateDiscussion, setShowModelUpdateComment] =
+		useState(false);
+	const handleEditDiscussion = (comment) => {
+		setDataUpdateComment(comment);
+		setShowModelUpdateComment(true);
+	};
+
+	const handleEditCommentFromModel = (comment) => {
+		console.log(`Check`, comment);
+		let cloneListComments = _.cloneDeep(comments);
+		let index = cloneListComments.findIndex((c) => c.id === comment.id);
+		cloneListComments[index] = comment;
+		setListComment(cloneListComments);
+		fetchFirstCommentData();
+		fetchAllCommentData();
+	};
+
 	const breadcrumbs = [
 		{ id: 1, name: `${titleFG.title}`, link: `/forumGroup` },
 		{ id: 2, name: `${titleForum.title}`, link: `/forum/${titleForum.id}` },
@@ -307,11 +327,6 @@ const DiscussionDetails = () => {
 						className="vote fa-solid fa-caret-down mb-3"
 						onClick={() => handleDownVote(comment?.commentId)}
 					></button>
-
-					{!comment?.firstComment && (
-						<button className="fa-solid fa-check text-success mb-3"></button>
-					)}
-
 					<button
 						className={
 							isBookmarkOfCurrentUser(comment)
@@ -351,7 +366,10 @@ const DiscussionDetails = () => {
 
 								{currentUser.username === comment?.author?.username && (
 									<small className="ml-auto me-0 d-inline-block">
-										<button className="mx-2 fa-solid fa-edit fa-2x"></button>
+										<button
+											onClick={() => handleEditDiscussion(comment)}
+											className="mx-2 fa-solid fa-edit fa-2x"
+										></button>
 										<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
 									</small>
 								)}
@@ -366,7 +384,13 @@ const DiscussionDetails = () => {
 						></div>
 						{comment?.tags?.map((tag) => (
 							<span key={tag.id}>
-								<button className="btn btn-sm mx-2">{tag?.label}</button>
+								<button
+									className="btn btn-sm mx-2"
+									style={{ backgroundColor: tag.color }}
+								>
+									<i className="fa-solid fa-tag"></i>{" "}
+									<span style={{ color: "white" }}>{tag?.label}</span>
+								</button>
 							</span>
 						))}
 					</div>
@@ -524,6 +548,12 @@ const DiscussionDetails = () => {
 				handleClose={() => setIsShowAddNewReply(false)}
 				handleUpdateAddReply={handleUpdateAddReply}
 				replyToId={replyToId}
+			/>
+			<ModalUpdateComment
+				show={showModelUpdateDiscussion}
+				handleClose={() => setShowModelUpdateComment(false)}
+				dataUpdateComment={dataUpdateComment}
+				handleEditCommentFromModel={handleEditCommentFromModel}
 			/>
 		</section>
 	);
