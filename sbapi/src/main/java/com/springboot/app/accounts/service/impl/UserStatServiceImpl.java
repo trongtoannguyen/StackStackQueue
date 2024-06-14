@@ -147,11 +147,13 @@ public class UserStatServiceImpl implements UserStatService {
 
 		if(lastComment!=null){
 			if(latestCommentInfo==null){
-				// create new comment info
-				latestCommentInfo = copyToCommentInfo(lastComment);
+				latestCommentInfo = new CommentInfo();
+				latestCommentInfo.setCreatedBy(username);
+				copyToCommentInfo(lastComment,latestCommentInfo);
 				commentInfoRepository.save(latestCommentInfo);
 				userStat.setLastComment(latestCommentInfo);
 			}
+			copyToCommentInfo(lastComment,latestCommentInfo);
 		}else{
 			// remove last comment info if no comment found for user in the system
 			if(latestCommentInfo!=null){
@@ -164,8 +166,7 @@ public class UserStatServiceImpl implements UserStatService {
 		return userStat;
 	}
 
-	private CommentInfo copyToCommentInfo(Comment comment) {
-		CommentInfo commentInfo = new CommentInfo();
+	private void copyToCommentInfo(Comment comment,CommentInfo commentInfo){
 		commentInfo.setCommenter(comment.getCreatedBy());
 		commentInfo.setCommentId(comment.getId());
 		commentInfo.setCommentDate(comment.getCreatedAt());
@@ -174,7 +175,6 @@ public class UserStatServiceImpl implements UserStatService {
 		String contentAbbr = new TextExtractor(new Source(comment.getContent())).toString();
 		commentInfo.setContentAbbr(contentAbbr.length() > 100 ?
 				contentAbbr.substring(0, 97) + "..." : contentAbbr);
-		return commentInfo;
 	}
 
 }

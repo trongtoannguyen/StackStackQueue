@@ -59,6 +59,10 @@ function AppRoutes() {
 				/>
 
 				<Route path="/list-discussion" element={<ListDiscussions />} />
+				{/* <Route
+					path="/list-discussion/:searchHome"
+					element={<ListDiscussions />}
+				/> */}
 
 				<Route path="/members" element={<MemberList />} />
 

@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.springboot.app.accounts.service.UserStatService;
+import com.springboot.app.forums.repository.*;
+import com.springboot.app.forums.service.ForumStatService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,10 +30,6 @@ import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.DiscussionStat;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumStat;
-import com.springboot.app.forums.repository.CommentRepository;
-import com.springboot.app.forums.repository.CommentVoteRepository;
-import com.springboot.app.forums.repository.DiscussionRepository;
-import com.springboot.app.forums.repository.ForumRepository;
 import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.repository.CommentDAO;
 import com.springboot.app.repository.DiscussionDAO;
@@ -71,47 +70,61 @@ public class DiscussionServiceImpl implements DiscussionService {
 	@Autowired
 	private CommentVoteRepository commentVoteRepository;
 
+	@Autowired
+	private UserStatService userStatService;
+
+	@Autowired
+	private ForumStatService forumStatService;
+    @Autowired
+    private DiscussionStatRepository discussionStatRepository;
+
 	@Override
 	@Transactional(readOnly = false)
 	public ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username,
 			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
 		ServiceResponse<Discussion> response = new ServiceResponse<>();
+
+		// Set basic properties
 		comment.setTitle(newDiscussion.getTitle());
 		comment.setCreatedBy(username);
-
 		newDiscussion.setCreatedBy(username);
 
-		// comment thumbnails
+		// Handle file attachments and thumbnails
 		comment.setThumbnails(fileInfoHelper.createThumbnails(thumbnailFiles));
-		// comment attachments
 		comment.setAttachments(fileInfoHelper.createAttachments(attachmentFiles));
 
+		// Create and associate CommentVote
 		CommentVote commentVote = new CommentVote();
 		commentVote.setCreatedBy(username);
 		commentVote.setCreatedAt(LocalDateTime.now());
 		commentVote = commentVoteRepository.save(commentVote);
+		comment.setCommentVote(commentVote);
 
-		// Save the CommentVote
-		comment.setCommentVote(commentVote); //
-
+		// Associate comment with discussion and save
 		newDiscussion.setComments(new ArrayList<>(List.of(comment)));
-
-		discussionRepository.save(newDiscussion);
 		comment.setDiscussion(newDiscussion);
-		commentRepository.save(comment);
-		// important, make sure to call this after comment is persisted
 
-		// so all DB managed fields (id, createDate, ect) are available
+		// Save the discussion (this should cascade and save the comment as well)
+		discussionRepository.save(newDiscussion);
+
+		// Ensure comment is persisted before populating statistics
+		commentRepository.save(comment);
+
+		// Populate discussion statistics
 		populateDiscussionStat(comment, newDiscussion, username);
 
-		// populate forum stat
-		ForumStat forumStat = populateForumStat(newDiscussion.getForum(), username, newDiscussion);
-		newDiscussion.getForum().setStat(forumStat);
-
+		// Update and save forum statistics
 		Forum forum = newDiscussion.getForum();
+		ForumStat forumStat = populateForumStat(forum, username, newDiscussion);
+		forum.setStat(forumStat);
 		forum.getDiscussions().add(newDiscussion);
 		forumRepository.save(forum);
+
+		// Update user statistics
+		userStatService.syncUserStat(username);
+
 		response.setDataObject(newDiscussion);
+
 		return response;
 	}
 
@@ -349,4 +362,23 @@ public class DiscussionServiceImpl implements DiscussionService {
 				discussionDTOPage.getContent());
 	}
 
+
+	@Override
+	@Transactional(readOnly = true)
+	public ServiceResponse<DiscussionStat> updateDiscussionViews(Long id) {
+		ServiceResponse<DiscussionStat> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(id).orElse(null);
+		if (discussion == null) {
+			response.addMessage("Discussion not found");
+			return response;
+		}
+		DiscussionStat discussionStat = discussion.getStat();
+		discussionStat.setViewCount(discussionStat.getViewCount() + 1);
+		discussionStat.setLastViewed(LocalDateTime.now());
+		discussion.setStat(discussionStat);
+		discussionRepository.save(discussion);
+		response.setDataObject(discussionStat);
+		System.out.println("Discussion found: " );
+		return response;
+	}
 }

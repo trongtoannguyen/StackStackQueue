@@ -105,6 +105,21 @@ const updateDetailsDiscussion = async (
 	return res;
 };
 
+const updateViews = async (id, accessToken, axiosJWT) => {
+	const res = await axiosJWT.put(
+		`/discussions/updateViews/${id}`,
+		{},
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+	//
+	return res;
+};
+
 export {
 	createDiscussion,
 	getAllDiscussion,
@@ -112,4 +127,5 @@ export {
 	getDiscussionById,
 	getPageDiscussion,
 	updateDetailsDiscussion,
+	updateViews,
 };

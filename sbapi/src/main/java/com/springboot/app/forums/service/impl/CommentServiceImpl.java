@@ -7,18 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.accounts.service.UserStatService;
 import com.springboot.app.dto.response.PaginateResponse;
-import com.springboot.app.follows.dto.response.BookmarkHistoryResponse;
 import com.springboot.app.follows.dto.response.BookmarkResponse;
 import com.springboot.app.follows.entity.Bookmark;
 import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
 import com.springboot.app.forums.dto.response.ReplyItem;
 import com.springboot.app.forums.dto.response.ViewCommentResponse;
-import com.springboot.app.forums.entity.*;
-import com.springboot.app.repository.VoteDAO;
 import com.springboot.app.tags.Tag;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,16 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springboot.app.accounts.entity.User;
-import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.dto.response.AckCodeType;
-import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
-import com.springboot.app.follows.dto.response.BookmarkResponse;
-import com.springboot.app.follows.entity.Bookmark;
 import com.springboot.app.forums.dto.UploadedFileData;
-import com.springboot.app.forums.dto.response.Author;
-import com.springboot.app.forums.dto.response.DiscussionResponse;
-import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.CommentVote;
@@ -52,12 +42,10 @@ import com.springboot.app.forums.repository.CommentVoteRepository;
 import com.springboot.app.forums.repository.DiscussionRepository;
 import com.springboot.app.forums.repository.ForumRepository;
 import com.springboot.app.forums.service.CommentService;
-import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.repository.CommentDAO;
 import com.springboot.app.repository.GenericDAO;
 import com.springboot.app.service.FileInfoHelper;
 import com.springboot.app.service.FileService;
-import com.springboot.app.tags.Tag;
 import com.springboot.app.utils.JSFUtils;
 
 import net.htmlparser.jericho.Source;
@@ -89,26 +77,10 @@ public class CommentServiceImpl implements CommentService {
 	private ForumRepository forumRepository;
 
 	@Autowired
-	private DiscussionService discussionService;
-
-	@Autowired
-	private ModelMapper modelMapper;
+	private UserStatService userStatService;
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Comment>> getComments(Discussion discussion) {
-		ServiceResponse<List<Comment>> response = new ServiceResponse<>();
-
-		Map<String, Object> equalAttrs = new HashMap<>();
-		equalAttrs.put("discussion", discussion);
-
-		List<Comment> comments = genericDAO.getEntities(Comment.class, equalAttrs);
-
-		response.setDataObject(comments);
-		return response;
-	}
 
 	@Override
 	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
@@ -400,6 +372,9 @@ public class CommentServiceImpl implements CommentService {
 		ForumStat forumStat = updateForumStat(discussionEntity.getForum(), username, discussionEntity);
 		discussionEntity.getForum().setStat(forumStat);
 
+		// Update the User Stat
+		userStatService.syncUserStat(username);
+
 		// Save the Forum
 		Forum forum = discussionEntity.getForum();
 		forum.getDiscussions().add(discussionEntity);
@@ -420,6 +395,7 @@ public class CommentServiceImpl implements CommentService {
 
 	private DiscussionStat updateDiscussionLastComment(Discussion discussion, Comment comment, String username) {
 		DiscussionStat discussionStat = discussion.getStat();
+		discussionStat.setCommentCount(discussionStat.getCommentCount() + 1);
 
 		CommentInfo lastComment = discussionStat.getLastComment();
 		String contentAbbreviation = new TextExtractor(new Source(comment.getContent())).toString();

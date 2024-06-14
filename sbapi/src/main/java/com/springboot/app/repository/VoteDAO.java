@@ -48,16 +48,24 @@ public class VoteDAO {
 		return results;
 	}
 
+//	public Number getReputation4User(String username) {
+//		String queryStr = "SELECT COALESCE(SUM(v.voteValue), 0) FROM Comment c join c.commentVote.votes v WHERE c.createdBy = :username";
+//		TypedQuery<Number> typedQuery = entityManager.createQuery(queryStr, Number.class);
+//		typedQuery.setParameter("username", username);
+//		return typedQuery.getSingleResult();
+//	}
+
 	public Number getReputation4User(String username) {
-		String queryStr = "SELECT COALESCE(SUM(v.voteValue), 0) FROM Comment c, c.commentVote.votes v WHERE c.createdBy = :username";
+		String queryStr = "SELECT COALESCE(SUM(v.voteValue), 0) FROM Comment c JOIN c.commentVote cv JOIN cv.votes v WHERE c.createdBy = :username";
 		TypedQuery<Number> typedQuery = entityManager.createQuery(queryStr, Number.class);
 		typedQuery.setParameter("username", username);
 		return typedQuery.getSingleResult();
 	}
 
+
 	public Map<String,Integer> getTopReputationUsers(LocalDateTime since, Integer maxResults) {
 		Map<String,Integer> results = new HashMap<>();
-		String queryStr = "SELECT c.createdBy, COALESCE(SUM(v.voteValue), 0) FROM Comment c, c.commentVote.votes v WHERE c.createdDate >= :since GROUP BY c.createdBy ORDER BY SUM(v.voteValue) DESC";
+		String queryStr = "SELECT c.createdBy, COALESCE(SUM(v.voteValue), 0) FROM Comment c, c.commentVote.votes v WHERE c.createdAt >= :since GROUP BY c.createdBy ORDER BY SUM(v.voteValue) DESC";
 		Query query = entityManager.createQuery(queryStr);
 		query.setParameter("since", since);
 		query.setMaxResults(maxResults);

@@ -5,6 +5,7 @@ import ReactQuill from "react-quill";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Card, Row, Col, Button } from "reactstrap";
+import _ from "lodash";
 
 //Service
 import { loginSuccess } from "../../redux/authSlice";
@@ -22,6 +23,7 @@ import { registerBookmark } from "../../services/bookmarkService/bookmarkService
 import DiscussionInfo from "./DiscussionInfo";
 import Avatar from "../avatar/Avatar";
 import "./stylecomment.scss";
+
 import ModalAddNewReply from "./ModalAddNewReply";
 import Pagination from "../pagination/Pagination";
 
@@ -116,7 +118,6 @@ const DiscussionDetails = () => {
 			discussionId,
 		};
 		let res = await getAllCommentByDiscussionId(pageData);
-		console.log("res", res);
 		if (res?.data?.length > 0) {
 			setListComment(res.data);
 			setPageSize(res.pageSize);
@@ -249,13 +250,43 @@ const DiscussionDetails = () => {
 		setReplyToId(commentId);
 	};
 
-	const handleUpdateAddReply = (reply) => {};
+	const handleUpdateAddReply = (reply) => {
+		let cloneComments = _.cloneDeep(comments);
+		let index = cloneComments.findIndex(
+			(comment) => comment.commentId === reply.commentId
+		);
+		cloneComments[index] = {
+			...cloneComments[index],
+			replies: [
+				{
+					replyId: reply.id,
+					createdAt: reply.createdAt,
+					author: {
+						username: reply.createdBy,
+						avatar: null,
+						imageUrl: null,
+						reputation: null,
+						totalDiscussions: null,
+					},
+					content: reply.content,
+				},
+			],
+		};
+		setComments(cloneComments);
+		fetchFirstCommentData();
+		fetchAllCommentData();
+	};
 
 	const breadcrumbs = [
 		{ id: 1, name: `${titleFG.title}`, link: `/forumGroup` },
 		{ id: 2, name: `${titleForum.title}`, link: `/forum/${titleForum.id}` },
 		{ id: 3, name: `${titleDisc.title}`, link: `/discussion/${discussionId}` },
 	];
+
+	useEffect(() => {
+		fetchFirstCommentData();
+		fetchAllCommentData();
+	}, [discussionId]);
 
 	const commentCard = (comment) => {
 		return (
@@ -330,6 +361,27 @@ const DiscussionDetails = () => {
 							</span>
 						))}
 					</div>
+					{comment?.replies?.length > 0 && <hr />}
+					{comment?.replies?.map((reply, index) => {
+						const isLastReply = index === comment?.replies?.length - 1;
+						return (
+							<div
+								key={reply?.replyId}
+								className={`d-block ${isLastReply ? "" : "reply-container"}`}
+								style={{ marginLeft: "20px" }}
+							>
+								<div className="d-flex" style={{ paddingTop: "10px" }}>
+									<span
+										dangerouslySetInnerHTML={{ __html: reply?.content }}
+									></span>
+									<span style={{ marginLeft: "6px" }}>
+										- {reply?.author?.username}{" "}
+										{formatLongDate(reply?.createdAt)}
+									</span>
+								</div>
+							</div>
+						);
+					})}
 					<hr />
 					<div className="card-footer d-flex justify-content-between">
 						<span>
@@ -354,11 +406,6 @@ const DiscussionDetails = () => {
 			</Row>
 		);
 	};
-
-	useEffect(() => {
-		fetchFirstCommentData();
-		fetchAllCommentData();
-	}, [discussionId]);
 
 	return (
 		<section className="discussion-details content mb-3">
@@ -416,6 +463,7 @@ const DiscussionDetails = () => {
 													onChange={setContent}
 													id="content"
 													placeholder="Enter content here"
+													className="content-editor"
 												/>
 											</div>
 
@@ -438,6 +486,16 @@ const DiscussionDetails = () => {
 									</div>
 								</section>
 							)}
+							<Card className="card">
+								<button
+									className="btn btn-success w-100 h-100 m-0"
+									onClick={() => setIsShowAddNewComment(true)}
+								>
+									<i className="fa-solid fa-circle-plus"></i>
+									<></>
+									Add New Comment
+								</button>
+							</Card>
 							<Pagination
 								handlePageClick={handlePageClick}
 								pageSize={+pageSize}
@@ -448,19 +506,7 @@ const DiscussionDetails = () => {
 					</Col>
 					{/* right column */}
 					<Col className="mb-3 col-12 col-md-4 col-lg-3">
-						<Card className="card">
-							<button
-								className="btn btn-success w-100 h-100 m-0"
-								onClick={() => setIsShowAddNewComment(true)}
-							>
-								<i className="fa-solid fa-circle-plus"></i>
-								<></>
-								Add New Comment
-							</button>
-						</Card>
-						<Card className="card px-3 h-100">
-							<DiscussionInfo />
-						</Card>
+						<DiscussionInfo />
 					</Col>
 				</Row>
 			</Col>

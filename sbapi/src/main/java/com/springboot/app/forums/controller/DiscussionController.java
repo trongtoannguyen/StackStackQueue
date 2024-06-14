@@ -172,5 +172,39 @@ public class DiscussionController {
 		return ResponseEntity.ok(new ObjectResponse("400",
 				String.format("Could not update Discussion: %s", newDiscussion.getDiscussion().getTitle()), null));
 	}
+	@PutMapping("/updateDetails/{id}")
+	public ResponseEntity<ObjectResponse> updateDiscussion(@PathVariable Long id,
+														   @Valid @RequestBody Discussion discussion) {
+		try {
+			LocalDateTime now = LocalDateTime.now();
+			var userSession = JwtUtils.getSession();
+			String username = userSession.getUsername();
+			discussion.setUpdatedBy(username);
+			discussion.setUpdatedAt(now);
+		} catch (Exception e) {
+			logger.error("Error getting user session: {}", e.getMessage());
+		}
 
+		ServiceResponse<Discussion> response = genericService.updateEntity(discussion);
+
+		// map discussion to discussionDTO
+		DiscussionDTO discussionDTO = modelMapper.map(response.getDataObject(), DiscussionDTO.class);
+
+		if (response.getAckCode() != AckCodeType.FAILURE) {
+			return ResponseEntity.ok(new ObjectResponse("200",
+					String.format("Updated Discussion %s successfully",discussion.getTitle()),
+					discussionDTO));
+		}
+		return ResponseEntity.ok(new ObjectResponse("400",
+				String.format("Could not update Discussion: %s",discussion.getTitle()), null));
+	}
+
+	@PutMapping("/updateViews/{id}")
+	public ResponseEntity<ObjectResponse> updateDiscussionViews(@PathVariable Long id) {
+			ServiceResponse<DiscussionStat> response = discussionService.updateDiscussionViews(id);
+		if (response.getDataObject() != null && response.getDataObject().getId() != null) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Discussion views updated", response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("404", "Discussion not found", null));
+	}
 }

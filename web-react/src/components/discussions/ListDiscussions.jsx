@@ -4,6 +4,7 @@ import BannerTop from "../bannerTop/BannerTop";
 import { Link } from "react-router-dom";
 import { Row, Col } from "reactstrap";
 import { debounce } from "lodash";
+import { useSearchParams } from "react-router-dom";
 
 //Service
 import { getPageDiscussion } from "../../services/forumService/DiscussionService";
@@ -27,6 +28,10 @@ const ListDiscussions = () => {
 		{ id: 1, name: "List Discussions", link: "/list-discussion" },
 	];
 
+	//Param
+	const [searchHome] = useSearchParams();
+	const keyword = searchHome.get("searchHome");
+
 	//Pagination
 	const [page, setPage] = useState(1);
 	const [size, setSize] = useState(5);
@@ -42,6 +47,20 @@ const ListDiscussions = () => {
 	//Discussion
 	const [discussionList, setDiscussionList] = useState([]);
 	const listDiscussions = async () => {
+		if (keyword) {
+			if (keyword === "mostRecent") {
+				setOrderBy("createdAt");
+				setSort("DESC");
+			}
+			if (keyword === "mostComments") {
+				setOrderBy("stat.commentCount");
+				setSort("DESC");
+			}
+			if (keyword === "mostViews") {
+				setOrderBy("stat.viewCount");
+				setSort("DESC");
+			}
+		}
 		const res = await getPageDiscussion(
 			page,
 			size,
@@ -50,7 +69,6 @@ const ListDiscussions = () => {
 			search,
 			forumId
 		);
-		console.log(res);
 		if (res && res.data) {
 			setDiscussionList(res.data);
 			setTotalPages(res.totalPages);
@@ -84,13 +102,12 @@ const ListDiscussions = () => {
 			setForumId(null);
 			listDiscussions();
 		}
-		console.log(`keyId`, keyId);
 		setForumId(keyId);
 	}, 500);
 
 	useEffect(() => {
-		listDiscussions();
 		listForums();
+		listDiscussions();
 	}, [page, size, orderBy, sort, search, forumId]);
 
 	return (
@@ -102,37 +119,6 @@ const ListDiscussions = () => {
 			<Row>
 				<Col md="9">
 					<div className="filter-item">
-						{/* <span className="filter-name">Sort by: </span> */}
-						{/* <div>
-							<input
-								type="radio"
-								id="all"
-								value="all"
-								checked={selectedOption === "all"}
-								onChange={handleOptionChange}
-							/>
-							<label htmlFor="all">All</label>
-						</div>
-						<div>
-							<input
-								type="radio"
-								id="comment"
-								value="comment"
-								checked={selectedOption === "comment"}
-								onChange={handleOptionChange}
-							/>
-							<label htmlFor="comment">Most Comments Discussions</label>
-						</div>
-						<div>
-							<input
-								type="radio"
-								id="option3"
-								value="option3"
-								checked={selectedOption === "option3"}
-								onChange={handleOptionChange}
-							/>
-							<label htmlFor="option3">Option 3</label>
-						</div> */}
 						<button
 							className="btn btn-primary"
 							onClick={handleFilterDiscussionByForum}

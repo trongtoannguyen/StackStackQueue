@@ -159,7 +159,7 @@ public class StatDAO {
 	}
 
 	public Number countComment(String username) {
-		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(c) FROM Comment c WHERE c.createBy = :username", Number.class);
+		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(c) FROM Comment c WHERE c.createdBy = :username", Number.class);
 		typedQuery.setParameter("username", username);
 
 		return typedQuery.getSingleResult();
@@ -167,7 +167,7 @@ public class StatDAO {
 
 	public Number countDiscussion(String username) {
 
-		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(d) FROM Discussion d WHERE d.createBy = :username", Number.class);
+		TypedQuery<Number> typedQuery = entityManager.createQuery("SELECT COUNT(d) FROM Discussion d WHERE d.createdBy = :username", Number.class);
 		typedQuery.setParameter("username", username);
 
 		return typedQuery.getSingleResult();

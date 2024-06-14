@@ -3,8 +3,9 @@ import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import ReactQuill from "react-quill";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import "./Discussion.scss";
 
 //Service
 import { loginSuccess } from "../../redux/authSlice";
@@ -14,6 +15,8 @@ import { createDiscussion } from "../../services/forumService/DiscussionService"
 const ModalAddDiscussion = (props) => {
 	const { show, handleClose, handleUpdateAddDiscussion } = props;
 	const { forumId } = useParams();
+
+	const navigate = useNavigate();
 
 	ModalAddDiscussion.propTypes = {
 		show: PropTypes.bool.isRequired,
@@ -60,13 +63,14 @@ const ModalAddDiscussion = (props) => {
 					stat: res.data.data.stat,
 					createdAt: res.data.data.createdAt,
 				});
+				navigate(`/discussion/${res.data.data.id}`);
 				toast.success(res.data.message);
 			} else {
-				toast.error("Error when creating Forum");
+				toast.error("Error when creating Discussion");
 			}
 		} catch (error) {
 			console.error("Error:", error);
-			toast.error("Error when creating Forum");
+			toast.error("Error when creating Discussion");
 		}
 	};
 
@@ -108,30 +112,33 @@ const ModalAddDiscussion = (props) => {
 			</Modal.Header>
 
 			<Modal.Body>
-				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
-						Title
-					</label>
-					<input
-						className="form-control"
-						id="title"
-						type="text"
-						value={title}
-						onChange={(event) => setTitle(event.target.value)}
-						placeholder="Enter Title"
-					/>
-				</div>
+				<div className="">
+					<div className="form-group mb-3">
+						<label className="form-label" htmlFor="title">
+							Title
+						</label>
+						<input
+							className="form-control"
+							id="title"
+							type="text"
+							value={title}
+							onChange={(event) => setTitle(event.target.value)}
+							placeholder="Enter Title"
+						/>
+					</div>
 
-				<div className="form-group mb-3">
-					<label htmlFor="content">Content</label>
-					<ReactQuill
-						theme="snow"
-						modules={module}
-						value={content}
-						onChange={setContent}
-						id="content"
-						placeholder="Enter content here"
-					/>
+					<div className="form-group mb-3">
+						<label htmlFor="content">Content</label>
+						<ReactQuill
+							theme="snow"
+							modules={module}
+							value={content}
+							onChange={setContent}
+							id="content"
+							placeholder="Enter content here"
+							className="content-editor"
+						/>
+					</div>
 				</div>
 			</Modal.Body>
 
