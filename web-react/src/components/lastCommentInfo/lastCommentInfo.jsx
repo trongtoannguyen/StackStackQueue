@@ -10,7 +10,7 @@ const LastCommentInfo = (props) => {
 	return (
 		<Row>
 			<Col md={3}>
-				<Avatar username={""} height={50} width={50} />
+				<Avatar username={""} height={40} width={40} />
 			</Col>
 			<Col md={9}>
 				<b>{comment?.title}</b> <br />

@@ -4,9 +4,10 @@ import _ from "lodash";
 //Service
 import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
 import { getAllForum } from "../../../services/forumService/ForumService";
+import { getForumStat } from "../../../services/forumService/ForumStatService";
 
 //Utils
-import { formatDate } from "../../../utils/FormatDateTimeHelper";
+import LastCommentInfo from "../../lastCommentInfo/lastCommentInfo";
 
 //Modal
 import ModelAddForumGroup from "./ModelAddForumGroup";
@@ -69,6 +70,8 @@ const ForumManage = () => {
 	const [showModelUpdateActiveForum, setShowModelUpdateActiveForum] =
 		useState(false);
 
+	const [forumStat, setForumStat] = useState({});
+
 	const [sortBy, setSortBy] = useState("");
 	const [sortField, setSortField] = useState("");
 
@@ -97,6 +100,13 @@ const ForumManage = () => {
 		let res = await getAllForum();
 		if (res && res.data) {
 			setForum(res.data);
+		}
+	};
+
+	const ObjectForumStat = async () => {
+		let res = await getForumStat();
+		if (res) {
+			setForumStat(res);
 		}
 	};
 
@@ -173,6 +183,7 @@ const ForumManage = () => {
 	useEffect(() => {
 		listForumGroup();
 		listForums();
+		ObjectForumStat();
 	}, []);
 
 	const renderIcon = (iconName) => {
@@ -252,7 +263,8 @@ const ForumManage = () => {
 						{forumGroup?.map((forumGroup, index) => {
 							return (
 								<Card key={(forumGroup.id, index)}>
-									<Card.Header style={{ backgroundColor: "rgb(75, 104, 219)" }}>
+									{/* <Card.Header style={{ backgroundColor: "rgb(75, 104, 219)" }}> */}
+									<Card.Header style={{ backgroundColor: forumGroup.color }}>
 										<Card.Title className="d-flex">
 											{renderIcon(forumGroup.icon)}
 											<h4>{forumGroup.title}</h4>
@@ -285,12 +297,15 @@ const ForumManage = () => {
 																	key={forum.id}
 																	className="d-flex justify-content-between align-items-start"
 																>
-																	<div className="d-flex align-items-center">
+																	<div className="d-flex align-items-center col-md-4">
 																		<div className="my-2">
 																			{renderIcon(forum.icon)}
 																		</div>
 																		<div className="ms-2 me-auto">
-																			<div className="fw-bold d-flex ">
+																			<div
+																				className="fw-bold d-flex"
+																				style={{ color: forum.color }}
+																			>
 																				{forum.title}
 																				<span
 																					style={{
@@ -316,11 +331,18 @@ const ForumManage = () => {
 																			{forum.description}
 																		</div>
 																	</div>
-																	<span>
-																		Create: {formatDate(forum.createdAt)}
+																	<div className="col-6 col-md-2">
+																		discussions: {forum?.stat?.discussionCount}{" "}
 																		<br />
-																		Update: {formatDate(forum.updatedAt)}
-																	</span>
+																		comments: {forum?.stat?.commentCount}
+																	</div>
+																	<div className="col-md-4">
+																		{forum?.stat?.lastComment && (
+																			<LastCommentInfo
+																				comment={forum?.stat?.lastComment}
+																			/>
+																		)}
+																	</div>
 																	<div className="btn-forum">
 																		<input
 																			checked={forum.active}
@@ -369,11 +391,10 @@ const ForumManage = () => {
 										className="d-flex justify-content-between align-items-start"
 									>
 										<div className="ms-2 me-auto">
-											<div className="fw-bold">Subheading</div>
-											Cras justo odio
+											<div className="fw-bold">Forum</div>
 										</div>
 										<Badge bg="primary" pill>
-											14
+											{forumStat.totalForums}
 										</Badge>
 									</ListGroup.Item>
 									<ListGroup.Item
@@ -381,11 +402,10 @@ const ForumManage = () => {
 										className="d-flex justify-content-between align-items-start"
 									>
 										<div className="ms-2 me-auto">
-											<div className="fw-bold">Subheading</div>
-											Cras justo odio
+											<div className="fw-bold">Discussions</div>
 										</div>
 										<Badge bg="primary" pill>
-											14
+											{forumStat.totalDiscussions}
 										</Badge>
 									</ListGroup.Item>
 									<ListGroup.Item
@@ -393,11 +413,21 @@ const ForumManage = () => {
 										className="d-flex justify-content-between align-items-start"
 									>
 										<div className="ms-2 me-auto">
-											<div className="fw-bold">Subheading</div>
-											Cras justo odio
+											<div className="fw-bold">Discussion Tags</div>
 										</div>
 										<Badge bg="primary" pill>
-											14
+											{forumStat.totalTags}
+										</Badge>
+									</ListGroup.Item>
+									<ListGroup.Item
+										as="li"
+										className="d-flex justify-content-between align-items-start"
+									>
+										<div className="ms-2 me-auto">
+											<div className="fw-bold">Comments</div>
+										</div>
+										<Badge bg="primary" pill>
+											{forumStat.totalComments}
 										</Badge>
 									</ListGroup.Item>
 								</ListGroup>

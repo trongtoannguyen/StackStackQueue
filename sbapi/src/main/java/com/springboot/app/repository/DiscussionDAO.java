@@ -2,6 +2,7 @@ package com.springboot.app.repository;
 
 import com.springboot.app.admin.dto.DataForumGroupResponse;
 import com.springboot.app.admin.dto.PieChartResponse;
+import com.springboot.app.forums.dto.response.ForumGroupStat;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.tags.Tag;
@@ -137,7 +138,7 @@ public class DiscussionDAO {
 
 
 	public List<DataForumGroupResponse> getForumGroupData() {
-		String queryStr = "SELECT g.title, count (f.stat.discussionCount), count(f.stat.commentCount) FROM Forum f JOIN f.forumGroup g GROUP BY g.title";
+		String queryStr = "SELECT g.title, sum (f.stat.discussionCount), sum (f.stat.commentCount) FROM Forum f JOIN f.forumGroup g GROUP BY g.title";
 		Query query = entityManager.createQuery(queryStr);
 		@SuppressWarnings("unchecked")
 		List<Object[]> results = query.getResultList();
@@ -151,6 +152,21 @@ public class DiscussionDAO {
 		}
 		return response;
 	}
+
+	public ForumGroupStat getForumGroupStat(){
+		String queryStr = "SELECT count(f.id), sum (f.stat.discussionCount), sum (f.stat.commentCount) FROM Forum f ";
+		Query query = entityManager.createQuery(queryStr);
+		@SuppressWarnings("unchecked")
+		Object[] result = (Object[]) query.getSingleResult();
+		ForumGroupStat forumGroupStat = new ForumGroupStat();
+		forumGroupStat.setTotalForums((Long) result[0]);
+		forumGroupStat.setTotalDiscussions((Long) result[1]);
+		forumGroupStat.setTotalComments((Long) result[2]);
+
+		return forumGroupStat;
+	}
+
+
 
 
 	public List<DataForumGroupResponse> getForumGroupData2() {

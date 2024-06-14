@@ -1,12 +1,12 @@
 import Table from "react-bootstrap/Table";
 import { Link } from "react-router-dom";
-import ReactPaginate from "react-paginate";
 import BannerTop from "../bannerTop/BannerTop";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
 import _ from "lodash";
+import { useDispatch } from "react-redux";
 
 //Model
 import ForumInfo from "./ForumInfo";
@@ -15,10 +15,16 @@ import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
 
 //Services
 import { getForumById } from "../../services/forumService/ForumService";
-import { getAllDiscussion } from "../../services/forumService/DiscussionService";
+import { getPageDiscussion } from "../../services/forumService/DiscussionService";
+import { updateViews } from "../../services/forumService/DiscussionService";
+import { loginSuccess } from "../../redux/authSlice";
+import { createAxios } from "../../services/createInstance";
 
 //Util
 import { formatDate } from "../../utils/FormatDateTimeHelper";
+
+//Paginate
+import Pagination from "../pagination/Pagination";
 
 //Scss
 import "./Discussion.scss";
@@ -36,11 +42,9 @@ const Discussion = () => {
 		useState(false);
 	const [dataUpdateDiscussion, setDataUpdateDiscussion] = useState({});
 
+	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
-
-	const handlePageClick = (event) => {
-		console.log(event);
-	};
+	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 	const handleClose = () => {
 		setShowModelAddDiscussion(false);
@@ -53,17 +57,22 @@ const Discussion = () => {
 			setForum(res.data);
 		}
 	};
+
+	//Pagination
+	const [page, setPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(0);
+
+	const handlePageClick = (event) => {
+		setPage(event.selected + 1);
+	};
+
 	const listDiscussionsByForum = async () => {
-		try {
-			let res = await getAllDiscussion(); // Ensure this service filters by forumId
-			if (res && res.data) {
-				const filteredDiscussions = res.data.filter(
-					(discussion) => discussion.forum.id === parseInt(forumId)
-				);
-				setListDiscussions(filteredDiscussions);
-			}
-		} catch (error) {
-			console.error("Error fetching discussions:", error);
+		const res = await getPageDiscussion(page, 5, "id", "ASC", "", forumId);
+		if (res && res.data) {
+			setListDiscussions(res.data);
+			setTotalPages(res.totalPages);
+		} else {
+			setListDiscussions([]);
 		}
 	};
 
@@ -85,6 +94,18 @@ const Discussion = () => {
 		cloneListDiscussions[index] = lDiscussion;
 		setListDiscussions(cloneListDiscussions);
 		listDiscussionsByForum();
+	};
+
+	const handelUpdateView = async (id) => {
+		console.log(id);
+		try {
+			let res = await updateViews(id, currentUser?.accessToken, axiosJWT);
+			if (res && res.data) {
+				listDiscussionsByForum();
+			}
+		} catch (error) {
+			console.error("Error fetching discussions:", error);
+		}
 	};
 
 	useEffect(() => {
@@ -112,18 +133,18 @@ const Discussion = () => {
 								</thead>
 								<tbody>
 									{listDiscussions?.map((item) => {
-										console.log(item);
 										return (
 											<tr key={item.id} className="m-2">
 												<td>
 													<h4>
 														<Link
+															onClick={() => handelUpdateView(item.id)}
 															to={`/discussion/${item.id}`}
 															className="text-decoration-none text-dark"
 														>
 															{item.title}
 														</Link>
-														{item.createdBy === currentUser.username && (
+														{item.createdBy === currentUser?.username && (
 															<button
 																onClick={() => handleEditDiscussion(item)}
 															>
@@ -146,23 +167,10 @@ const Discussion = () => {
 								</tbody>
 							</Table>
 							<div className="pagination pagination-end">
-								<ReactPaginate
-									breakLabel="..."
-									nextLabel="next >"
-									onPageChange={handlePageClick}
-									pageRangeDisplayed={5}
-									pageCount={15}
-									previousLabel="< previous"
-									pageClassName="page-item"
-									pageLinkClassName="page-link"
-									previousClassName="page-item"
-									previousLinkClassName="page-link"
-									nextClassName="page-item"
-									nextLinkClassName="page-link"
-									breakClassName="page-item"
-									breakLinkClassName="page-link"
-									containerClassName="pagination"
-									activeClassName="active"
+								<Pagination
+									handlePageClick={handlePageClick}
+									pageSize={5}
+									totalPages={totalPages}
 								/>
 							</div>
 						</Card>
@@ -179,9 +187,7 @@ const Discussion = () => {
 								<span>Open New Discussion</span>
 							</button>
 						</Card>
-						<Card>
-							<ForumInfo forum={forum} listDiscussions={listDiscussions} />
-						</Card>
+						<ForumInfo forum={forum} listDiscussions={listDiscussions} />
 					</Col>
 				</Row>
 			</Col>

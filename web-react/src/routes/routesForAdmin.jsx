@@ -3,7 +3,6 @@ import DiscussionManage from "../components/adminPage/discussionManage/Discussio
 import ForumManage from "../components/adminPage/forumManage/ForumManage";
 import TagsStat from "../components/adminPage/tagManage/TagsManage";
 import TableUsers from "../components/adminPage/userManage/UsersListManagePage";
-import DiscussionDetails from "../components/adminPage/discussionManage/DiscussionDetails";
 
 import EmailOption from "../components/adminPage/emailOptionManage/EmailOptionPage";
 import BadgeManage from "../components/adminPage/badgeManage/badgeManage";
@@ -35,13 +34,6 @@ const routes = [
 		name: "discussions manage",
 		icon: "fa-solid fa-comments",
 		component: <DiscussionManage />,
-		layout: "/admin",
-	},
-	{
-		path: "/comments",
-		name: "comments manage",
-		icon: "fa-solid fa-comment",
-		component: <DiscussionDetails />,
 		layout: "/admin",
 	},
 	{

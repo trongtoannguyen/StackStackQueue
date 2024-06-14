@@ -18,4 +18,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 	@Query("SELECT t FROM Tag t WHERE (:label IS NULL OR :label = '' OR t.label LIKE %:label%)")
 	Page<Tag> searchByLable(@Param("label") String label, Pageable pageable);
 
+	//count tag by disabled
+	Long countByDisabled(Boolean disabled);
+
 }

@@ -8,6 +8,7 @@ import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
+import com.springboot.app.forums.entity.DiscussionStat;
 
 public interface DiscussionService {
 
@@ -27,4 +28,5 @@ public interface DiscussionService {
 	PaginateResponse getAllDiscussion(int pageNo, int pageSize, String orderBy, String sortDir, String keyword,
 			Long forumId);
 
+	ServiceResponse<DiscussionStat> updateDiscussionViews(Long id); ;
 }

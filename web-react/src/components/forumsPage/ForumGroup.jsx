@@ -9,6 +9,7 @@ import { getAllForum } from "../../services/forumService/ForumService";
 
 //Page
 import ForumInfo from "./ForumInfo";
+import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
 
 //Icon
 import {
@@ -54,6 +55,7 @@ const ForumGroup = () => {
 			setForum(res.data);
 		}
 	};
+
 	const renderIcon = (iconName) => {
 		switch (iconName) {
 			case "FaBeer":
@@ -104,6 +106,7 @@ const ForumGroup = () => {
 	useEffect(() => {
 		listForums();
 		listForumGroup();
+		console.log(forum);
 	}, []);
 
 	return (
@@ -134,30 +137,45 @@ const ForumGroup = () => {
 														if (forum.active == true) {
 															return (
 																<Row key={forum.id}>
-																	<Col>
-																		<ListGroup.Item
-																			as="li"
-																			className="d-flex justify-content-between align-items-start"
-																		>
-																			<div className="my-2">
-																				{renderIcon(forum.icon)}
-																			</div>
-																			<div className="ms-2 me-auto">
-																				<div className="fw-bold">
+																	<ListGroup.Item
+																		as="li"
+																		className="d-flex justify-content-between align-items-start"
+																	>
+																		<div className="col-12 col-md-6">
+																			<div className="row col-12 d-flex">
+																				<span className="col-2">
+																					{renderIcon(forum.icon)}
+																				</span>
+																				<span className="col-9 fw-bold">
 																					<Link
 																						to={`/forum/${forum.id}`}
 																						style={{
 																							textDecoration: "none",
-																							color: "black",
+																							color: forum.color,
 																						}}
 																					>
 																						{forum.title}
 																					</Link>
-																				</div>
+																				</span>
+																			</div>
+
+																			<div className="col-12">
 																				{forum.description}
 																			</div>
-																		</ListGroup.Item>
-																	</Col>
+																		</div>
+																		<div className="col-6 col-md-2">
+																			discussions:{" "}
+																			{forum?.stat?.discussionCount} <br />
+																			comments: {forum?.stat?.commentCount}
+																		</div>
+																		<div className="col-6 col-md-4">
+																			{forum?.stat?.lastComment && (
+																				<LastCommentInfo
+																					comment={forum?.stat?.lastComment}
+																				/>
+																			)}
+																		</div>
+																	</ListGroup.Item>
 																</Row>
 															);
 														}
@@ -171,9 +189,7 @@ const ForumGroup = () => {
 						</Col>
 					</Col>
 					<Col md={4}>
-						<Card className="p-3 h-100">
-							<ForumInfo />
-						</Card>
+						<ForumInfo />
 					</Col>
 				</Row>
 			</Col>

@@ -1,10 +1,13 @@
 package com.springboot.app.forums.service.impl;
 
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.response.ForumGroupStat;
 import com.springboot.app.forums.entity.*;
 import com.springboot.app.forums.repository.*;
 import com.springboot.app.forums.service.ForumStatService;
+import com.springboot.app.repository.DiscussionDAO;
 import com.springboot.app.repository.StatDAO;
+import com.springboot.app.tags.TagRepository;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.TextExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,12 @@ public class ForumStatServiceImpl implements ForumStatService {
 
 	@Autowired
 	private StatDAO statDAO;
+
+	@Autowired
+	private DiscussionDAO discussionDAO;
+
+	@Autowired
+	private TagRepository tagRepository;
 
 	@Override
 	public ServiceResponse<ForumStat> syncForumStat(Forum forum) {
@@ -101,4 +110,13 @@ public class ForumStatServiceImpl implements ForumStatService {
 		return discussionStat;
 	}
 
+
+	@Override
+	public ServiceResponse<ForumGroupStat> getForumGroupStat() {
+		ServiceResponse<ForumGroupStat> response = new ServiceResponse<>();
+		ForumGroupStat forumGroupStat = discussionDAO.getForumGroupStat();
+		forumGroupStat.setTotalTags(tagRepository.countByDisabled(true));
+		response.setDataObject(forumGroupStat);
+		return response;
+	}
 }

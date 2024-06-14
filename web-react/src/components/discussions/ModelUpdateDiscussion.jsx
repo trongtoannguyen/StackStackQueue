@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { createAxios } from "../../services/createInstance";
 import { loginSuccess } from "../../redux/authSlice";
 import { updateDiscussion } from "../../services/forumService/DiscussionService";
+import "./Discussion.scss";
 
 const ModalUpdateDiscussion = (props) => {
 	const {
@@ -149,6 +150,7 @@ const ModalUpdateDiscussion = (props) => {
 						onChange={setContent}
 						id="content"
 						placeholder="Enter content here"
+						className="content-editor"
 					/>
 				</div>
 

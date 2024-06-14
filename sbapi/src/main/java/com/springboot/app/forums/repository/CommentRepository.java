@@ -42,8 +42,12 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion AND c.id = (SELECT MIN(c2.id) FROM Comment c2 WHERE c2.discussion = :discussion)")
 	Comment findFirstCommentByDiscussion(@Param("discussion") Discussion discussion);
 
-	//findAllByDiscussion
-	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion")
+	//findAllByDiscussion parent id null
+//	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion")
+//	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
+
+	//findAllByDiscussion parent id null
+	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion AND c.replyTo IS NULL")
 	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
 
 }

@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
 import { createComment } from "../../services/forumService/CommentService";
+import "./Discussion.scss";
 
 const ModalAddNewReply = (props) => {
 	const { show, handleClose, handleUpdateAddReply, replyToId = null } = props;
@@ -37,7 +38,6 @@ const ModalAddNewReply = (props) => {
 				currentUser?.accessToken,
 				axiosJWT
 			);
-			console.log(res);
 			if (res && +res.data?.status === 201) {
 				handleClose();
 				setContent("");
@@ -47,6 +47,8 @@ const ModalAddNewReply = (props) => {
 					id: res.data.data.id,
 					title: title,
 					content: content,
+					createdAt: res.data.data.createdAt,
+					createdBy: res.data.data.createdBy,
 				});
 				toast.success(res.data.message);
 			} else {
@@ -119,6 +121,7 @@ const ModalAddNewReply = (props) => {
 						onChange={setContent}
 						id="content"
 						placeholder="Enter content here"
+						className="content-editor"
 					/>
 				</div>
 			</Modal.Body>
