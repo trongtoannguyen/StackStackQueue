@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.springboot.app.forums.entity.*;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +32,7 @@ import com.springboot.app.emails.entity.EmailOption;
 import com.springboot.app.emails.entity.RegistrationOption;
 import com.springboot.app.emails.repository.EmailOptionRepository;
 import com.springboot.app.forums.dto.ForumDTO;
-import com.springboot.app.forums.entity.Comment;
-import com.springboot.app.forums.entity.CommentOption;
-import com.springboot.app.forums.entity.Discussion;
-import com.springboot.app.forums.entity.DiscussionStat;
-import com.springboot.app.forums.entity.Forum;
+import com.springboot.app.forums.dto.ForumGroupDTO;
 import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.forums.service.ForumService;
 import com.springboot.app.service.GenericService;
@@ -150,6 +147,20 @@ public class DatabaseInit {
 		discussion.setTags(List.of(tag));
 		genericService.updateEntity(discussion);
 		logger.info("Bulletin tag created.");
+	}
+
+	//create forum group
+	private ForumGroup createForumGroup(User user) {
+		ForumGroup forumGroup = new ForumGroup();
+		forumGroup.setTitle("General");
+		forumGroup.setCreatedBy(user.getUsername());
+		forumGroup.setIcon("fa fa-comments");
+		forumGroup.setColor("ff7e00");
+
+		forumGroup = forumService.addForumGroup(forumGroup, user.getUsername()).getDataObject();
+
+		logger.info("Forum group created.");
+		return forumGroup;
 	}
 
 	private Forum createAnouncementsForum(User user) {

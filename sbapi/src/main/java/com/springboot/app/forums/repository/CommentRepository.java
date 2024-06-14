@@ -14,6 +14,8 @@ import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.Forum;
 
+import java.util.List;
+
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>, PagingAndSortingRepository<Comment, Long> {
 	@Modifying
@@ -49,5 +51,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 	//findAllByDiscussion parent id null
 	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion AND c.replyTo IS NULL")
 	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
+
+	List<Comment> findByReplyTo(Comment replyTo);
 
 }

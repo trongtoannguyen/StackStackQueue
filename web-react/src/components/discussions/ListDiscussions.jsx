@@ -9,12 +9,14 @@ import { useSearchParams } from "react-router-dom";
 //Service
 import { getPageDiscussion } from "../../services/forumService/DiscussionService";
 import { getAllForum } from "../../services/forumService/ForumService";
+import { viewDiscussionsByTagId } from "../../services/forumService/DiscussionViewService";
 
 //Paginate
 import Pagination from "../pagination/Pagination";
+
 //Modal
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
-// import ListTags from "./ListTags";
+import ListTags from "./ListTags";
 
 //Utils
 import {
@@ -23,14 +25,15 @@ import {
 } from "../../utils/FormatDateTimeHelper";
 
 const ListDiscussions = () => {
+	//Param
+	const [searchParams] = useSearchParams();
+	const keyword = searchParams.get("searchHome");
+
 	const bannerName = "List Discussions";
+
 	const breadcrumbs = [
 		{ id: 1, name: "List Discussions", link: "/list-discussion" },
 	];
-
-	//Param
-	const [searchHome] = useSearchParams();
-	const keyword = searchHome.get("searchHome");
 
 	//Pagination
 	const [page, setPage] = useState(1);
@@ -104,6 +107,14 @@ const ListDiscussions = () => {
 		}
 		setForumId(keyId);
 	}, 500);
+
+	const handleUpdateDiscussion = async (tagId) => {
+		const res = await viewDiscussionsByTagId(tagId);
+		console.log(res);
+		if (res && +res.status === 200) {
+			setDiscussionList(res.data.dataObject);
+		}
+	};
 
 	useEffect(() => {
 		listForums();
@@ -258,7 +269,7 @@ const ListDiscussions = () => {
 				</Col>
 
 				<Col md="3">
-					<div className="card"> {/* <ListTags /> */}</div>
+					<ListTags handleUpdateDiscussion={handleUpdateDiscussion} />
 				</Col>
 			</Row>
 		</article>

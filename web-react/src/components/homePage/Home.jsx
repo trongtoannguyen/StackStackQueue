@@ -64,9 +64,6 @@ const Home = () => {
 		getMostRecent();
 		getMostViews();
 		getMostComments();
-		console.log(mostRecent);
-		console.log(mostViews);
-		console.log(mostComments);
 	}, []);
 
 	return (
@@ -93,13 +90,17 @@ const Home = () => {
 									<span>
 										- {formatDifferentUpToNow(mostRecent?.createdAt)}{" "}
 									</span>
-									<a href="/tag?id=1000">
-										<span className="button-tag btn btn-success">
-											<i className="fa-solid fa-tag"></i>
-											<></>
-											Bulletin
+									{mostRecent?.tags?.map((tag) => (
+										<span key={tag.id}>
+											<button
+												className="btn btn-sm mx-2"
+												style={{ backgroundColor: tag.color }}
+											>
+												<i className="fa-solid fa-tag"></i>{" "}
+												<span style={{ color: "white" }}>{tag?.label}</span>
+											</button>
 										</span>
-									</a>
+									))}
 								</div>
 							</CardBody>
 							<CardFooter>
@@ -128,13 +129,17 @@ const Home = () => {
 									<span>Started By: </span>
 									<strong>{mostViews?.createdBy} </strong>
 									<span>- {formatDifferentUpToNow(mostViews?.createdAt)} </span>
-									<a href="/tag?id=1000">
-										<span className="button-tag btn btn-success">
-											<i className="fa-solid fa-tag"></i>
-											<></>
-											Bulletin
+									{mostViews?.tags?.map((tag) => (
+										<span key={tag.id}>
+											<button
+												className="btn btn-sm mx-2"
+												style={{ backgroundColor: tag.color }}
+											>
+												<i className="fa-solid fa-tag"></i>{" "}
+												<span style={{ color: "white" }}>{tag?.label}</span>
+											</button>
 										</span>
-									</a>
+									))}
 								</div>
 							</CardBody>
 							<CardFooter>
@@ -166,13 +171,17 @@ const Home = () => {
 									<span>
 										- {formatDifferentUpToNow(mostComments?.createdAt)}{" "}
 									</span>
-									<a href="/tag?id=1000">
-										<span className="button-tag btn btn-success">
-											<i className="fa-solid fa-tag"></i>
-											<></>
-											Bulletin
+									{mostComments?.tags?.map((tag) => (
+										<span key={tag.id}>
+											<button
+												className="btn btn-sm mx-2"
+												style={{ backgroundColor: tag.color }}
+											>
+												<i className="fa-solid fa-tag"></i>{" "}
+												<span style={{ color: "white" }}>{tag?.label}</span>
+											</button>
 										</span>
-									</a>
+									))}
 								</div>
 							</CardBody>
 							<CardFooter>

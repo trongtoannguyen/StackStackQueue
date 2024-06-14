@@ -1,21 +1,35 @@
 import { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import SelectMulti from "../selectMulti/SelectMulti";
+import { Row, Col, Button } from "reactstrap";
+import { Link } from "react-router-dom";
 
 //Service
 import { getDiscussionById } from "../../../services/forumService/DiscussionService";
 import { createAxios } from "../../../services/createInstance";
 import { getAllTags } from "../../../services/tagService/tagService";
 import { loginSuccess } from "../../../redux/authSlice";
+import { setDataListTags } from "../../../services/forumService/DiscussionService";
+import { upVote, downVote } from "../../../services/voteService/voteService";
+import { getAllCommentByDiscussionId } from "../../../services/forumService/DiscussionViewService";
+import { fetchImage } from "../../../services/userService/UserService";
+import { registerBookmark } from "../../../services/bookmarkService/bookmarkService";
 
 //Utils
-import { formatDate } from "../../../utils/FormatDateTimeHelper";
+import {
+	formatDate,
+	formatLongDate,
+} from "../../../utils/FormatDateTimeHelper";
 
 //Modal
 import ModalUpdateDiscussion from "./ModalUpdateDiscussion";
+
+//Modal
+import Avatar from "../../avatar/Avatar";
+import "../../../components/discussions/stylecomment.scss";
 
 const TagsManage = () => {
 	//Discussion
@@ -36,8 +50,6 @@ const TagsManage = () => {
 			setDiscussion(res.data);
 		}
 	};
-
-	console.log(discussion);
 
 	const handleUpdateDataDiscussion = (data, action) => {
 		setDataUpdateDiscussion(data);
@@ -64,8 +76,40 @@ const TagsManage = () => {
 			axiosJWT
 		);
 		if (res && +res.status === 201) {
-			setListTags(res.data.data);
+			// find tag by disabled true
+			setListTags(res.data.data.filter((tag) => tag.disabled === true));
 			toast.success(res?.data?.message);
+		} else {
+			toast.error(res?.data?.message);
+		}
+	};
+
+	// Format tags for react-select
+	const tagOptions = listTags?.map((tag) => ({
+		value: tag.id,
+		label: tag.label,
+	}));
+
+	const [selectedTags, setSelectedTags] = useState([]);
+
+	console.log("selectedTags", selectedTags);
+	console.log(discussion);
+
+	const handleTagChange = (selectedOptions) => {
+		setSelectedTags(selectedOptions);
+	};
+
+	const handleUpdateTags = async () => {
+		const res = await setDataListTags(
+			discussionId,
+			selectedTags,
+			currentUser?.accessToken,
+			axiosJWT
+		);
+		if (res && +res.status === 200) {
+			toast.success(res?.data?.message);
+			discussionById();
+			getAllTagsData();
 		} else {
 			toast.error(res?.data?.message);
 		}
@@ -75,6 +119,251 @@ const TagsManage = () => {
 		discussionById();
 		getAllTagsData();
 	}, [discussionId]);
+
+	useEffect(() => {
+		if (discussion?.tags) {
+			setSelectedTags(
+				discussion.tags.map((tag) => ({ value: tag.id, label: tag.label }))
+			);
+		}
+	}, [discussion]);
+
+	//*****************************//
+	//****
+	//**			Comment AND Reply			**//
+	//****************************//
+
+	const [listComment, setListComment] = useState([]);
+	const [page, setPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+
+	const fetchAllCommentData = async () => {
+		if (discussionId === null || discussionId <= 0) {
+			return;
+		}
+		let pageData = {
+			page: page,
+			size: pageSize,
+			orderBy: "createdAt",
+			sort: "ASC",
+			discussionId,
+		};
+		let res = await getAllCommentByDiscussionId(pageData);
+		if (res?.data?.length > 0) {
+			setListComment(res.data);
+			setPageSize(res.pageSize);
+		} else {
+			console.log("error", res?.message);
+		}
+	};
+
+	const isBookmarkOfCurrentUser = (comment) => {
+		if (!comment) {
+			return false;
+		}
+		const listBookmark = comment?.bookmarks;
+		if (listBookmark === null) {
+			return false;
+		}
+		const _name = currentUser?.username;
+		const result = listBookmark?.some((item) => item?.bookmarkBy === _name);
+		return result;
+	};
+
+	const urlAvatarUser = (author) => {
+		if (author?.imageUrl) {
+			return author.imageUrl;
+		}
+		if (author?.avatar) {
+			return fetchImage(author.avatar);
+		}
+		return "";
+	};
+
+	const handleUpVote = async (commentId) => {
+		const vote = {
+			commentId: commentId,
+			voteName: currentUser.username,
+			voteId: 1,
+		};
+		let res = await upVote(vote, currentUser?.accessToken, axiosJWT);
+		if (res && +res.data.status === 200) {
+			toast.success(res.data.message);
+			fetchAllCommentData();
+		} else if (+res?.data?.status === 400) {
+			toast.error(res?.data?.message);
+		} else {
+			toast.error("Cannot vote");
+		}
+	};
+
+	const handleDownVote = async (commentId) => {
+		const vote = {
+			commentId: commentId,
+			voteName: currentUser.username,
+			voteId: -1,
+		};
+		let res = await downVote(vote, currentUser?.accessToken, axiosJWT);
+		if (res && +res.data.status === 200) {
+			toast.success(res.data.message);
+			fetchAllCommentData();
+		} else if (+res?.data?.status === 400) {
+			toast.error(res?.data?.message);
+		} else {
+			toast.error("Cannot vote");
+		}
+	};
+
+	const handleBookmark = async (comment) => {
+		if (comment === null || comment?.commentId < 0) {
+			return;
+		}
+		if (comment?.author?.username === currentUser?.username) {
+			toast.error("User cannot bookmark own post comment");
+			return;
+		}
+		const bookmarkData = {
+			commentId: comment?.commentId,
+			bookmarkBy: currentUser.username,
+			bookmarked: isBookmarkOfCurrentUser(comment),
+		};
+		let res = await registerBookmark(
+			bookmarkData,
+			currentUser?.accessToken,
+			axiosJWT
+		);
+		if (res && +res.data.status === 200) {
+			toast.success(res.data.message);
+			fetchAllCommentData();
+		} else {
+			toast.error("Error when bookmark");
+		}
+	};
+
+	useEffect(() => {
+		fetchAllCommentData();
+	}, [discussionId]);
+
+	const commentCard = (comment) => {
+		return (
+			<Row>
+				<div className="col-1 vote-container">
+					<button
+						className="vote fa-solid fa-caret-up"
+						onClick={() => handleUpVote(comment?.commentId)}
+					></button>
+					<button className="vote-count px-2 rounded-circle">
+						{comment?.totalVotes ?? 0}
+					</button>
+					<button
+						className="vote fa-solid fa-caret-down mb-3"
+						onClick={() => handleDownVote(comment?.commentId)}
+					></button>
+
+					{!comment?.firstComment && (
+						<button className="fa-solid fa-check text-success mb-3"></button>
+					)}
+
+					<button
+						className={
+							isBookmarkOfCurrentUser(comment)
+								? "fa-solid fa-bookmark bookmark-checked"
+								: "fa-regular fa-bookmark"
+						}
+						onClick={() => handleBookmark(comment)}
+					></button>
+				</div>
+				<div className="col-11">
+					<div className="card-header d-flex justify-content-between">
+						{comment?.author && (
+							<>
+								<span className="ml-0 me-auto">
+									<Link
+										to={`/member-profile/${comment?.author?.username}`}
+										className="text-decoration-none"
+									>
+										<Avatar
+											src={urlAvatarUser(comment?.author)}
+											username={"@" + comment?.author?.username}
+											height={36}
+											width={36}
+										/>
+									</Link>
+									<small>
+										post at:
+										{comment?.createdAt && formatLongDate(comment?.createdAt)}
+										<button className="fa-solid fa-user-plus"></button>
+										<br />
+										<i className="fa-solid fa-star" alt="reputation"></i>
+										{comment?.author?.reputation}{" "}
+										<i className="fa-solid fa-pen"></i>{" "}
+										{comment?.author?.totalDiscussions}
+									</small>
+								</span>
+
+								{currentUser.username === comment?.author?.username && (
+									<small className="ml-auto me-0 d-inline-block">
+										<button className="mx-2 fa-solid fa-edit fa-2x"></button>
+										<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
+									</small>
+								)}
+							</>
+						)}
+					</div>
+					<hr />
+					<div className="card-body">
+						<div
+							className="contentByDiscussion"
+							dangerouslySetInnerHTML={{ __html: comment?.content }}
+						></div>
+						{comment?.tags?.map((tag) => (
+							<span key={tag.id}>
+								<button className="btn btn-sm mx-2">{tag?.label}</button>
+							</span>
+						))}
+					</div>
+					{comment?.replies?.length > 0 && <hr />}
+					{comment?.replies?.map((reply, index) => {
+						const isLastReply = index === comment?.replies?.length - 1;
+						return (
+							<div
+								key={reply?.replyId}
+								className={`d-block ${isLastReply ? "" : "reply-container"}`}
+								style={{ marginLeft: "20px" }}
+							>
+								<div className="d-flex" style={{ paddingTop: "10px" }}>
+									<span
+										dangerouslySetInnerHTML={{ __html: reply?.content }}
+									></span>
+									<span style={{ marginLeft: "6px" }}>
+										- {reply?.author?.username}{" "}
+										{formatLongDate(reply?.createdAt)}
+									</span>
+								</div>
+							</div>
+						);
+					})}
+					<hr />
+					<div className="card-footer d-flex justify-content-between">
+						<span></span>
+						<span>
+							<button>
+								<i className="fa-regular fa-flag"></i>Report
+							</button>
+						</span>
+
+						<span>
+							<small>
+								Edit at:{" "}
+								{comment?.updatedAt && formatLongDate(comment?.updatedAt)}
+							</small>
+						</span>
+					</div>
+				</div>
+			</Row>
+		);
+	};
+
 	return (
 		<div className="container mt-4 ">
 			<p>
@@ -85,8 +374,8 @@ const TagsManage = () => {
 				In forum <strong>{discussion?.forum?.title}</strong>{" "}
 				<Button variant="link" size="sm"></Button> Move to new Forum
 			</p>
-			<div className="d-flex justify-content-center align-content-between">
-				<div className="mb-3 d-flex">
+			<div className="d-flex justify-content-center align-items-center">
+				<div className="d-flex">
 					<div style={{ color: discussion?.closed ? "green" : "red" }}>
 						This discussion is{" "}
 						<span>{discussion?.closed ? "OPEN" : "CLOSED"}</span>
@@ -111,7 +400,7 @@ const TagsManage = () => {
 						</span>
 					</button>
 				</div>
-				<div className="mb-3 px-5">
+				<div className="px-5">
 					<label>
 						Mark as{" "}
 						<strong>
@@ -137,23 +426,30 @@ const TagsManage = () => {
 						</span>
 					</button>
 				</div>
-				<button
-					onClick={() => handleUpdateDataDiscussion(discussion, "delete")}
-					style={{
-						background: "red",
-						color: "white",
-						padding: "5px",
-						borderRadius: "5px",
-					}}
-				>
-					<i className="fa-solid fa-triangle-exclamation"></i> Delete this
-					Discussion ?
-				</button>
+				<div>
+					<button
+						onClick={() => handleUpdateDataDiscussion(discussion, "delete")}
+						style={{
+							background: "red",
+							color: "white",
+							padding: "5px",
+							borderRadius: "5px",
+						}}
+					>
+						<i className="fa-solid fa-triangle-exclamation"></i> Delete this
+						Discussion ?
+					</button>
+				</div>
 			</div>
 			<div className="mb-3">
 				<label>Tags</label>
+				<SelectMulti
+					tagOptions={tagOptions}
+					selectedTags={selectedTags}
+					handleTagChange={handleTagChange}
+				/>
 				<button
-					onClick={() => {}}
+					onClick={() => handleUpdateTags()}
 					className="mt-2"
 					style={{
 						background: "green",
@@ -168,7 +464,7 @@ const TagsManage = () => {
 			<hr />
 			<p>
 				There are {discussion?.stat?.commentCount} comments in this discussion.
-				This discussion has been viewed 1 times
+				This discussion has been viewed {discussion?.stat?.viewCount} times
 			</p>
 			<ModalUpdateDiscussion
 				show={isShowUpdateDiscussion}
@@ -178,6 +474,23 @@ const TagsManage = () => {
 				dataDiscussion={discussion}
 				handleEditDiscussion={handleEditDiscussion}
 			/>
+
+			<Col className="mx-auto row">
+				<Row>
+					{/* list comment */}
+					<section>
+						{listComment?.map(
+							(item) =>
+								item &&
+								!item.firstComment && (
+									<section className="card mb-3 p-3" key={item.commentId}>
+										{commentCard(item)}
+									</section>
+								)
+						)}{" "}
+					</section>
+				</Row>
+			</Col>
 		</div>
 	);
 };

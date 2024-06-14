@@ -28,4 +28,15 @@ const createComment = async (
 	return res;
 };
 
-export { getAllComments, createComment };
+const updateComment = async (id, comment, accessToken, axiosJWT) => {
+	const res = await axiosJWT.post(`/comments/update/${id}`, comment, {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	//
+	return res;
+};
+
+export { getAllComments, createComment, updateComment };

@@ -2,6 +2,7 @@ package com.springboot.app.forums.repository;
 
 import java.util.List;
 
+import com.springboot.app.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,7 @@ public interface DiscussionRepository extends JpaRepository<Discussion, Long> {
 
 	@Query("SELECT d FROM Discussion d WHERE (:title IS NULL OR :title = '' OR d.title LIKE %:title%) AND (:forumId IS NULL OR d.forum.id = :forumId)")
 	Page<Discussion> searchByTitle(@Param("title") String title, @Param("forumId") Long forumId, Pageable pageable);
+
+	@Query("SELECT d FROM Discussion d JOIN d.tags t WHERE t.id = :tagId")
+	List<Discussion> findDiscussionsByTagId(@Param("tagId") Long tagId);
 }
