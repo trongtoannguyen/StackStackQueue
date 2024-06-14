@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service;
 
+import com.springboot.app.accounts.dto.responce.MobileMemberResponse;
 import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.bagdes.Badge;
 import com.springboot.app.accounts.entity.Person;
@@ -17,5 +18,7 @@ public interface UserStatService {
 	ServiceResponse<UserStat> updateProfileViewed(String username);
 
 	ServiceResponse<UserStat> syncUserStat(String username);
+
+	ServiceResponse<List<MobileMemberResponse>> getAllMembers();
 }
 

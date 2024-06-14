@@ -5,8 +5,6 @@ abstract class DiscussionEvent extends Equatable {
 
   @override
   List<Object> get props => [];
-
-  get forumId => null;
 }
 
 class GetDiscussionEvent extends DiscussionEvent {}

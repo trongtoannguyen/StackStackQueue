@@ -1,5 +1,6 @@
 package com.springboot.app.accounts.service.impl;
 
+import com.springboot.app.accounts.dto.responce.MobileMemberResponse;
 import com.springboot.app.accounts.dto.responce.UserStatResponse;
 import com.springboot.app.bagdes.Badge;
 import com.springboot.app.accounts.entity.Person;
@@ -175,6 +176,29 @@ public class UserStatServiceImpl implements UserStatService {
 		String contentAbbr = new TextExtractor(new Source(comment.getContent())).toString();
 		commentInfo.setContentAbbr(contentAbbr.length() > 100 ?
 				contentAbbr.substring(0, 97) + "..." : contentAbbr);
+	}
+
+	@Override
+	public ServiceResponse<List<MobileMemberResponse>> getAllMembers(){
+		ServiceResponse<List<MobileMemberResponse>> response = new ServiceResponse<>();
+		List<User> users = userRepository.findAll();
+		List<MobileMemberResponse> members = users.stream().map(this::toMobileMemberResponse).toList();
+		response.setDataObject(members);
+		return response;
+	}
+
+	private MobileMemberResponse toMobileMemberResponse(User user){
+		MobileMemberResponse member = new MobileMemberResponse();
+		member.setUserId(user.getId());
+		member.setUsername(user.getUsername());
+		member.setName(user.getName());
+		member.setAvatar(user.getAvatar());
+		member.setImageUrl(user.getImageUrl());
+
+		member.setTotalDiscussions(user.getStat().getDiscussionCount());
+		member.setTotalComments(user.getStat().getCommentCount());
+		member.setReputation(user.getStat().getReputation());
+		return member;
 	}
 
 }

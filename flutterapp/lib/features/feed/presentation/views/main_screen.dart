@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/core/storage/storage.dart';
+import 'package:flutterapp/features/forums/presentation/views/forums_screen.dart';
+import 'package:flutterapp/features/members/presentation/views/member_list_screen.dart';
 
 import '../../../auth/presentation/views/home_screen.dart';
 import '../../../profile/presentation/views/profile_screen.dart';
@@ -23,14 +25,18 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
+    fetchId().then((value) {
+      setState(() {
+        ownerId = value;
+      });
+    });
     super.initState();
   }
 
   static const List<Widget> _widgetOptions = <Widget>[
     FeedScreen(),
-    // Text('data'),
-    // PostScreen(),
-    HomeScreen(),
+    ForumsScreen(),
+    MemberListScreen(),
     ProfileScreen(ownerId: ''),
   ];
 
@@ -61,22 +67,18 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.phone_android),
-          //   label: 'My Network',
-          // ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Post',
+            icon: Icon(Icons.list),
+            label: 'Forums',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.wallet),
-          //   label: 'Jobs',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.person),
-          //   label: 'Profile',
-          // ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Members',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Me',
+          ),
         ],
       ),
     );

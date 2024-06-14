@@ -14,6 +14,10 @@ import 'features/forums/data/repository/discussion_repo_impl.dart';
 import 'features/forums/domain/repository/discussion_repo.dart';
 import 'features/forums/domain/usecases/create_discussion.dart';
 import 'features/forums/domain/usecases/get_all_discussion.dart';
+import 'features/members/data/repository/member_repo_impl.dart';
+import 'features/members/domain/repository/member_repo.dart';
+import 'features/members/domain/usecases/get_all_memeber.dart';
+import 'features/members/presentation/bloc/member_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -25,6 +29,12 @@ void init() {
       loginUserUsecase: serviceLocator(),
       registerUser: serviceLocator(),
       changeProImg: serviceLocator(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () => MemberBloc(
+      getAllMemberUseCase: serviceLocator(),
     ),
   );
 
@@ -51,12 +61,18 @@ void init() {
   serviceLocator.registerLazySingleton(
       () => GetAllDiscussionUseCase(discussionRepository: serviceLocator()));
 
+  serviceLocator.registerLazySingleton(
+      () => GetAllMemberUseCase(memberRepository: serviceLocator()));
+
   //Repository
   serviceLocator.registerLazySingleton<AuthRepo>(
       () => AuthRepoImpl(authDataSource: serviceLocator()));
 
   serviceLocator.registerLazySingleton<DiscussionRepo>(
       () => DiscussionRepoImpl(discussionDataSource: serviceLocator()));
+
+  serviceLocator.registerLazySingleton<MemberRepo>(
+      () => MemberRepoImpl(memberDataSource: serviceLocator()));
 
   //data sources
 

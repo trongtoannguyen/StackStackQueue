@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/core/storage/storage.dart';
+import 'package:flutterapp/features/forums/presentation/views/forums_screen.dart';
+import 'package:flutterapp/features/forums/presentation/widgets/forum_group_cart.dart';
+import 'package:flutterapp/features/members/presentation/views/member_list_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +23,23 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   File? image;
+  String username = "Anonymous";
+
+  String? ownerId;
+  Future<String> fetchId() async {
+    String? ownerId = await Storage().secureStorage.read(key: 'userId');
+    return ownerId!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchId().then((value) {
+      setState(() {
+        ownerId = value;
+      });
+    });
+  }
 
   Future pickImage() async {
     try {
@@ -72,9 +92,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: ListTile(
-                        title: Text('name'),
+                        title: Text(ownerId!),
                         subtitle: InkWell(
                             onTap: () async {
                               String? ownerId = await Storage()
@@ -89,7 +109,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                 ),
                               );
                             },
-                            child: Text('Software Architecth')),
+                            child: Text('Profile $ownerId!')),
                       ),
                     );
                   },
@@ -108,18 +128,40 @@ class _FeedScreenState extends State<FeedScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextButton(
-                        onPressed: () {},
-                        child: Text('Groups'),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const FeedScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Home'),
                       ),
                       TextButton(
-                        onPressed: () {},
-                        child: Text('Events'),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const ForumsScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Forums'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const MemberListScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Members'),
                       ),
                       TextButton(
                         onPressed: () {
                           context.read<AuthBloc>().add(LoggedOut());
                         },
-                        child: Text('Log out'),
+                        child: const Text('Log out'),
                       ),
                     ],
                   ),
@@ -130,6 +172,7 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
       ),
       appBar: AppBar(
+        title: const Text('Home'),
         iconTheme: Theme.of(context).iconTheme,
         actions: [
           Consumer<ThemeService>(builder: (context, ThemeService theme, _) {
@@ -146,7 +189,13 @@ class _FeedScreenState extends State<FeedScreen> {
           children: [
             SizedBox(
               height: 700,
-            ),
+              child: ListView.builder(
+                itemCount: 40,
+                itemBuilder: (context, index) {
+                  return ForumGroupCart();
+                },
+              ),
+            )
           ],
         ),
       ),

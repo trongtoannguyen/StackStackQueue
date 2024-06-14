@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/features/forums/presentation/bloc/discussion_bloc.dart';
+import 'package:flutterapp/features/members/presentation/bloc/member_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme/theme_contants.dart';
@@ -28,6 +29,9 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (_) =>
                 serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
+          ),
+          BlocProvider(
+            create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
           ),
         ],
         child: ChangeNotifierProvider<ThemeService>(
