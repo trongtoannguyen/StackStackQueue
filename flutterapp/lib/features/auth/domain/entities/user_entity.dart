@@ -1,42 +1,41 @@
+import 'dart:ffi';
+
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 
 class UserEntity extends Equatable {
-  final String id;
+  final Long id;
   final String username;
   final String email;
   final String name;
   final String avatar;
   final String imageUrl;
   final String accessToken;
-  final List<String> roles;
 
   const UserEntity(this.id, this.username, this.email, this.name, this.avatar,
-      this.imageUrl, this.accessToken, this.roles);
+      this.imageUrl, this.accessToken);
 
   factory UserEntity.fromJson(Map<dynamic, dynamic> json) {
     return UserEntity(
-      json['id'],
-      json['username'],
-      json['email'],
-      json['name'],
-      json['avatar'],
-      json['imageUrl'],
-      json['accessToken'],
-      List<String>.from(json['roles']),
+      (json['id'] ?? 0) as Long,
+      (json['username'] ?? "") as String,
+      (json['email'] ?? "") as String,
+      (json['name'] ?? "") as String,
+      (json['avatar'] ?? "") as String,
+      (json['imageUrl'] ?? "") as String,
+      (json['accessToken'] ?? "") as String,
     );
   }
 
   @override
   List<Object?> get props => [
         id,
-        email,
         username,
+        email,
         name,
-        accessToken,
         avatar,
         imageUrl,
-        roles,
+        accessToken,
       ];
 }
 

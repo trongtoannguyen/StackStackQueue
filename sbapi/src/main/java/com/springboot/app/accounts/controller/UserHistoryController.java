@@ -22,7 +22,7 @@ public class UserHistoryController {
 			@RequestParam(value="sort",defaultValue = "DESC",required = false) String sort,
 			@RequestParam(value="username",defaultValue = "",required = true) String username
 	){
-		if(username.isEmpty()){
+		if(username.trim().isEmpty()){
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Username is required", null));
 		}
 		return ResponseEntity.ok(userHistoryService.getAllBookmarksByUsername(page, size, orderBy, sort,username));
@@ -36,7 +36,7 @@ public class UserHistoryController {
 			@RequestParam(value="sort",defaultValue = "DESC",required = false) String sort,
 			@RequestParam(value="username",defaultValue = "",required = true) String username
 	){
-		if(username.isEmpty()){
+		if(username.trim().isEmpty()){
 			return ResponseEntity.badRequest().body(new ObjectResponse("400", "Username is required", null));
 		}
 		return ResponseEntity.ok(userHistoryService.getAllCommentsByUsername(page, size, orderBy, sort,username));

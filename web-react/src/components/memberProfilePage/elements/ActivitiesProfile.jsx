@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -43,7 +43,7 @@ const ActivitiesProfile = (props) => {
   }
 
 
-  const fetchDataComment = async () => {
+  const fetchDataComment = useCallback(async () => {
     let pageData = {
       page: page,
       size: pageSize,
@@ -60,7 +60,7 @@ const ActivitiesProfile = (props) => {
     } else {
       console.log("error", res?.message);
     }
-  }
+  }, [username, page]);
 
 
   const handlePageClick = (event) => {
@@ -81,7 +81,7 @@ const ActivitiesProfile = (props) => {
             <tbody>
               {listComment.length > 0 ? listComment?.map((item) => (
                 <tr key={item.commentId}>
-                  <td className="col-1">
+                  <td className="col-1" style={{ verticalAlign: "top" }}>
                     <p className="">
                       <Avatar src={urlAvatarUser()} username="" height={50} width={50} />
                     </p>
@@ -89,7 +89,9 @@ const ActivitiesProfile = (props) => {
                   <td className="col-auto">
                     <p className="">
                       <b>{item?.author}</b> {item?.firstComment ? " post " : " comment in the thread "}
-                      <Link to={`/discussion/${item.discussionId}`} className="text-decoration-none">{item.discussionTitle} </Link>
+                      <Link to={`/discussion/${item.discussionId}`} className="text-decoration-none">
+                        {item.discussionTitle}
+                      </Link>
                       {item?.vote?.voteValue && (item.vote?.voteValue > 0 ? "with vote" : " with downvote ")}
                     </p>
                     <div
@@ -98,13 +100,14 @@ const ActivitiesProfile = (props) => {
                     ></div>
                     <small className="text-muted">
                       {item?.author === username ? "" :
-                        <Link to={"/member-profile/" + item.author} className="text-decoration-none">{item?.author} </Link>
+                        <Link to={"/member-profile/" + item.author} className="text-decoration-none">
+                          {item?.author} </Link>
                       }
                       created at: {item?.createdAt && formatDifferentUpToNow(item?.createdAt)}
                     </small>
                   </td>
                   {item?.author === currentUser?.username &&
-                    <td className="col-1">
+                    <td className="col-1" style={{ verticalAlign: "top" }}>
                       <button
                         className="btn-link"
                         color="info"

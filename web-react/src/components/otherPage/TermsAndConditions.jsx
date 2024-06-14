@@ -1,43 +1,45 @@
 const TermsAndConditions = () => {
   return (
     <section className="content">
-      <h1 className="text-center">Terms and Conditions</h1>
-      <br />
+      <h3 className="text-center">Terms And Conditions</h3>
       <p>
-        These terms and conditions outline the rules and regulations for the use of Company Name &apos s Website, located at Website.com.
+        The purpose of this Acceptable Use Policy ("AUP") is to define what we at TechForum. ("TechForum", "we", or "us") consider to be acceptable use of any website or service provided on TechForum's network of connected Internet sites and other apps for contributed and curated content.      
       </p>
-      <br />
       <p>
-        By accessing this website we assume you accept these terms and conditions. Do not continue to use Website Name if you do not agree to take all of the terms and conditions stated on this page.
-        Last updated: March 20, 2023
+        If you violate any of the sections that follow, your access to the Forum may be limited or terminated without notice, and your material 
+        could be removed at our sole discretion. When feasible, TechForum will make a good faith attempt to provide you with prior notice of any actions we take under this AUP, and we will do our best to collaborate with you and achieve a fair resolution in all circumstances. You may appeal any action we take under this AUP via our contact form.
       </p>
-      <br />
-      <h2 className="text-center">Cookies</h2>
-      <br />
       <p>
-        We employ the use of cookies. By accessing Website Name, you agreed to use cookies in agreement with the Company Name &apos s Privacy Policy.
-        Most interactive websites use cookies to let us retrieve the user’s details for each visit. Cookies are used by our website to enable the functionality of certain areas to make it easier for people visiting our website. Some of our affiliate/advertising partners may also use cookies.
+        <h6 className="text-align">Illegal Use</h6>
+        It is not permitted to use TechForum for illicit activities. Whether or not such unlawful goals are specifically mentioned in this AUP or our Code of Conduct, you are nonetheless accountable for adhering to all relevant laws and regulations. Any applicable libel and defamation laws are included in this limitation.
       </p>
-      <br />
-      <h2 className="text-center">License</h2>
-      <br />
       <p>
-        Unless otherwise stated, Company Name and/or its licensors own the intellectual property rights for all material on Website Name. All intellectual property rights are reserved. You may access this from Website Name for your own personal use subjected to restrictions set in these terms and conditions.
+        <h6 className="text-align">Spam</h6>
+        You are not permitted to upload anything for the purpose of associated marketing (e.g., to promote a product, service, or similar in an unsolicited or undisclosed manner), or to earn income or traffic by deceptive practices. Posting irrelevant, non-meaningful, or other sorts of information that might be regarded as spam under specific site regulations is likewise forbidden.
       </p>
-      <br />
-      <h2 className="text-center">You must not:</h2>
-      <br />
-      <ul>
-        <li>Republish material from Website Name</li>
-        <li>Sell, rent or sub-license material from Website Name</li>
-        <li>Reproduce, duplicate or copy material from Website Name</li>
-        <li>Redistribute content from Website Name</li>
-      </ul>
-      <br />
-      <h2 className="text-center">Hyperlinking to our Content</h2>
-      <br />
       <p>
-        The following organizations may link to our Website without prior written approval:
+        <h6 className="text-align">Phishing</h6>
+        You may not use the forum to trick users into giving sensitive information they would not normally provide, such as passwords, API keys, or personally identifying information.
+      </p>
+      <p>
+        <h6 className="text-align">Doxing</h6>
+        It is prohibited to disclose, even if it is correct, personally identifying information about an individual or group of individuals that hasn't been overtly made public without their express agreement. Included in this are details about finances, official identity documents, passwords, phone numbers, physical locations, and other personal data (including email addresses and usernames) that might be dangerous or insecure.
+      </p>
+      <p>
+        <h6 className="text-align">Malicious URLs</h6>
+        You may not post URLs that were created for the purpose of promoting a scam, attack, or fraud.
+      </p>
+      <p>
+        <h6 className="text-align">Identity Theft</h6>
+        You may not falsely represent yourself as a real person or entity you are not.
+      </p>
+      <p>
+        <h6 className="text-align">Disruptions and Exploits</h6>
+        You may not attempt to exploit, overload, or otherwise disrupt the operations of the Forum.
+      </p>
+      <p>
+        <h6 className="text-align">Sexually Explicit Material</h6>
+        It is not permitted for you to post sexually explicit content or links to such content unless it is appropriate given the parameters and goals of the forum site. You may not, however, share any information that depicts the exploitation or abuse of kids for sexual purposes. To be clear, according to our Code of Conduct, sexually explicit content is "material that is explicitly sexual, pornographic, prurient, or lascivious in nature."      
       </p>
       <br />
     </section>

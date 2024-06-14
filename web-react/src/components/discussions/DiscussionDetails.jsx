@@ -1,6 +1,6 @@
 import BannerTop from "../bannerTop/BannerTop";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import ReactQuill from "react-quill";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -80,8 +80,6 @@ const DiscussionDetails = () => {
 	const [totalPages, setTotalPages] = useState(0);
 	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const [orderBy, setOrderBy] = useState("createdAt");
-	const [sortBy, setSortBy] = useState("ASC");
 
 	const fetchFirstCommentData = async () => {
 		let res = await getFirstCommentByDiscussionId(discussionId);
@@ -113,8 +111,8 @@ const DiscussionDetails = () => {
 		let pageData = {
 			page: page,
 			size: pageSize,
-			orderBy: orderBy,
-			sort: sortBy,
+			orderBy: "createdAt",
+			sort: "ASC",
 			discussionId,
 		};
 		let res = await getAllCommentByDiscussionId(pageData);
@@ -197,9 +195,9 @@ const DiscussionDetails = () => {
 			fetchFirstCommentData();
 			fetchAllCommentData();
 		} else if (+res?.data?.status === 400) {
-			toast.success(res?.data?.message);
+			toast.error(res?.data?.message);
 		} else {
-			toast.error("Error when voting");
+			toast.error("Cannot vote");
 		}
 	};
 
@@ -214,13 +212,19 @@ const DiscussionDetails = () => {
 			toast.success(res.data.message);
 			fetchFirstCommentData();
 			fetchAllCommentData();
+		} else if (+res?.data?.status === 400) {
+			toast.error(res?.data?.message);
 		} else {
-			toast.error("Error bookmark");
+			toast.error("Cannot vote");
 		}
 	};
 
 	const handleBookmark = async (comment) => {
 		if (comment === null || comment?.commentId < 0) {
+			return;
+		}
+		if (comment?.author?.username === currentUser?.username) {
+			toast.error("User cannot bookmark own post comment");
 			return;
 		}
 		const bookmarkData = {
@@ -300,7 +304,7 @@ const DiscussionDetails = () => {
 						{comment?.totalVotes ?? 0}
 					</button>
 					<button
-						className="vote fa-solid fa-caret-down"
+						className="vote fa-solid fa-caret-down mb-3"
 						onClick={() => handleDownVote(comment?.commentId)}
 					></button>
 
@@ -322,19 +326,24 @@ const DiscussionDetails = () => {
 						{comment?.author && (
 							<>
 								<span className="ml-0 me-auto">
-									<Avatar
-										src={urlAvatarUser(comment?.author)}
-										username={"@" + comment?.author?.username}
-										height={36}
-										width={36}
-									/>
+									<Link
+										to={`/member-profile/${comment?.author?.username}`}
+										className="text-decoration-none"
+									>
+										<Avatar
+											src={urlAvatarUser(comment?.author)}
+											username={"@" + comment?.author?.username}
+											height={36}
+											width={36}
+										/>
+									</Link>
 									<small>
 										post at:
 										{comment?.createdAt && formatLongDate(comment?.createdAt)}
 										<button className="fa-solid fa-user-plus"></button>
 										<br />
 										<i className="fa-solid fa-star" alt="reputation"></i>
-										{comment?.author?.reputation}-{" "}
+										{comment?.author?.reputation}{" "}
 										<i className="fa-solid fa-pen"></i>{" "}
 										{comment?.author?.totalDiscussions}
 									</small>

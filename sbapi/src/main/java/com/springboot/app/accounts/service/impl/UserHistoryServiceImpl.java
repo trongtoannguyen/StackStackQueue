@@ -1,6 +1,8 @@
 package com.springboot.app.accounts.service.impl;
 
 import com.springboot.app.accounts.dto.responce.CommentHistoryResponse;
+import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.UserHistoryService;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.follows.dto.response.BookmarkHistoryResponse;
@@ -34,9 +36,12 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
 	@Autowired
 	private VoteService voteService;
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public PaginateResponse getAllBookmarksByUsername(int pageNo, int pageSize, String orderBy, String sortDir, String username) {
+		logger.info("getAllBookmarksByUsername: username={}, pageNo={}, pageSize={}, orderBy={}, sortDir={}",username,pageNo,pageSize,orderBy,sortDir);
 		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(orderBy).ascending()
 				: Sort.by(orderBy).descending();
 
@@ -79,7 +84,12 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 		bookmarkHistoryResponse.setBookmarkId(bookmark.getId());
 		bookmarkHistoryResponse.setBookmarkBy(bookmark.getBookmarkBy());
 		bookmarkHistoryResponse.setBookmarkedDate(bookmark.getBookmarkedDate());
-
+		//avatar of author
+		User user = userRepository.findByUsername(bookmark.getComment().getCreatedBy()).orElse(null);
+		if(user != null){
+		bookmarkHistoryResponse.setAvatar(user.getAvatar());
+		bookmarkHistoryResponse.setImageUrl(user.getImageUrl());
+		}
 		//comment info
 		CommentHistoryResponse commentInfo = mapCommentToCommentHistoryResponse(bookmark.getComment());
 		bookmarkHistoryResponse.setCommentInfo(commentInfo);

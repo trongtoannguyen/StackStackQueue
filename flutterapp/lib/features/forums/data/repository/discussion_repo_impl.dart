@@ -5,7 +5,7 @@ import 'package:flutterapp/features/forums/domain/repository/discussion_repo.dar
 
 import '../../../../core/exceptions/error.dart';
 import '../../../../core/exceptions/failure.dart';
-import '../data_sources/discussion_data_sources.dart';
+import '../data_sources/discussion_data_source.dart';
 
 class DiscussionRepoImpl extends DiscussionRepo {
   final DiscussionDataSource _discussionDataSource;
@@ -31,8 +31,8 @@ class DiscussionRepoImpl extends DiscussionRepo {
   @override
   Future<Either<Failure, List<DiscussionEntity>>> getAllDiscussion() async {
     try {
-      final discussions = await _discussionDataSource.getAllDiscussion();
-      return Right(discussions);
+      final response = await _discussionDataSource.getAllDiscussion();
+      return Right(response);
     } on ServerException {
       return Left(ServerFailure());
     }

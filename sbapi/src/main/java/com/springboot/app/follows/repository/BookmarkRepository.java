@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, PagingAndSortingRepository<Bookmark, Long> {
 
-	@Query("SELECT u FROM Bookmark u WHERE (:username IS NULL OR :username = '' OR u.createdBy LIKE :username)")
+	@Query("SELECT u FROM Bookmark u WHERE (:username IS NULL OR :username = '' OR u.bookmarkBy LIKE :username)")
 	Page<Bookmark> searchByUsername(@Param("username") String username, Pageable pageable);
 
 }
