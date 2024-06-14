@@ -2,46 +2,54 @@ const TermsAndConditions = () => {
   return (
     <section className="content">
       <h3 className="text-center">Terms And Conditions</h3>
+      <h6 className="text-align">Introduction</h6>
+      <ol type="1">
+        <li>These terms and conditions shall govern your use of our website.</li>
+        <li>By using our forum, you accept these terms and conditions in full; accordingly, if you disagree with these 
+        terms and conditions or any part of these terms and conditions, you must not use our forum.</li>
+        <li>If you register with our forum or submit any material to our forum we will ask you to expressly agree to these terms and conditions.</li>
+        <li>Our forum website uses cookies; by using our website or agreeing to these terms and conditions, you consent to our use of cookies in accordance with 
+        the terms of our privacy and cookies policy.</li>
+      </ol>
+      <h6 className="text-align">Discussion Rules</h6>
       <p>
-        The purpose of this Acceptable Use Policy ("AUP") is to define what we at TechForum. ("TechForum", "we", or "us") consider to be acceptable use of any website or service provided on TechForum's network of connected Internet sites and other apps for contributed and curated content.      
+        By registering with this forum you agree to abide by the discussion rules.
       </p>
       <p>
-        If you violate any of the sections that follow, your access to the Forum may be limited or terminated without notice, and your material 
-        could be removed at our sole discretion. When feasible, TechForum will make a good faith attempt to provide you with prior notice of any actions we take under this AUP, and we will do our best to collaborate with you and achieve a fair resolution in all circumstances. You may appeal any action we take under this AUP via our contact form.
+        These include:
+      </p>
+      <ul>
+        <li>Do not submit comments that contain personal information e.g. home addresses or phone numbers.</li>
+        <li>Do not submit comments that are unlawful, harassing, abusive, threatening, harmful, obscene, profane, sexually orientated or racially offensive.</li>
+        <li>Do not swear or use language that could offend other forum participants.</li>
+        <li>Do not advertise or promote products or services.</li>
+        <li>Do not spam or flood the forum. Only submit a comment once.</li>
+        <li>Do not resubmit the same, or similar, comments.</li>
+        <li>Keep your comments relevant to the discussion topic.</li>
+      </ul>
+
+      <p>
+        <h6 className="text-align">Privacy policy</h6>
+        The purpose of this Acceptable Use Policy ("AUP") is to define what we at TechForum. ("TechForum", "we", or "us") consider to be acceptable use of any website or service provided on TechForum's network... 
+        <a href="http://localhost:5173/policy"><b><i>Read more</i></b></a>
       </p>
       <p>
-        <h6 className="text-align">Illegal Use</h6>
-        It is not permitted to use TechForum for illicit activities. Whether or not such unlawful goals are specifically mentioned in this AUP or our Code of Conduct, you are nonetheless accountable for adhering to all relevant laws and regulations. Any applicable libel and defamation laws are included in this limitation.
+        <h6 className="text-align">Moderation</h6>
+        Comments will be pre-moderated before being posted on the discussion forum. Comments will be moderated at least every working day. Where possible we will aim to publish accepted posts within 24 hours.
       </p>
       <p>
-        <h6 className="text-align">Spam</h6>
-        You are not permitted to upload anything for the purpose of associated marketing (e.g., to promote a product, service, or similar in an unsolicited or undisclosed manner), or to earn income or traffic by deceptive practices. Posting irrelevant, non-meaningful, or other sorts of information that might be regarded as spam under specific site regulations is likewise forbidden.
+        <h6 className="text-align">Links to other websites</h6>
+        Tech Forum is not responsible for the content of external websites, and links to such sites should not be considered as an endorsement of their content.
       </p>
       <p>
-        <h6 className="text-align">Phishing</h6>
-        You may not use the forum to trick users into giving sensitive information they would not normally provide, such as passwords, API keys, or personally identifying information.
+        <h6 className="text-align">Our details</h6>
+        <h7>You can contact us:</h7>
+        <ol type="a">
+          <li>Using our forum chat</li>
+          <li>By telephone, on <a href="tel:+84938632941">+84 93 8632 941</a></li>
+          <li>By email: <a href="mailto:techforum1368@gmail.com?subject=Mail from TechForum ">techforum1368@gmail.com</a></li>
+        </ol>
       </p>
-      <p>
-        <h6 className="text-align">Doxing</h6>
-        It is prohibited to disclose, even if it is correct, personally identifying information about an individual or group of individuals that hasn't been overtly made public without their express agreement. Included in this are details about finances, official identity documents, passwords, phone numbers, physical locations, and other personal data (including email addresses and usernames) that might be dangerous or insecure.
-      </p>
-      <p>
-        <h6 className="text-align">Malicious URLs</h6>
-        You may not post URLs that were created for the purpose of promoting a scam, attack, or fraud.
-      </p>
-      <p>
-        <h6 className="text-align">Identity Theft</h6>
-        You may not falsely represent yourself as a real person or entity you are not.
-      </p>
-      <p>
-        <h6 className="text-align">Disruptions and Exploits</h6>
-        You may not attempt to exploit, overload, or otherwise disrupt the operations of the Forum.
-      </p>
-      <p>
-        <h6 className="text-align">Sexually Explicit Material</h6>
-        It is not permitted for you to post sexually explicit content or links to such content unless it is appropriate given the parameters and goals of the forum site. You may not, however, share any information that depicts the exploitation or abuse of kids for sexual purposes. To be clear, according to our Code of Conduct, sexually explicit content is "material that is explicitly sexual, pornographic, prurient, or lascivious in nature."      
-      </p>
-      <br />
     </section>
   )
 
