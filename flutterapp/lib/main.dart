@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (_) =>
                 serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
-          )
+          ),
         ],
         child: ChangeNotifierProvider<ThemeService>(
           create: (context) => ThemeService(),

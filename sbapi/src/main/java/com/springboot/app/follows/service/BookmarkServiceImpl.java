@@ -39,7 +39,14 @@ public class BookmarkServiceImpl implements BookmarkService{
 		}
 		Comment comment = commentRepository.findById(bookmarkRequest.getCommentId()).orElse(null);
 		if(comment == null) {
+			logger.info("Comment not found");
 			response.addMessage("Comment not found");
+			response.setAckCode(AckCodeType.FAILURE);
+			return response;
+		}
+		if(comment.getCreatedBy().equals(bookmarkRequest.getBookmarkBy())) {
+			logger.info("User cannot bookmark own comment");
+			response.addMessage("User cannot bookmark own comment");
 			response.setAckCode(AckCodeType.FAILURE);
 			return response;
 		}
@@ -56,8 +63,9 @@ public class BookmarkServiceImpl implements BookmarkService{
 			newBookmark.setBookmarkBy(bookmarkRequest.getBookmarkBy());
 			newBookmark.setBookmarked(true);
 			newBookmark.setBookmarkedDate(LocalDateTime.now());
+			newBookmark.setCreatedBy(bookmarkRequest.getBookmarkBy());
 			bookmarkRepository.save(newBookmark);
-
+			logger.info("Bookmark created successfully");
 			response.addMessage("Bookmark created successfully");
 		}else {
 			//delete bookmark

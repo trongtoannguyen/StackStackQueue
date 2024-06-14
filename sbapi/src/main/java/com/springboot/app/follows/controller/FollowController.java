@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/follows")
 public class FollowController {
-	private static final Logger logger = LoggerFactory.getLogger(BookmarkController.class);
+	private static final Logger logger = LoggerFactory.getLogger(FollowController.class);
 
 	@Autowired
 	private FollowUserService followUserService;

@@ -11,5 +11,4 @@ class Storage {
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   String token = '';
   String userId = '';
-  UserEntity currentUser = const UserEntity('', '', '', '', '', '', '', []);
 }

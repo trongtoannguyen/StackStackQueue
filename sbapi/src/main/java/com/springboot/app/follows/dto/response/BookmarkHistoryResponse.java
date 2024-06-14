@@ -9,6 +9,8 @@ public class BookmarkHistoryResponse {
 	private Long bookmarkId;
 	private String bookmarkBy;
 	private LocalDateTime bookmarkedDate;
+	private String avatar; //avatar of the user who authored the comment
+	private String imageUrl; //image url of the user who authored the comment
 
 	private CommentHistoryResponse commentInfo;
 
@@ -42,5 +44,21 @@ public class BookmarkHistoryResponse {
 
 	public void setCommentInfo(CommentHistoryResponse commentInfo) {
 		this.commentInfo = commentInfo;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

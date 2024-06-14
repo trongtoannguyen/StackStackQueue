@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -5,8 +6,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutterapp/core/storage/storage.dart';
 import 'package:flutterapp/core/usecases/register_user_core.dart';
 
+import '../../../../core/usecases/change_img_prof.dart';
 import '../../../../core/usecases/login_user_core.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/usecases/change_pro_img.dart';
 import '../../domain/usecases/login_user.dart';
 import '../../domain/usecases/register_user.dart';
 
@@ -16,15 +19,18 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUser _loginUserUsecase;
   final RegisterUser _registerUser;
+  final ChangeProImg _changeProImg;
   AuthBloc({
     required RegisterUser registerUser,
     required LoginUser loginUserUsecase,
+    required ChangeProImg changeProImg,
   })  : _loginUserUsecase = loginUserUsecase,
         _registerUser = registerUser,
+        _changeProImg = changeProImg,
         super(Unauthenticated()) {
     on<AppStarted>((event, emit) async {
       var token = await _getToken();
-      if (token != null) {
+      if (token != "") {
         emit(Authenticated());
       } else {
         emit(Unauthenticated());
@@ -48,10 +54,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoggedOut>((event, emit) async {
       Storage().token = '';
       Storage().userId = '';
-      Storage().currentUser = const UserEntity('', '', '', '', '', '', '', []);
       await _deleteToken();
       await _deleteUserId();
-      await _deleteCurrentUser();
       emit(Unauthenticated());
     });
     on<Register>((event, emit) async {
@@ -68,6 +72,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       res.fold((l) => print('error'), (res) => print(res));
     });
+    on<ChangeProfPic>((event, emit) {
+      emit(ProfPicLoading());
+      final filePath = event.file;
+      _changeProImg.call(
+        ParamsChangeProImg(profileImage: filePath),
+      );
+      emit(ProfPicSuccess());
+    });
   }
 
   Future<String?> _getToken() async {
@@ -80,10 +92,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _deleteToken() async {
     await Storage().secureStorage.delete(key: 'token');
-  }
-
-  Future<void> _deleteCurrentUser() async {
-    await Storage().secureStorage.delete(key: 'currentUser');
   }
 
   Future<void> _saveToken(String token) async {

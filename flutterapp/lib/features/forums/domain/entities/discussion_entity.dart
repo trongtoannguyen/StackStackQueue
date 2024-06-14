@@ -1,12 +1,13 @@
 import 'package:equatable/equatable.dart';
 
 class DiscussionEntity extends Equatable {
-  final String? id;
+  final int? id;
   final String? authorId;
   final String? title;
   final String? content;
 
-  final String? forumId;
+  final int? forumId;
+  final String? forumName;
   final String? createdAt;
   final String? updatedAt;
 
@@ -16,11 +17,12 @@ class DiscussionEntity extends Equatable {
     required this.title,
     required this.content,
     required this.forumId,
+    required this.forumName,
     required this.createdAt,
     required this.updatedAt,
   });
 
   @override
   List<Object?> get props =>
-      [id, authorId, title, content, forumId, createdAt, updatedAt];
+      [id, authorId, title, content, forumId, forumName, createdAt, updatedAt];
 }

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutterapp/core/exceptions/error.dart';
 import 'package:flutterapp/core/storage/storage.dart';
-import 'package:flutterapp/data_sources/api_urls.dart';
+import 'package:flutterapp/core/api_urls.dart';
 import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,9 +19,8 @@ abstract class AuthDataSource {
   Future<String> changeProfilePic(File file);
 }
 
-// const uri = 'http://192.168.2.10:8080/api/auth';
 const uri = '${ApiUrls.API_BASE_URL}/auth';
-const uri1 = 'http://localhost:8080/api/auth/changePic';
+const uri1 = '${ApiUrls.API_BASE_URL}/auth/changePic';
 
 class AuthDataSourceImp implements AuthDataSource {
   final http.Client client;
@@ -80,8 +79,6 @@ class AuthDataSourceImp implements AuthDataSource {
     if (res.statusCode == 200) {
       String userId = jsonResponse['username'];
       _saveUserId(userId);
-      UserEntity currentUser = UserEntity.fromJson(jsonResponse);
-      _saveCurrentUser(currentUser);
       return jsonResponse['accessToken'];
     } else {
       throw Exception();
@@ -93,10 +90,6 @@ class AuthDataSourceImp implements AuthDataSource {
     await Storage().secureStorage.write(key: 'userId', value: userId);
   }
 
-  Future<void> _saveCurrentUser(UserEntity user) async {
-    String userString = json.encode(user);
-    await Storage().secureStorage.write(key: 'currentUser', value: userString);
-  }
   //---------------------------------------------------------
 
   @override
@@ -110,12 +103,11 @@ class AuthDataSourceImp implements AuthDataSource {
     Map jsonResponse = json.decode(res.body);
     print(res.body);
 
-    // if (res.statusCode == 200) {
-    //   return UserModel.fromJson(jsonResponse);
-    // } else {
-    //   throw Exception();
-    // }
-    throw Exception();
+    if (res.statusCode == 200) {
+      return UserModel.fromJson(jsonResponse);
+    } else {
+      throw Exception();
+    }
   }
   //---------------------------------------------------------
 

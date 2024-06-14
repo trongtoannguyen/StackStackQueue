@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutterapp/core/exceptions/error.dart';
-import 'package:flutterapp/data_sources/api_urls.dart';
+import 'package:flutterapp/core/api_urls.dart';
 
 import '../../../../core/storage/storage.dart';
 import '../models/discussion_model.dart';
@@ -12,7 +12,7 @@ abstract class DiscussionDataSource {
   Future<List<DiscussionModel>> getAllDiscussion();
 }
 
-const uri = '${ApiUrls.API_BASE_URL}/discussion';
+const uri = '${ApiUrls.API_BASE_URL}/mobile/discussion';
 
 class DiscussionDataSourceImp implements DiscussionDataSource {
   final http.Client client;

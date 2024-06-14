@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutterapp/core/usecases/create_discussion.dart';
+import 'package:flutterapp/core/usecases/get_all_discussion.dart';
 import 'package:flutterapp/core/usecases/get_user_info.dart';
 import 'package:flutterapp/features/forums/domain/entities/discussion_entity.dart';
 import 'package:flutterapp/features/forums/domain/usecases/create_discussion.dart';
@@ -22,7 +23,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         super(DiscussionInitial()) {
     on<DiscussionEvent>((event, emit) async {
       emit(DiscussionLoading());
-
       try {
         final discussions = await _getDiscussionUseCase.call(NoParams());
         discussions.fold(

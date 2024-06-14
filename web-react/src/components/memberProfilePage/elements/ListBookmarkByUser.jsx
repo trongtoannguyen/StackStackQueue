@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { createAxios } from '../../../services/createInstance';
@@ -28,9 +28,11 @@ const ListBookmark = (props) => {
   let currentUser = useSelector(state => state.auth.login?.currentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
-  const fetchDataBookmark = async () => {
+  const fetchDataBookmark = useCallback(async () => {
+    if (username.trim().length === 0) {
+      return;
+    }
     let pageData = {
       page: page,
       size: pageSize,
@@ -38,6 +40,7 @@ const ListBookmark = (props) => {
       sort: sortBy,
       username
     }
+    const axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
     let res = await getAllBookmarkByUsername(pageData, axiosJWT, currentUser.accessToken, navigate);
     if (+res?.status === 200) {
       const { pageSize, totalPages, data } = res.data;
@@ -47,12 +50,23 @@ const ListBookmark = (props) => {
     } else {
       console.log("error", res?.message);
     }
-  }
+  }, [username]);
 
 
   const handlePageClick = (event) => {
     setPage(+event.selected + 1);
     return true;
+  }
+
+
+  const urlAvatarUser = (item) => {
+    if (item?.imageUrl) {
+      return item.imageUrl;
+    }
+    if (item?.avatar) {
+      return fetchImage(item.avatar);
+    }
+    return null;
   }
 
   useEffect(() => {
@@ -72,24 +86,22 @@ const ListBookmark = (props) => {
                   <tr key={item.commentId}>
                     <td className="col-1">
                       <p className="">
-                        <Avatar src={fetchImage(item.avatar)} username="" height={50} width={50} />
+                        <Avatar src={urlAvatarUser(item)} username="" height={50} width={50} />
                       </p>
                     </td>
                     <td className="col-auto">
                       <p className="">
-                        <b>{item?.author}</b> {item?.firstComment ? " post " : " comment in the thread "}
-                        <Link to={`/discussion/${item.discussionId}`} className="text-decoration-none">{item.discussionTitle} </Link>
-                        {item?.vote?.voteValue && (item.vote?.voteValue > 0 ? "with vote" : " with downvote ")}
+                        <b>
+                          <Link to={"/member-profile/" + item?.commentInfo?.author}
+                            className="text-decoration-none">
+                            @{item?.commentInfo?.author} </Link>
+                        </b> post {" "}
+                        <Link to={`/discussion/${item?.commentInfo?.discussionId}`}
+                          className="text-decoration-none">
+                          {item?.commentInfo?.discussionTitle} </Link>
                       </p>
-                      <div
-                        className="text-muted"
-                        dangerouslySetInnerHTML={{ __html: item?.content }}
-                      ></div>
                       <small className="text-muted">
-                        {item?.author === username ? "" :
-                          <Link to={"/member-profile/" + item.author} className="text-decoration-none">{item?.author} </Link>
-                        }
-                        created at: {item?.createdAt && formatDifferentUpToNow(item?.createdAt)}
+                        created at: {item?.commentInfo.createdAt && formatDifferentUpToNow(item?.commentInfo.createdAt)}
                       </small>
                     </td>
                     <td className="col-1">
