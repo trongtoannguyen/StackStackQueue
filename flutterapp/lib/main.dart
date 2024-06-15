@@ -27,11 +27,11 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) =>
-                serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
+            create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
           ),
           BlocProvider(
-            create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
+            create: (_) =>
+                serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
           ),
         ],
         child: ChangeNotifierProvider<ThemeService>(

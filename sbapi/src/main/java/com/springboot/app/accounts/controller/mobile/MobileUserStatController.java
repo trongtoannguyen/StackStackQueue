@@ -2,7 +2,6 @@ package com.springboot.app.accounts.controller.mobile;
 
 import com.springboot.app.accounts.dto.responce.MobileMemberResponse;
 import com.springboot.app.accounts.service.UserStatService;
-import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +23,11 @@ public class MobileUserStatController {
 	private UserStatService userStatService;
 
 	@GetMapping("/all")
-	public ResponseEntity<ObjectResponse> getAllMembers() {
+	public ResponseEntity<List<MobileMemberResponse>> getAllMembers() {
 		ServiceResponse<List<MobileMemberResponse>> response = userStatService.getAllMembers();
 		if (response.getDataObject() != null && !response.getDataObject().isEmpty()) {
-			return ResponseEntity.ok(new ObjectResponse("200", "Members found", response.getDataObject()));
+			return ResponseEntity.ok(response.getDataObject());
 		}
-		return ResponseEntity.ok(new ObjectResponse("404", "Members not found", null));
+		return ResponseEntity.ok(null);
 	}
 }

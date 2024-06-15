@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Forums',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.people),
             label: 'Members',
           ),
           BottomNavigationBarItem(

@@ -33,15 +33,18 @@ class MemberDataSourceImp implements MemberDataSource {
 
       if (res.statusCode == 200) {
         for (var member in jsonResponse) {
-          members.add(MemberModel.fromJson(member));
+          members.add(MemberModel.fromMap(member));
         }
-        return members;
+        print(members);
       } else {
+        print("Error: Server returned");
         throw ServerException('Server error');
       }
     } catch (err) {
+      print(err.toString());
       throw ServerException(err.toString());
     }
+    return members;
   }
 
   //---------------------------------------------------------

@@ -138,7 +138,7 @@ public class DiscussionDAO {
 
 
 	public List<DataForumGroupResponse> getForumGroupData() {
-		String queryStr = "SELECT g.title, sum (f.stat.discussionCount), sum (f.stat.commentCount) FROM Forum f JOIN f.forumGroup g GROUP BY g.title";
+		String queryStr = "SELECT g.title, sum(f.stat.discussionCount), sum(f.stat.commentCount) FROM Forum f JOIN f.forumGroup g GROUP BY g.title";
 		Query query = entityManager.createQuery(queryStr);
 		@SuppressWarnings("unchecked")
 		List<Object[]> results = query.getResultList();
@@ -154,7 +154,7 @@ public class DiscussionDAO {
 	}
 
 	public ForumGroupStat getForumGroupStat(){
-		String queryStr = "SELECT count(f.id), sum (f.stat.discussionCount), sum (f.stat.commentCount) FROM Forum f ";
+		String queryStr = "SELECT count(f.id), sum(f.stat.discussionCount), sum(f.stat.commentCount) FROM Forum f ";
 		Query query = entityManager.createQuery(queryStr);
 		@SuppressWarnings("unchecked")
 		Object[] result = (Object[]) query.getSingleResult();
@@ -168,10 +168,9 @@ public class DiscussionDAO {
 
 
 
-
 	public List<DataForumGroupResponse> getForumGroupData2() {
 		String queryStr =
-				"SELECT g.title, count (d.id), count(c.id),count(c.createdBy) " +
+				"SELECT g.title, count (d.id), count(c.id),count(distinct c.createdBy) " +
 						"FROM Forum f " +
 						"JOIN Discussion d ON d.forum.id = f.id " +
 						"JOIN Comment c ON c.discussion.id = d.id " +

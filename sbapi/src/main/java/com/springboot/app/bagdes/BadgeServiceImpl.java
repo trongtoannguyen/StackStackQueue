@@ -144,6 +144,7 @@ public class BadgeServiceImpl implements BadgeService{
 		ServiceResponse<Void> response = new ServiceResponse<>();
 		// add badge Platinum User
 		Badge badgePlatinum = new Badge();
+		badgePlatinum.setId(6L);
 		badgePlatinum.setName("Platinum User");
 		badgePlatinum.setDescription("This badge is worth 1,000 POINTS / "
 				+ "Users need to complete the request: posted over 1,000 POSTS/COMMENTS to get it.");

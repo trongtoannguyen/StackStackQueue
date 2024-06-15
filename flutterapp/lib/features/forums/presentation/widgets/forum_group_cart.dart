@@ -18,7 +18,7 @@ class ForumGroupCart extends StatelessWidget {
                   //   child: Image.network('src'),
                   // ),
                   Icon(
-                    Icons.newspaper,
+                    Icons.check,
                     size: 40,
                   ),
                   SizedBox(

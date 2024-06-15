@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -180,7 +181,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 onPressed: () {
                   theme.toggleTheme();
                 },
-                icon: Icon(theme.darkTheme! ? Icons.sunny : Icons.dark_mode));
+                icon: Icon(theme.darkTheme!
+                    ? Icons.sunny
+                    : CupertinoIcons.moon_stars));
           })
         ],
       ),

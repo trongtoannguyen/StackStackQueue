@@ -1,4 +1,5 @@
 import 'package:flutterapp/features/forums/presentation/bloc/discussion_bloc.dart';
+import 'package:flutterapp/features/members/data/data_sources/member_data_source.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
@@ -78,6 +79,9 @@ void init() {
 
   serviceLocator.registerLazySingleton<AuthDataSource>(
       () => AuthDataSourceImp(client: serviceLocator()));
+
+  serviceLocator.registerLazySingleton<MemberDataSource>(
+      () => MemberDataSourceImp(client: serviceLocator()));
 
   serviceLocator.registerLazySingleton<DiscussionDataSource>(
       () => DiscussionDataSourceImp(client: serviceLocator()));

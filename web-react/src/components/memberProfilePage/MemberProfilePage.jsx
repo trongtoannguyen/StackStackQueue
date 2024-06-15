@@ -122,7 +122,7 @@ const MemberProfile = () => {
 
   const fetchFollowingData = async () => {
     let res = await getFollowingByUserId(currentUser?.accessToken, axiosJWT, username);
-    if (+res?.status === 200 || +res.data?.status === 200) {
+    if (+res?.status === 200 || +res?.data?.status === 200) {
       setFollowings(res?.data?.data);
     } else {
       console.log(res?.data?.message);

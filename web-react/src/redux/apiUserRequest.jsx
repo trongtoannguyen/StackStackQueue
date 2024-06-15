@@ -54,7 +54,6 @@ export const uploadAvatar = async (dispatch, accessToken, axiosJWT, data, userna
         'Content-Type': 'multipart/form-data',
       },
     });
-    console.log(`Check up res data`, res.data.data);
     dispatch(uploadAvatarSuccess(res.data.data));
     return res.data;
   } catch (err) {

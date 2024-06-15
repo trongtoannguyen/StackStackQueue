@@ -1,7 +1,9 @@
+import 'dart:ffi';
+
 import 'package:equatable/equatable.dart';
 
 class ForumEntity extends Equatable {
-  final String? id;
+  final Long? id;
   final String? title;
   final String? description;
   final String? createdAt;

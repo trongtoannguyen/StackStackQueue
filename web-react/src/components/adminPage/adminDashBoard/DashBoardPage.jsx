@@ -45,6 +45,7 @@ const DashBoard = () => {
     let res = await getDataChart(currentUser?.accessToken, axiosJWT);
     if (res?.status === 200 || res?.data?.status === 200) {
       setDataChart(res.data?.data);
+      console.log(res.data?.data);
     } else {
       console.log(res?.message);
     }
