@@ -6,21 +6,21 @@ import ReactQuill from "react-quill";
 import { useSelector, useDispatch } from "react-redux";
 
 //Service
-import { loginSuccess } from "../../redux/authSlice";
-import { createAxios } from "../../services/createInstance";
-import { updateComment } from "../../services/forumService/CommentService";
-import "./Discussion.scss";
-import { getAllComments } from "../../services/forumService/CommentService";
-
-//Utils
-import {
-	validateTitle,
-	validateContent,
-} from "../../utils/validForumAndDiscussionUtils";
+import { loginSuccess } from "../../../redux/authSlice";
+import { createAxios } from "../../../services/createInstance";
+import { updateComment } from "../../../services/forumService/CommentService";
+import "../../discussions/Discussion.scss";
 
 const ModalUpdateComment = (props) => {
 	const { show, handleClose, dataUpdateComment, handleEditCommentFromModel } =
 		props;
+
+	ModalUpdateComment.propTypes = {
+		show: PropTypes.bool.isRequired,
+		handleClose: PropTypes.func.isRequired,
+		dataUpdateComment: PropTypes.object.isRequired,
+		handleEditCommentFromModel: PropTypes.func.isRequired,
+	};
 
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
@@ -30,45 +30,11 @@ const ModalUpdateComment = (props) => {
 		content: content,
 	};
 
-	//validate
-	const [titleError, setTitleError] = useState("");
-	const [contentError, setContentError] = useState("");
-
-	const [listValidComment, setValidListComment] = useState([]);
-	const getAllDataComments = async () => {
-		const res = await getAllComments();
-		if (res && +res.data.status === 200) {
-			const filterData = res.data.data.filter(
-				(data) => data.title !== dataUpdateComment.title
-			);
-			setValidListComment(filterData);
-		}
-	};
-
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 	const handleSaveComment = async () => {
-		setTitleError("");
-		setContentError("");
-
-		let titleValidationError = validateTitle(title, listValidComment);
-		let contentValidationError = validateContent(content, listValidComment);
-
-		if (titleValidationError) {
-			setTitleError(titleValidationError);
-		}
-
-		if (contentValidationError) {
-			setContentError(contentValidationError);
-		}
-
-		if (titleValidationError || contentValidationError) {
-			toast.error("Please fill in all required fields");
-			return;
-		}
-
 		try {
 			let res = await updateComment(
 				dataUpdateComment.commentId,
@@ -126,7 +92,6 @@ const ModalUpdateComment = (props) => {
 		if (show) {
 			setTitle(dataUpdateComment.title);
 			setContent(dataUpdateComment.content);
-			getAllDataComments();
 		}
 	}, [dataUpdateComment, show]);
 
@@ -152,13 +117,9 @@ const ModalUpdateComment = (props) => {
 						id="title"
 						type="text"
 						value={title}
-						onChange={(value) => {
-							setTitle(value.target.value);
-							setTitleError("");
-						}}
+						onChange={(event) => setTitle(event.target.value)}
 						placeholder="Enter Title"
 					/>
-					{titleError && <div className="text-danger mt-1">{titleError}</div>}
 				</div>
 
 				<div className="form-group mb-3">
@@ -167,17 +128,11 @@ const ModalUpdateComment = (props) => {
 						theme="snow"
 						modules={module}
 						value={content}
-						onChange={(value) => {
-							setContent(value);
-							setContentError("");
-						}}
+						onChange={setContent}
 						id="content"
 						placeholder="Enter content here"
 						className="content-editor"
 					/>
-					{contentError && (
-						<div className="text-danger mt-1">{contentError}</div>
-					)}
 				</div>
 			</Modal.Body>
 
@@ -191,17 +146,6 @@ const ModalUpdateComment = (props) => {
 			</Modal.Footer>
 		</Modal>
 	);
-};
-
-ModalUpdateComment.propTypes = {
-	show: PropTypes.bool.isRequired,
-	handleClose: PropTypes.func.isRequired,
-	dataUpdateComment: PropTypes.object.isRequired,
-	handleEditCommentFromModel: PropTypes.func.isRequired,
-};
-
-ModalUpdateComment.defaultProps = {
-	dataUpdateComment: null, // Provide a default value
 };
 
 export default ModalUpdateComment;

@@ -41,7 +41,6 @@ const ModalUpdateTags = (props) => {
 	};
 	const handleSaveTag = async () => {
 		let res = await updateTag(addNewTag, currentUser?.accessToken, axiosJWT);
-		console.log(res);
 		if (res && +res.data?.status === 200) {
 			handleClose();
 			setLabel("");
@@ -62,6 +61,11 @@ const ModalUpdateTags = (props) => {
 
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
+	};
+
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
 	};
 
 	useEffect(() => {
@@ -99,7 +103,10 @@ const ModalUpdateTags = (props) => {
 					/>
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
 			</Modal.Body>
 
 			<Modal.Footer>

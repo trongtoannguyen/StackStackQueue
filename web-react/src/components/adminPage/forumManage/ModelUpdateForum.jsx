@@ -9,12 +9,21 @@ import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
 import { updateForum } from "../../../services/forumService/ForumService";
 import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
+import { getAllForum } from "../../../services/forumService/ForumService";
 
 //Color Picker
 import ColorComponents from "../../colorComponents/ColorComponents";
 
 //Icon
 import SelectIcon from "../../IconComponents/IconComponents";
+
+//Utils
+import {
+	validateTitle,
+	validateIcon,
+	validateColor,
+	validateDescription,
+} from "../../../utils/validForumAndDiscussionUtils";
 
 const ModelUpdateForum = (props) => {
 	const {
@@ -46,7 +55,7 @@ const ModelUpdateForum = (props) => {
 		}
 	};
 
-	const listForums = async () => {
+	const listForumGroups = async () => {
 		let res = await getAllForumGroup();
 		if (res && res.data) {
 			setForumGroup(res.data);
@@ -75,7 +84,58 @@ const ModelUpdateForum = (props) => {
 		active: forumIsActive,
 	};
 
+	//Error
+	const [forum, setForum] = useState([]);
+	const listForums = async () => {
+		let res = await getAllForum();
+		if (res && res.data) {
+			const filterData = res.data.filter(
+				(data) => data.title !== dataUpdateForum?.title
+			);
+			setForum(filterData);
+		}
+	};
+
+	const [titleError, setTitleError] = useState("");
+	const [iconError, setIconError] = useState("");
+	const [colorError, setColorError] = useState("");
+	const [descriptionError, setDescriptionError] = useState("");
+
 	const handleSaveForum = async () => {
+		setTitleError("");
+		setIconError("");
+		setColorError("");
+		setDescriptionError("");
+
+		let titleValidationError = validateTitle(title, forum);
+		let iconValidationError = validateIcon(icon);
+		let colorValidationError = validateColor(color);
+		let descriptionValidationError = validateDescription(description, forum);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+		if (iconValidationError) {
+			setIconError(iconValidationError);
+		}
+		if (colorValidationError) {
+			setColorError(colorValidationError);
+		}
+
+		if (descriptionValidationError) {
+			setDescriptionError(descriptionValidationError);
+		}
+
+		if (
+			titleValidationError ||
+			iconValidationError ||
+			colorValidationError ||
+			descriptionValidationError
+		) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		let res = await updateForum(
 			dataUpdateForum.id,
 			updateForumByGroupId,
@@ -102,8 +162,13 @@ const ModelUpdateForum = (props) => {
 
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
+		setIconError("");
 	};
 
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
+	};
 	useEffect(() => {
 		if (show && dataUpdateForum) {
 			setTitle(dataUpdateForum.title || "");
@@ -113,8 +178,9 @@ const ModelUpdateForum = (props) => {
 			setIsActive(forumIsActive);
 			setTitleForumGroup(dataUpdateForum.forumGroup?.title || "");
 			setUpdateForumByGroupId(dataUpdateForum.forumGroup?.id || 0);
+			listForums();
 		}
-		listForums();
+		listForumGroups();
 	}, [dataUpdateForum, forumIsActive, show]);
 
 	return (
@@ -152,26 +218,43 @@ const ModelUpdateForum = (props) => {
 						Title
 					</label>
 					<input
-						className="form-control mb-3"
+						className="form-control"
 						id="title"
 						type="text"
 						value={title}
-						onChange={(event) => setTitle(event.target.value)}
+						onChange={(event) => {
+							setTitle(event.target.value);
+							setTitleError("");
+						}}
 						placeholder="Enter Title"
 					/>
 				</div>
-				<label className="form-label mb-3" htmlFor="description">
-					Description
-				</label>
-				<textarea
-					className="form-control mb-3"
-					id="description"
-					value={description}
-					onChange={(event) => setDescription(event.target.value)}
-					placeholder="Enter Description"
-				/>
+				{titleError && <div className="text-danger mt-1">{titleError}</div>}
+				<div className="form-group mb-3">
+					<label className="form-label" htmlFor="description">
+						Description
+					</label>
+					<textarea
+						className="form-control"
+						id="description"
+						value={description}
+						onChange={(event) => {
+							setDescription(event.target.value);
+							setDescriptionError("");
+						}}
+						placeholder="Enter Description"
+					/>
+					{descriptionError && (
+						<div className="text-danger mt-1">{descriptionError}</div>
+					)}
+				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				{iconError && <div className="text-danger mt-1">{iconError}</div>}
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
+				{colorError && <div className="text-danger mt-1">{colorError}</div>}
 			</Modal.Body>
 
 			<Modal.Footer>

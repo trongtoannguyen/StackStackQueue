@@ -70,7 +70,7 @@ public class Comment extends BaseEntity {
 	@JoinColumn(name = "reply_to_id", foreignKey = @ForeignKey(name = "FK_COMMENT_REPLY_TO"))
 	private Comment replyTo; // parent of this comment, top level ones will have this field as null
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "replyTo")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "replyTo",cascade = CascadeType.ALL,orphanRemoval = true)
 	@OrderBy("id ASC")
 	private List<Comment> replies; // children of this comment
 
@@ -81,7 +81,7 @@ public class Comment extends BaseEntity {
 	 * OK to eager fetch attachments as only a handful attachments are expected for
 	 * each comment
 	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,orphanRemoval = true)
 	@JoinTable(name = "comment_attachment", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_ATTACHMENT"), inverseForeignKey = @ForeignKey(name = "FK_ATTACHMENT_COMMENT"), indexes = {
 			@Index(name = "IDX_COMMENT_ATTACHMENT", columnList = "comment_id,file_info_id") })
 	@OrderColumn(name = "sort_order")
@@ -91,7 +91,7 @@ public class Comment extends BaseEntity {
 	 * OK to eager fetch attachments as only a handful thumbnails are expected for
 	 * each comment
 	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinTable(name = "comment_thumbnail", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_THUMBNAIL"), inverseForeignKey = @ForeignKey(name = "FK_THUMBNAIL_COMMENT"), indexes = {
 			@Index(name = "IDX_COMMENT_THUMBNAIL", columnList = "comment_id,file_info_id") })
 	@OrderColumn(name = "sort_order")
@@ -100,11 +100,11 @@ public class Comment extends BaseEntity {
 	@Column(name = "hidden")
 	private boolean hidden;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "comment_vote_id", foreignKey = @ForeignKey(name = "FK_COMMENT_VOTE"))
 	private CommentVote commentVote;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.ALL,orphanRemoval = true)
 	@OrderBy("createdAt DESC")
 	private List<Bookmark> bookmarks;
 

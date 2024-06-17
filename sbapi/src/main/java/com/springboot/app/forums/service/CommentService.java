@@ -7,8 +7,10 @@ import java.util.Map;
 import com.springboot.app.accounts.entity.User;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.CommentDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.FileInfo;
 
@@ -25,4 +27,8 @@ public interface CommentService {
 	ServiceResponse<Comment> deleteComment(Long id);
 
 	Comment updateComment(Comment comment);
+
+	ServiceResponse<List<CommentDTO>> getAllComment();
+
+	ServiceResponse<List<SearchAll>> getSearchComments(String keyword);
 }

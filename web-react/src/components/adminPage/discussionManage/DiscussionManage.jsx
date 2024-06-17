@@ -82,7 +82,6 @@ const DiscussionManage = () => {
 	useEffect(() => {
 		listDiscussions();
 		listForums();
-		console.log("discussionList", discussionList);
 	}, [page, size, orderBy, sort, search, forumId]);
 
 	return (

@@ -25,4 +25,8 @@ public interface ForumRepository extends JpaRepository<Forum, Long> {
 	@Modifying
 	@Query("SELECT COUNT(f) FROM Forum f")
 	Integer countForums();
+
+	// find forum by title and forum active
+	@Query("SELECT f FROM Forum f WHERE((:keyword IS NULL OR :keyword = '' OR f.title LIKE %:keyword%) OR (:keyword IS NULL OR :keyword = '' OR f.description LIKE %:keyword%)) AND f.active = true")
+	List<Forum> findByTitle(@Param("keyword") String keyword);
 }

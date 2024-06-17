@@ -9,12 +9,21 @@ import { logOutSuccess } from "../../../redux/authSlice";
 import { createAxios } from "../../../services/createInstance";
 import { updateForumGroup } from "../../../services/forumService/ForumGroupService";
 import { getUserModerator } from "../../../services/userService/UserService";
+import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
 
 //Color Picker
 import ColorComponents from "../../colorComponents/ColorComponents";
 
 //Icon
 import SelectIcon from "../../IconComponents/IconComponents";
+
+//Utils
+import {
+	validateTitle,
+	validateIcon,
+	validateColor,
+} from "../../../utils/validForumAndDiscussionUtils";
+
 const ModelUpdateForumGroup = (props) => {
 	const { show, handleClose, handleUpdateForumGroup, dataEditForumGroup } =
 		props;
@@ -32,6 +41,10 @@ const ModelUpdateForumGroup = (props) => {
 	const [roleName, setRoleName] = useState("");
 	const [listModerator, setListModerator] = useState([]);
 
+	const [titleError, setTitleError] = useState("");
+	const [iconError, setIconError] = useState("");
+	const [colorError, setColorError] = useState("");
+
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
@@ -43,7 +56,41 @@ const ModelUpdateForumGroup = (props) => {
 		color: color,
 	};
 
+	//Forum Groups
+	const [forumGroup, setForumGroup] = useState([]);
+	const listForumGroup = async () => {
+		let res = await getAllForumGroup();
+		if (res && res.data) {
+			const filterData = res.data.filter(
+				(data) => data.title !== dataEditForumGroup.title
+			);
+			setForumGroup(filterData);
+		}
+	};
+
 	const handleSaveForumGroup = async () => {
+		setTitleError("");
+		setIconError("");
+		setColorError("");
+
+		let titleValidationError = validateTitle(title, forumGroup);
+		let iconValidationError = validateIcon(icon);
+		let colorValidationError = validateColor(color);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+		if (iconValidationError) {
+			setIconError(iconValidationError);
+		}
+		if (colorValidationError) {
+			setColorError(colorValidationError);
+		}
+
+		if (titleValidationError || iconValidationError || colorValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
 		let res = await updateForumGroup(
 			dataEditForumGroup.id,
 			updateForumGroupObject,
@@ -75,14 +122,20 @@ const ModelUpdateForumGroup = (props) => {
 	};
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
+		setIconError("");
 	};
 
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
+	};
 	useEffect(() => {
 		if (show) {
 			setTitle(dataEditForumGroup.title);
 			setIcon(dataEditForumGroup.icon);
 			setColor(dataEditForumGroup.color);
 			setRoleName(dataEditForumGroup.manager);
+			listForumGroup();
 		}
 		ListUserModerator();
 	}, [dataEditForumGroup, show]);
@@ -107,7 +160,10 @@ const ModelUpdateForumGroup = (props) => {
 						className="form-control mb-3"
 						id="roleName"
 						value={roleName}
-						onChange={(event) => setRoleName(event.target.value)}
+						onChange={(event) => {
+							setTitle(event.target.value);
+							setTitleError("");
+						}}
 					>
 						{listModerator.map((item) => (
 							<option key={item.id} value={item.username}>
@@ -128,9 +184,15 @@ const ModelUpdateForumGroup = (props) => {
 						onChange={(event) => setTitle(event.target.value)}
 						placeholder="Enter Title"
 					/>
+					{titleError && <div className="text-danger mt-1">{titleError}</div>}
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				{iconError && <div className="text-danger mt-1">{iconError}</div>}
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
+				{colorError && <div className="text-danger mt-1">{colorError}</div>}
 			</Modal.Body>
 
 			<Modal.Footer>

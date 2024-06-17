@@ -26,6 +26,7 @@ import {
 
 //Modal
 import ModalUpdateDiscussion from "./ModalUpdateDiscussion";
+import ModalUpdateComment from "./ModalUpdateComment";
 
 //Modal
 import Avatar from "../../avatar/Avatar";
@@ -92,9 +93,6 @@ const TagsManage = () => {
 
 	const [selectedTags, setSelectedTags] = useState([]);
 
-	console.log("selectedTags", selectedTags);
-	console.log(discussion);
-
 	const handleTagChange = (selectedOptions) => {
 		setSelectedTags(selectedOptions);
 	};
@@ -134,7 +132,6 @@ const TagsManage = () => {
 	//****************************//
 
 	const [listComment, setListComment] = useState([]);
-	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
 
 	const fetchAllCommentData = async () => {
@@ -142,7 +139,6 @@ const TagsManage = () => {
 			return;
 		}
 		let pageData = {
-			page: page,
 			size: pageSize,
 			orderBy: "createdAt",
 			sort: "ASC",
@@ -240,6 +236,24 @@ const TagsManage = () => {
 		}
 	};
 
+	//update Comment
+	const [dataUpdateComment, setDataUpdateComment] = useState(null);
+	const [showModelUpdateDiscussion, setShowModelUpdateComment] =
+		useState(false);
+	const handleEditComment = (comment) => {
+		setDataUpdateComment(comment);
+		setShowModelUpdateComment(true);
+	};
+
+	const handleEditCommentFromModel = (comment) => {
+		console.log(`Check`, comment);
+		let cloneListComments = _.cloneDeep(listComment);
+		let index = cloneListComments.findIndex((c) => c.id === comment.id);
+		cloneListComments[index] = comment;
+		setListComment(cloneListComments);
+		fetchAllCommentData();
+	};
+
 	useEffect(() => {
 		fetchAllCommentData();
 	}, [discussionId]);
@@ -260,9 +274,9 @@ const TagsManage = () => {
 						onClick={() => handleDownVote(comment?.commentId)}
 					></button>
 
-					{!comment?.firstComment && (
+					{/* {!comment?.firstComment && (
 						<button className="fa-solid fa-check text-success mb-3"></button>
-					)}
+					)} */}
 
 					<button
 						className={
@@ -301,9 +315,12 @@ const TagsManage = () => {
 									</small>
 								</span>
 
-								{currentUser.username === comment?.author?.username && (
+								{currentUser?.username === comment?.author?.username && (
 									<small className="ml-auto me-0 d-inline-block">
-										<button className="mx-2 fa-solid fa-edit fa-2x"></button>
+										<button
+											onClick={() => handleEditComment(comment)}
+											className="mx-2 fa-solid fa-edit fa-2x"
+										></button>
 										<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
 									</small>
 								)}
@@ -372,7 +389,6 @@ const TagsManage = () => {
 			</p>
 			<p>
 				In forum <strong>{discussion?.forum?.title}</strong>{" "}
-				<Button variant="link" size="sm"></Button> Move to new Forum
 			</p>
 			<div className="d-flex justify-content-center align-items-center">
 				<div className="d-flex">
@@ -491,6 +507,12 @@ const TagsManage = () => {
 					</section>
 				</Row>
 			</Col>
+			<ModalUpdateComment
+				show={showModelUpdateDiscussion}
+				handleClose={() => setShowModelUpdateComment(false)}
+				dataUpdateComment={dataUpdateComment}
+				handleEditCommentFromModel={handleEditCommentFromModel}
+			/>
 		</div>
 	);
 };

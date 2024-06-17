@@ -110,7 +110,6 @@ const ListDiscussions = () => {
 
 	const handleUpdateDiscussion = async (tagId) => {
 		const res = await viewDiscussionsByTagId(tagId);
-		console.log(res);
 		if (res && +res.status === 200) {
 			setDiscussionList(res.data.dataObject);
 		}

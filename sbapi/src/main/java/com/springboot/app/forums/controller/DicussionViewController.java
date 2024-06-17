@@ -3,6 +3,7 @@ package com.springboot.app.forums.controller;
 
 import java.util.List;
 
+import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Discussion;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -112,5 +113,4 @@ public class DicussionViewController {
 		}
 		return ResponseEntity.ok(new ObjectResponse("404", "Discussions not found", null));
 	}
-
 }

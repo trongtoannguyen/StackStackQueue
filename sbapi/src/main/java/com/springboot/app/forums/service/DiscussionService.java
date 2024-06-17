@@ -6,6 +6,7 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
+import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.DiscussionStat;
@@ -34,4 +35,5 @@ public interface DiscussionService {
 	ServiceResponse<Discussion> addTagsToDiscussion(Long discussionId, List<Long> tagIds);
 
 	ServiceResponse<List<DiscussionDTO>> getDiscussionsByTagId(Long tagId);
+
 }

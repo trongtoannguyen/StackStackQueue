@@ -61,6 +61,11 @@ const ModalAddNewTags = (props) => {
 		setIcon(iconValue);
 	};
 
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
+	};
+
 	return (
 		<Modal
 			show={show}
@@ -88,7 +93,10 @@ const ModalAddNewTags = (props) => {
 					/>
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
 			</Modal.Body>
 
 			<Modal.Footer>

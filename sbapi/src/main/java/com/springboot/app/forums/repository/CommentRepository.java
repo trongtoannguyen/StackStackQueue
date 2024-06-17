@@ -45,13 +45,16 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 	Comment findFirstCommentByDiscussion(@Param("discussion") Discussion discussion);
 
 	//findAllByDiscussion parent id null
-//	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion")
-//	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
-
-	//findAllByDiscussion parent id null
 	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion AND c.replyTo IS NULL")
 	Page<Comment> findAllByDiscussion(@Param("discussion") Discussion discussion, Pageable pageable);
 
 	List<Comment> findByReplyTo(Comment replyTo);
+
+	//findAllByDiscussion sắp xấp theo thứ tự CreateAt giảm dần
+	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion ORDER BY c.createdAt DESC")
+	List<Comment> findByDiscussion(@Param("discussion") Discussion discussion);
+
+	@Query("SELECT c FROM Comment c WHERE (:keyword IS NULL OR :keyword = '' OR c.title LIKE %:keyword%) OR (:keyword IS NULL OR :keyword = '' OR c.content LIKE %:keyword%)")
+	List<Comment> findByTitle(@Param("keyword") String keyword);
 
 }

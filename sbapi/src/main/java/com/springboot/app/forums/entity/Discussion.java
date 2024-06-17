@@ -62,7 +62,7 @@ public class Discussion extends BaseEntity {
 	@Column(name = "important")
 	private boolean important;
 
-	@OneToMany(mappedBy = "discussion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "discussion", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("createdAt DESC")
 	private List<Comment> comments;
 

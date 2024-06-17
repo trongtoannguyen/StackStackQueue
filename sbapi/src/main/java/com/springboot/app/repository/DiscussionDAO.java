@@ -154,7 +154,8 @@ public class DiscussionDAO {
 	}
 
 	public ForumGroupStat getForumGroupStat(){
-		String queryStr = "SELECT count(f.id), sum (f.stat.discussionCount), sum (f.stat.commentCount) FROM Forum f ";
+		String queryStr = "SELECT count(f.id), sum(f.stat.discussionCount), sum(f.stat.commentCount) " +
+				"FROM Forum f WHERE f.active = true";
 		Query query = entityManager.createQuery(queryStr);
 		@SuppressWarnings("unchecked")
 		Object[] result = (Object[]) query.getSingleResult();

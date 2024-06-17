@@ -183,6 +183,7 @@ const SelectIcon = (props) => {
 SelectIcon.propTypes = {
 	handleSelectIcon: PropTypes.func.isRequired,
 	icon: PropTypes.string.isRequired,
+	setIconError: PropTypes.func.isRequired,
 };
 
 export default SelectIcon;

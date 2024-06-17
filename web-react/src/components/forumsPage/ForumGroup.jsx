@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import BannerTop from "../bannerTop/BannerTop";
 import { Col, Row, Card, ListGroup } from "react-bootstrap";
+import _ from "lodash";
 
 //Service
 import { getAllForumGroup } from "../../services/forumService/ForumGroupService";
@@ -61,7 +62,14 @@ const ForumGroup = () => {
 	const listForumGroup = async () => {
 		let res = await getAllForumGroup();
 		if (res && res.data) {
-			setForumGroup(res.data);
+			//sort by sortByOrder
+			let cloneListForumGroup = _.cloneDeep(res.data);
+			cloneListForumGroup = _.orderBy(
+				cloneListForumGroup,
+				["sortOrder"],
+				["asc"]
+			);
+			setForumGroup(cloneListForumGroup);
 		}
 	};
 
@@ -118,7 +126,6 @@ const ForumGroup = () => {
 	useEffect(() => {
 		listForums();
 		listForumGroup();
-		console.log(forum);
 	}, []);
 
 	return (

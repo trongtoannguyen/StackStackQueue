@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
@@ -11,6 +11,13 @@ import "./Discussion.scss";
 import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
 import { createDiscussion } from "../../services/forumService/DiscussionService";
+import { getPageDiscussion } from "../../services/forumService/DiscussionService";
+
+//Utils
+import {
+	validateTitle,
+	validateContentDiscussion,
+} from "../../utils/validForumAndDiscussionUtils";
 
 const ModalAddDiscussion = (props) => {
 	const { show, handleClose, handleUpdateAddDiscussion } = props;
@@ -29,9 +36,23 @@ const ModalAddDiscussion = (props) => {
 
 	const discussion = {
 		title: title,
-		closed: false,
+		closed: true,
 		sticky: false,
 		important: false,
+	};
+
+	const [titleError, setTitleError] = useState("");
+	const [contentError, setContentError] = useState("");
+
+	//Discussion
+	const [discussionList, setDiscussionList] = useState([]);
+	const listDiscussions = async () => {
+		const res = await getPageDiscussion(1, 10, "id", "ASC", "", null);
+		if (res && res.data) {
+			setDiscussionList(res.data);
+		} else {
+			setDiscussionList([]);
+		}
 	};
 
 	// const navigate = useNavigate();
@@ -40,6 +61,28 @@ const ModalAddDiscussion = (props) => {
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 	const handleSaveDiscussion = async () => {
+		setTitleError("");
+		setContentError("");
+
+		let titleValidationError = validateTitle(title, discussionList);
+		let contentValidationError = validateContentDiscussion(
+			content,
+			discussionList
+		);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+
+		if (contentValidationError) {
+			setContentError(contentValidationError);
+		}
+
+		if (titleValidationError || contentValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		try {
 			let res = await createDiscussion(
 				forumId,
@@ -50,7 +93,6 @@ const ModalAddDiscussion = (props) => {
 			);
 
 			if (res && +res.data?.status === 201) {
-				console.log(res.data);
 				handleClose();
 				setContent("");
 				setTitle("");
@@ -73,6 +115,10 @@ const ModalAddDiscussion = (props) => {
 			toast.error("Error when creating Discussion");
 		}
 	};
+
+	useEffect(() => {
+		listDiscussions();
+	}, []);
 
 	const toolbarOptions = [
 		["bold", "italic", "underline", "strike"], // toggled buttons
@@ -122,9 +168,13 @@ const ModalAddDiscussion = (props) => {
 							id="title"
 							type="text"
 							value={title}
-							onChange={(event) => setTitle(event.target.value)}
+							onChange={(event) => {
+								setTitle(event.target.value);
+								setTitleError("");
+							}}
 							placeholder="Enter Title"
 						/>
+						{titleError && <div className="text-danger mt-1">{titleError}</div>}
 					</div>
 
 					<div className="form-group mb-3">
@@ -133,12 +183,18 @@ const ModalAddDiscussion = (props) => {
 							theme="snow"
 							modules={module}
 							value={content}
-							onChange={setContent}
+							onChange={(value) => {
+								setContent(value);
+								setContentError(""); // Reset contentError when content changes
+							}}
 							id="content"
 							placeholder="Enter content here"
 							className="content-editor"
 						/>
 					</div>
+					{contentError && (
+						<div className="text-danger mt-1">{contentError}</div>
+					)}
 				</div>
 			</Modal.Body>
 

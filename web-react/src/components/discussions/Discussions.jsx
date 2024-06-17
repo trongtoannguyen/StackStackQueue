@@ -5,13 +5,12 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
-// import _ from "lodash";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 //Model
 import ForumInfo from "./ForumInfo";
 import ModalAddDiscussion from "./ModalAddDiscussion";
-// import ModalUpdateDiscussion from "./ModelUpdateDiscussion";
 
 //Services
 import { getForumById } from "../../services/forumService/ForumService";
@@ -38,6 +37,7 @@ const Discussion = () => {
 
 	const [showModelAddDiscussion, setShowModelAddDiscussion] = useState(false);
 
+	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
@@ -64,10 +64,22 @@ const Discussion = () => {
 	const listDiscussionsByForum = async () => {
 		const res = await getPageDiscussion(page, 5, "id", "ASC", "", forumId);
 		if (res && res.data) {
-			setListDiscussions(res.data);
+			const filterClosed = res.data.filter(
+				(discussion) => discussion.closed === true
+			);
+			setListDiscussions(filterClosed);
 			setTotalPages(res.totalPages);
 		} else {
 			setListDiscussions([]);
+		}
+	};
+
+	const handelCheckLoginAndAddNewDiscussion = () => {
+		console.log(currentUser?.accessToken);
+		if (currentUser?.accessToken) {
+			setShowModelAddDiscussion(true);
+		} else {
+			navigate("/login");
 		}
 	};
 
@@ -77,15 +89,21 @@ const Discussion = () => {
 	};
 
 	const handelUpdateView = async (id) => {
-		try {
-			let res = await updateViews(id, currentUser?.accessToken, axiosJWT);
-			if (res && res.data) {
-				listDiscussionsByForum();
-			}
-		} catch (error) {
-			console.error("Error fetching discussions:", error);
-		}
+		// 	try {
+		// 		let res = await updateViews(id, currentUser?.accessToken, axiosJWT);
+		// 		if (res && res.data) {
+		// 			listDiscussionsByForum();
+		// 		}
+		// 	} catch (error) {
+		// 		console.error("Error fetching discussions:", error);
+		// 	}
+		console.log(id);
 	};
+
+	const breadcrumbs = [
+		{ id: 1, name: `${forum.forumGroup?.title}`, link: `/forumGroup` },
+		{ id: 2, name: `${forum.title}`, link: `/forum/${forum.id}` },
+	];
 
 	useEffect(() => {
 		listDiscussionsByForum();
@@ -95,13 +113,13 @@ const Discussion = () => {
 	return (
 		<section className="discussion-container content mb-3">
 			<Col>
-				<BannerTop bannerName={forum.title} breadcrumbs={[forum]} />
+				<BannerTop bannerName={forum.title} breadcrumbs={breadcrumbs} />
 			</Col>
 			<Col className="mx-auto row">
 				<Row>
 					<Col md="8" lg="9">
 						<Card>
-							<Table striped responsive hover>
+							<Table striped hover>
 								<thead>
 									<tr>
 										<th>Discussion Title</th>
@@ -163,9 +181,7 @@ const Discussion = () => {
 						<Card>
 							<button
 								className="btn btn-success w-100 h-100 m-0"
-								onClick={() => {
-									setShowModelAddDiscussion(true);
-								}}
+								onClick={() => handelCheckLoginAndAddNewDiscussion()}
 							>
 								<i className="fa-solid fa-circle-plus fa-xl"></i>{" "}
 								<span>Open New Discussion</span>
