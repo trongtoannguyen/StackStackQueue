@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
-
 import '../../../../core/exceptions/failure.dart';
 
 abstract class AuthRepo {

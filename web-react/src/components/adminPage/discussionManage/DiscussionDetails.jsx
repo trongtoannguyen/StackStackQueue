@@ -382,7 +382,7 @@ const TagsManage = () => {
 	};
 
 	return (
-		<div className="container mt-4 ">
+		<div className="content container mt-4 ">
 			<p>
 				Started by <strong>{discussion?.createdBy}</strong> -{" "}
 				{formatDate(discussion?.createdAt)}

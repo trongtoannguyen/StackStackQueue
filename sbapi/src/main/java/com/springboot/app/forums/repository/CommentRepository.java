@@ -56,5 +56,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 
 	@Query("SELECT c FROM Comment c WHERE (:keyword IS NULL OR :keyword = '' OR c.title LIKE %:keyword%) OR (:keyword IS NULL OR :keyword = '' OR c.content LIKE %:keyword%)")
 	List<Comment> findByTitle(@Param("keyword") String keyword);
+	List<Comment> findByCreatedBy(String username);
 
 }

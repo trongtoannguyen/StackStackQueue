@@ -11,6 +11,7 @@ import com.springboot.app.forums.dto.CommentDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
 import com.springboot.app.forums.dto.search.SearchAll;
+import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.FileInfo;
 
@@ -31,4 +32,7 @@ public interface CommentService {
 	ServiceResponse<List<CommentDTO>> getAllComment();
 
 	ServiceResponse<List<SearchAll>> getSearchComments(String keyword);
+	ViewCommentResponse mapCommentToViewCommentResponse(Comment comment);
+
+	String getContentByCommentId(Long id);
 }

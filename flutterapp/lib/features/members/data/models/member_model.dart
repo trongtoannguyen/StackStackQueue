@@ -5,17 +5,17 @@ import 'package:flutterapp/features/members/domain/entities/member_entity.dart';
 
 class MemberModel extends MemberEntity {
   MemberModel({
-    required Long id,
+    required int userId,
     required String username,
     required String name,
     required String email,
     required String avatar,
     required String imageUrl,
-    required Long totalDiscussions,
-    required Long totalComments,
-    required Long reputation,
+    required int totalDiscussions,
+    required int totalComments,
+    required int reputation,
   }) : super(
-          id: id,
+          userId: userId,
           username: username,
           name: name,
           email: email,
@@ -28,21 +28,21 @@ class MemberModel extends MemberEntity {
 
   factory MemberModel.fromMap(Map<String, dynamic> json) {
     return MemberModel(
-      id: json['id'] as Long,
-      username: json['username'],
-      name: json['name'],
-      email: json['email'],
-      avatar: json['avatar'],
-      imageUrl: json['imageUrl'],
-      totalDiscussions: json['totalDiscussions'],
-      totalComments: json['totalComments'],
-      reputation: json['reputation'],
+      userId: (json['userId'] ?? 0) as int,
+      username: (json['username'] ?? "") as String,
+      name: (json['name'] ?? "") as String,
+      email: (json['email'] ?? "") as String,
+      avatar: (json['avatar'] ?? "") as String,
+      imageUrl: (json['imageUrl'] ?? "") as String,
+      totalDiscussions: (json['totalDiscussions'] ?? 0) as int,
+      totalComments: (json['totalComments'] ?? 0) as int,
+      reputation: (json['reputation'] ?? 0) as int,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'userId': userId,
       'username': username,
       'name': name,
       'email': email,

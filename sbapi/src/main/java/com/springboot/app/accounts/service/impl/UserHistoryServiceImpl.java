@@ -96,7 +96,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 		return bookmarkHistoryResponse;
 	}
 
-	private CommentHistoryResponse mapCommentToCommentHistoryResponse(Comment comment){
+	public CommentHistoryResponse mapCommentToCommentHistoryResponse(Comment comment){
 		CommentHistoryResponse commentHistoryResponse = new CommentHistoryResponse();
 		commentHistoryResponse.setCommentId(comment.getId());
 		commentHistoryResponse.setAuthor(comment.getCreatedBy());
@@ -121,4 +121,5 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
 		return commentHistoryResponse;
 	}
+
 }

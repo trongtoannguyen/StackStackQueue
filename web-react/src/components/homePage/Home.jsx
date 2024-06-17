@@ -83,7 +83,7 @@ const Home = () => {
 							</CardHeader>
 							<CardBody>
 								<div className="stat-details">
-									<strong>Welcome to {mostRecent?.forum?.title} </strong>
+									<strong>{mostRecent?.forum?.title} </strong>
 									<span>({mostRecent?.stat?.viewCount} views) </span>
 									<span>Started By: </span>
 									<strong>{mostRecent?.createdBy} </strong>
@@ -124,7 +124,7 @@ const Home = () => {
 							</CardHeader>
 							<CardBody>
 								<div className="stat-details">
-									<strong>Welcome to {mostViews?.forum?.title} </strong>
+									<strong>{mostViews?.forum?.title} </strong>
 									<span>({mostViews?.stat?.viewCount} views) </span>
 									<span>Started By: </span>
 									<strong>{mostViews?.createdBy} </strong>
@@ -164,7 +164,7 @@ const Home = () => {
 							</CardHeader>
 							<CardBody>
 								<div className="stat-details">
-									<strong>Welcome to {mostComments?.forum?.title} </strong>
+									<strong>{mostComments?.forum?.title} </strong>
 									<span>({mostComments?.stat?.viewCount} views) </span>
 									<span>Started By: </span>
 									<strong>{mostComments?.createdBy} </strong>

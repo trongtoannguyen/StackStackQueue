@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 
 class UserEntity extends Equatable {
-  final Long id;
+  final int id;
   final String username;
   final String email;
   final String name;
@@ -12,20 +12,14 @@ class UserEntity extends Equatable {
   final String imageUrl;
   final String accessToken;
 
-  const UserEntity(this.id, this.username, this.email, this.name, this.avatar,
-      this.imageUrl, this.accessToken);
-
-  factory UserEntity.fromJson(Map<dynamic, dynamic> json) {
-    return UserEntity(
-      (json['id'] ?? 0) as Long,
-      (json['username'] ?? "") as String,
-      (json['email'] ?? "") as String,
-      (json['name'] ?? "") as String,
-      (json['avatar'] ?? "") as String,
-      (json['imageUrl'] ?? "") as String,
-      (json['accessToken'] ?? "") as String,
-    );
-  }
+  const UserEntity(
+      {required this.id,
+      required this.username,
+      required this.email,
+      required this.name,
+      required this.avatar,
+      required this.imageUrl,
+      required this.accessToken});
 
   @override
   List<Object?> get props => [
@@ -40,7 +34,7 @@ class UserEntity extends Equatable {
 }
 
 //------------------------------------------------------------------------------
-enum EmailValidationError { invalid }
+enum EmailValidationError { invalid, empty }
 
 class Email extends FormzInput<String, EmailValidationError> {
   const Email.pure() : super.pure('');
@@ -61,7 +55,7 @@ class Email extends FormzInput<String, EmailValidationError> {
 
 //------------------------------------------------------------------------------
 
-enum PasswordValidationError { invalid }
+enum PasswordValidationError { invalid, empty }
 
 class Password extends FormzInput<String, PasswordValidationError> {
   const Password.pure() : super.pure('');
@@ -76,5 +70,27 @@ class Password extends FormzInput<String, PasswordValidationError> {
     return _passwordRegExp.hasMatch(value ?? '')
         ? null
         : PasswordValidationError.invalid;
+  }
+}
+
+extension on EmailValidationError {
+  String text() {
+    switch (this) {
+      case EmailValidationError.invalid:
+        return 'Please ensure the email entered is valid';
+      case EmailValidationError.empty:
+        return 'Please enter an email';
+    }
+  }
+}
+
+extension on PasswordValidationError {
+  String text() {
+    switch (this) {
+      case PasswordValidationError.invalid:
+        return '''Password must be at least 8 characters and contain at least one letter and number''';
+      case PasswordValidationError.empty:
+        return 'Please enter a password';
+    }
   }
 }

@@ -34,10 +34,10 @@ const Sidebar = (props) => {
     const currentUser = useSelector(state => state.auth.login?.currentUser);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
 
 
     const handleLogout = () => {
+        let axiosJWT = createAxios(currentUser, dispatch, logOutSuccess);
         logOut(dispatch, currentUser?.id, navigate, currentUser?.accessToken, axiosJWT);
     }
 

@@ -1,20 +1,18 @@
-import 'dart:ffi';
-
 import 'package:equatable/equatable.dart';
 
 class MemberEntity extends Equatable {
-  final Long id;
+  final int userId;
   final String username;
   final String name;
   final String email;
   final String avatar;
   final String imageUrl;
-  final Long totalDiscussions;
-  final Long totalComments;
-  final Long reputation;
+  final int totalDiscussions;
+  final int totalComments;
+  final int reputation;
 
   const MemberEntity({
-    required this.id,
+    required this.userId,
     required this.username,
     required this.name,
     required this.email,
@@ -27,7 +25,7 @@ class MemberEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
+        userId,
         username,
         name,
         email,

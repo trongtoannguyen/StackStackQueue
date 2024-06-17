@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 
 class Storage {
   static final Storage _instance = Storage._internal();
@@ -9,6 +8,8 @@ class Storage {
   Storage._internal();
 
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  String token = '';
-  String userId = '';
+  String token = ''; //access token
+  String userId = ''; //username
+  String cookies = '';
+  String avatarUrl = '';
 }

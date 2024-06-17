@@ -63,7 +63,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	@Override
 	public ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup() {
 		ServiceResponse<List<DataForumGroupResponse>> response = new ServiceResponse<>();
-		List<DataForumGroupResponse> dataForumGroupResponses = discussionDAO.getForumGroupData();
+		List<DataForumGroupResponse> dataForumGroupResponses = discussionDAO.getForumGroupData2();
 		response.setDataObject(dataForumGroupResponses);
 		return response;
 	}

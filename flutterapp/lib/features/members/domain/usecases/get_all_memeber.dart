@@ -7,12 +7,12 @@ import '../repository/member_repo.dart';
 
 class GetAllMemberUseCase
     implements GetAllMember<List<MemberEntity>, NoParams> {
-  final MemberRepo memberRepository;
+  final MemberRepo repository;
 
-  GetAllMemberUseCase({required this.memberRepository});
+  GetAllMemberUseCase({required this.repository});
 
   @override
   Future<Either<Failure, List<MemberEntity>>> call(NoParams params) async {
-    return await memberRepository.getAllMember();
+    return await repository.getAllMember();
   }
 }

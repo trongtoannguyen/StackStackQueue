@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutterapp/core/exceptions/error.dart';
-import 'package:flutterapp/core/api_urls.dart';
+import 'package:flutterapp/core/network/api_urls.dart';
 
 import '../../../../core/storage/storage.dart';
 import '../models/discussion_model.dart';

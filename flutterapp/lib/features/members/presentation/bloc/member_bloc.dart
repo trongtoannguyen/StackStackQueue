@@ -9,6 +9,7 @@ part 'member_event.dart';
 part 'member_state.dart';
 
 class MemberBloc extends Bloc<MemberEvent, MemberState> {
+  //domain usecase
   final GetAllMemberUseCase _getAllMemberUseCase;
 
   MemberBloc({required GetAllMemberUseCase getAllMemberUseCase})

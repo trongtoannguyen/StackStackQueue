@@ -26,9 +26,6 @@ public class PersonServiceImpl implements PersonService {
 	private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);
 
 	@Autowired
-	private PersonRepository personRepository;
-
-	@Autowired
 	private UserRepository userRepository;
 
 	public ServiceResponse<Void> updatePersonalInfo(User user, AccountInfo accountInfo){

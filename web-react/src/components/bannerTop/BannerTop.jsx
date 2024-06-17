@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 
-const BannerTop = (props) => {
-  const { bannerName, breadcrumbs } = props;
-
+const BannerTop = ({ bannerName = "", breadcrumbs = [] }) => {
 
   return (
     <div className="banner-top-container my-3">

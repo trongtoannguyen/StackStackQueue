@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutterapp/features/forums/presentation/bloc/discussion_bloc.dart';
+import 'package:flutterapp/features/forums/presentation/bloc/group_bloc/group_bloc.dart';
 import 'package:flutterapp/features/members/presentation/bloc/member_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -27,11 +27,10 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) =>
-                serviceLocator<DiscussionBloc>()..add(GetDiscussionEvent()),
+            create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
           ),
           BlocProvider(
-            create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
+            create: (_) => serviceLocator<GroupBloc>()..add(GetGroupsEvent()),
           ),
         ],
         child: ChangeNotifierProvider<ThemeService>(
