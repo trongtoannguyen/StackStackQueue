@@ -38,8 +38,6 @@ const ModelUpdateActiveForum = (props) => {
 		active: forumIsActive,
 	};
 
-	console.log(updateForumObject);
-
 	const handleSaveForum = async () => {
 		let res = await updateForum(
 			dataUpdateForum.id,
@@ -57,7 +55,7 @@ const ModelUpdateActiveForum = (props) => {
 			});
 			toast.success(res.data.message);
 		} else {
-			toast.error("Error when updating Forum");
+			toast.error("Error when updating active Forum");
 		}
 	};
 
@@ -80,7 +78,13 @@ const ModelUpdateActiveForum = (props) => {
 
 			<Modal.Body>
 				<div>
-					<h3>Do you want to disable this Forum?</h3>
+					<h3>
+						Do you want to{" "}
+						<b className={forumIsActive ? "text-success" : "text-danger"}>
+							{forumIsActive ? "active" : "inactive"}
+						</b>{" "}
+						this Forum?
+					</h3>
 					<b>Title: {dataUpdateForum?.title}</b>
 				</div>
 			</Modal.Body>

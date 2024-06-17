@@ -8,10 +8,13 @@ import com.springboot.app.accounts.service.UserStatService;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.follows.dto.response.BookmarkResponse;
 import com.springboot.app.follows.entity.Bookmark;
+import com.springboot.app.forums.dto.CommentDTO;
 import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
 import com.springboot.app.forums.dto.response.ReplyItem;
 import com.springboot.app.forums.dto.response.ViewCommentResponse;
+import com.springboot.app.forums.dto.search.SearchAll;
+import com.springboot.app.forums.repository.*;
 import com.springboot.app.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,19 +33,11 @@ import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.CommentVote;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.forums.entity.DiscussionStat;
-import com.springboot.app.forums.entity.FileInfo;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.entity.Vote;
-import com.springboot.app.forums.repository.CommentRepository;
-import com.springboot.app.forums.repository.CommentVoteRepository;
-import com.springboot.app.forums.repository.DiscussionRepository;
-import com.springboot.app.forums.repository.ForumRepository;
 import com.springboot.app.forums.service.CommentService;
-import com.springboot.app.repository.CommentDAO;
-import com.springboot.app.repository.GenericDAO;
 import com.springboot.app.service.FileInfoHelper;
-import com.springboot.app.service.FileService;
 import com.springboot.app.utils.JSFUtils;
 
 import net.htmlparser.jericho.Source;
@@ -54,15 +49,7 @@ public class CommentServiceImpl implements CommentService {
 	private CommentRepository commentRepository;
 
 	@Autowired
-	private GenericDAO genericDAO;
-
-	@Autowired
 	private FileInfoHelper fileInfoHelper;
-	@Autowired
-	private FileService fileService;
-
-	@Autowired
-	private CommentDAO commentDAO;
 
 	@Autowired
 	private CommentVoteRepository commentVoteRepository;
@@ -78,6 +65,12 @@ public class CommentServiceImpl implements CommentService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private CommentInfoRepository commentInfoRepository;
+
+	@Autowired
+	private DiscussionStatRepository discussionStatRepository;
 
 	@Override
 	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
@@ -292,6 +285,7 @@ public class CommentServiceImpl implements CommentService {
 		}
 	}
 
+
 	@Override
 	@Transactional(readOnly = false)
 	public ServiceResponse<Comment> deleteComment(Long id) {
@@ -300,6 +294,25 @@ public class CommentServiceImpl implements CommentService {
 		if (optionalComment.isPresent()) {
 			Comment comment = optionalComment.get();
 			deleteChildComments(comment);
+
+			// Lấy danh sách CommentInfo liên quan
+//			List<CommentInfo> commentInfos = commentInfoRepository.findByCommentId(id);
+//
+//			Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+//			//lấy danh sách comment của discussion
+//			List<Comment> comments = commentRepository.findByDiscussion(discussion);
+//
+//			if(comments.size() > 1){
+//				for (CommentInfo commentInfo : commentInfos) {
+//					// Cập nhật discussion_stats để bỏ tham chiếu tới comment_info
+//					discussionStatRepository.updateLastCommentInfoId(commentInfo.getId(), comments.get(1).getId());
+//				}
+//			}
+
+
+			// Xóa các CommentInfo liên quan
+			commentInfoRepository.deleteByCommentId(id);
+
 			commentRepository.delete(comment);
 			response.setDataObject(comment);
 			response.setAckCode(AckCodeType.SUCCESS);
@@ -317,7 +330,51 @@ public class CommentServiceImpl implements CommentService {
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<List<CommentDTO>> getAllComment(){
+		ServiceResponse<List<CommentDTO>> response = new ServiceResponse<>();
+		List<Comment> comments = commentRepository.findAll();
+		List<CommentDTO> commentDTOList = new ArrayList<>();
+		for (Comment comment : comments) {
+			CommentDTO commentDTO = new CommentDTO();
+			commentDTO.setId(comment.getId());
+			commentDTO.setTitle(comment.getTitle());
+			commentDTO.setContent(comment.getContent());
+			commentDTO.setCreatedAt(comment.getCreatedAt());
+			commentDTOList.add(commentDTO);
+		}
+		response.setDataObject(commentDTOList);
+		return response;
+	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<List<SearchAll>> getSearchComments(String keyword) {
+		ServiceResponse<List<SearchAll>> response = new ServiceResponse<>();
+		List<Comment> comments = commentRepository.findByTitle(keyword);
+		List<SearchAll> searchAllList = new ArrayList<>();
+		Author author = new Author();
+		for (Comment comment : comments) {
+			SearchAll searchAll = new SearchAll();
+			searchAll.setId(comment.getId());
+			searchAll.setDiscussionId(comment.getDiscussion().getId());
+			searchAll.setTitle(comment.getTitle());
+			searchAll.setDescription(comment.getContent());
+			searchAll.setCreatedAt(comment.getCreatedAt());
+			searchAll.setType("comment");
+			User user = userRepository.findByUsername(comment.getCreatedBy()).orElse(null);
+			if (user != null) {
+				author.setUsername(user.getUsername());
+				author.setAvatar(user.getAvatar());
+				author.setImageUrl(user.getImageUrl());
+			}
+			searchAll.setAuthor(author);
+			searchAllList.add(searchAll);
+		}
+		response.setDataObject(searchAllList);
+		return response;
+	}
 	@Override
 	public String getContentByCommentId(Long id) {
 		Comment comment = commentRepository.findById(id).orElse(null);

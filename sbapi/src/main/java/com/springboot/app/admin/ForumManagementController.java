@@ -220,4 +220,13 @@ public class ForumManagementController {
 		return ResponseEntity.ok(new ObjectResponse("400",
 				String.format("Could not update Forum: %s", newForum.getForum().getTitle()), null));
 	}
+
+	@PostMapping("/forum-groups/vote-sort-by-order-forum-group/{id}/{type}")
+	public ResponseEntity<ObjectResponse> voteSortByOrderForumGroup(@PathVariable("id") Long id, @PathVariable("type") String type) {
+	 ServiceResponse<List<ForumGroup>> response = forumService.voteSortByOrderForumGroup(id, type);
+	 if (response.getAckCode() == AckCodeType.FAILURE) {
+		 return ResponseEntity.ok(new ObjectResponse("400", "Could not vote sort by order forum group", null));
+	 }
+		return ResponseEntity.ok(new ObjectResponse("200", "Success", null));
+	}
 }

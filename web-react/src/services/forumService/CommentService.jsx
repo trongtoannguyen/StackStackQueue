@@ -1,7 +1,4 @@
-import axios from "../customize-axios";
-const getAllComments = async () => {
-	return await axios.get("/view/discussions/comments");
-};
+import axios from "axios";
 
 const createComment = async (
 	discussionId,
@@ -37,6 +34,10 @@ const updateComment = async (id, comment, accessToken, axiosJWT) => {
 	});
 	//
 	return res;
+};
+
+const getAllComments = async () => {
+	return await axios.get("/view/comments/all");
 };
 
 export { getAllComments, createComment, updateComment };

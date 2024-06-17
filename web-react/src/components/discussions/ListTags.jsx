@@ -11,11 +11,8 @@ const ListTags = (props) => {
 	//All Tags
 	const [listTags, setListTags] = useState([]);
 
-	console.log("listTags", listTags);
-
 	const getAllTagsData = async () => {
 		const res = await viewAllTag(1, 10, "id", "ASC", "");
-		console.log(res);
 		if (res && res.data.length > 0) {
 			setListTags(res.data);
 			toast.success(res?.data?.message);

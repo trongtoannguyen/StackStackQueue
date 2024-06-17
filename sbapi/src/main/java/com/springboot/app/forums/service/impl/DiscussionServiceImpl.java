@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.repository.UserRepository;
 import com.springboot.app.accounts.service.UserStatService;
+import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.repository.*;
 import com.springboot.app.forums.service.ForumStatService;
 import com.springboot.app.tags.Tag;
@@ -79,6 +82,9 @@ public class DiscussionServiceImpl implements DiscussionService {
 
 	@Autowired
 	private TagRepository tagRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -377,10 +383,8 @@ public class DiscussionServiceImpl implements DiscussionService {
 		DiscussionStat discussionStat = discussion.getStat();
 		discussionStat.addViewCount(1L);
 		discussionStat.setLastViewed(LocalDateTime.now());
-		System.out.println("View count: " + discussionStat.getViewCount());
 		discussion.setStat(discussionStat);
 		discussionRepository.save(discussion);
-		log.info("Discussion views " + discussion.getStat().getViewCount());
 		response.setDataObject(discussionStat);
 		return response;
 	}
@@ -426,4 +430,5 @@ public class DiscussionServiceImpl implements DiscussionService {
 		response.setDataObject(dtos);
 		return response;
 	}
+
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.springboot.app.forums.dto.search.SearchAll;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,20 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	public ServiceResponse<Void> deleteForumGroup(ForumGroup forumGroup) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
+
+//		int sortOrderBy = forumGroup.getSortOrder();
+//
+//		List<ForumGroup> forumGroups = forumGroupRepository.findAllBySortByGreaterThan(sortOrderBy);
+//
+//		for(int i = sortOrderBy; i < forumGroups.size(); i++) {
+//			ForumGroup fg = forumGroups.get(i);
+//			fg.setSortOrder(sortOrderBy - 1);
+//			forumGroupRepository.save(fg);
+//		}
+
+		int sortOrderBy = forumGroup.getSortOrder();
+		forumGroupRepository.decrementSortOrder(sortOrderBy);
+
 		// reset all discussions to the root forum group
 		resetDiscussions(forumGroup);
 
@@ -187,6 +202,53 @@ public class ForumServiceImpl implements ForumService {
 		ServiceResponse<ForumDTO> response = new ServiceResponse<>();
 		ForumDTO forumDTO = convertToDTO(forum);
 		response.setDataObject(forumDTO);
+		return response;
+	}
+
+	@Override
+	public ServiceResponse<List<SearchAll>> getForumSearch(String keyword) {
+		ServiceResponse<List<SearchAll>> response = new ServiceResponse<>();
+		List<Forum> forums = forumRepository.findByTitle(keyword);
+		List<SearchAll> forumSearch = forums.stream().map(forum -> {
+			SearchAll search = new SearchAll();
+			search.setId(forum.getId());
+			search.setTitle(forum.getTitle());
+			search.setCreatedAt(forum.getCreatedAt());
+			search.setDescription(forum.getDescription());
+			search.setType("forum");
+			return search;
+		}).collect(Collectors.toList());
+		response.setDataObject(forumSearch);
+		return response;
+	}
+
+	@Override
+	@Transactional
+	public ServiceResponse<List<ForumGroup>> voteSortByOrderForumGroup(Long id, String type) {
+		ServiceResponse<List<ForumGroup>> response = new ServiceResponse<>();
+		ForumGroup forumGroup = forumGroupRepository.findById(id).orElse(null);
+		if (forumGroup == null) {
+			return response;
+		}
+
+		int currentSortOrder = forumGroup.getSortOrder();
+		ForumGroup forumGroupSwap;
+
+		if ("up".equals(type)) {
+			forumGroupSwap = forumGroupRepository.findBySortOrder(currentSortOrder + 1);
+		} else {
+			forumGroupSwap = forumGroupRepository.findBySortOrder(currentSortOrder - 1);
+		}
+
+		if (forumGroupSwap != null) {
+			int temp = forumGroup.getSortOrder();
+			forumGroup.setSortOrder(forumGroupSwap.getSortOrder());
+			forumGroupSwap.setSortOrder(temp);
+			forumGroupRepository.save(forumGroup);
+			forumGroupRepository.save(forumGroupSwap);
+		}
+
+		response.setDataObject(forumGroupRepository.findAll());
 		return response;
 	}
 }

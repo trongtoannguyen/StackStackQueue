@@ -1,23 +1,12 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { Card, ListGroup, Badge } from "react-bootstrap";
+import PropTypes from "prop-types";
 
 //Service
-import { getDiscussionById } from "../../services/forumService/DiscussionService";
-const DiscussionInfo = () => {
-	const { discussionId } = useParams();
+const DiscussionInfo = (props) => {
+	const { discussionInfo } = props;
 
-	const [discussion, setDiscussion] = useState({});
-	const discussionById = async () => {
-		let res = await getDiscussionById(discussionId);
-		if (res && res.data) {
-			setDiscussion(res.data);
-		}
-	};
-
-	useEffect(() => {
-		discussionById();
-	}, [discussionId]);
+	useEffect(() => {}, [discussionInfo]);
 
 	return (
 		<Card>
@@ -32,7 +21,7 @@ const DiscussionInfo = () => {
 					>
 						<div className="ms-2 me-auto">
 							<div className="fw-bold">
-								Started by: <span>{discussion?.createdBy}</span>
+								Started by: <span>{discussionInfo?.createdBy}</span>
 							</div>
 						</div>
 					</ListGroup.Item>
@@ -43,21 +32,21 @@ const DiscussionInfo = () => {
 						<div className="ms-2 me-auto">
 							<div className="fw-bold">
 								Lasted by:{" "}
-								<span>{discussion?.stat?.lastComment?.commenter}</span>
+								<span>{discussionInfo?.stat?.lastComment?.commenter}</span>
 							</div>
 						</div>
 					</ListGroup.Item>
-					{/* <ListGroup.Item
+					<ListGroup.Item
 						as="li"
 						className="d-flex justify-content-between align-items-start"
 					>
 						<div className="ms-2 me-auto">
-							<div className="fw-bold">Discussion Tags</div>
+							<div className="fw-bold">View count</div>
 						</div>
 						<Badge bg="primary" pill>
-							{forum.stat?.commentCount}
+							{discussionInfo.stat?.viewCount}
 						</Badge>
-					</ListGroup.Item> */}
+					</ListGroup.Item>
 					<ListGroup.Item
 						as="li"
 						className="d-flex justify-content-between align-items-start"
@@ -66,13 +55,17 @@ const DiscussionInfo = () => {
 							<div className="fw-bold">Comments</div>
 						</div>
 						<Badge bg="primary" pill>
-							{discussion?.comments?.length}
+							{discussionInfo?.comments?.length}
 						</Badge>
 					</ListGroup.Item>
 				</ListGroup>
 			</Card.Body>
 		</Card>
 	);
+};
+
+DiscussionInfo.propTypes = {
+	discussionInfo: PropTypes.object.isRequired,
 };
 
 export default DiscussionInfo;

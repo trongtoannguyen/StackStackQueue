@@ -2,12 +2,11 @@ package com.springboot.app.forums.controller;
 
 import java.util.List;
 
+import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.search.SearchAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.springboot.app.dto.response.ObjectResponse;
 import com.springboot.app.forums.dto.ForumDTO;
@@ -47,4 +46,14 @@ public class ForumController {
 		ForumDTO response = forumService.getById(forum).getDataObject();
 		return ResponseEntity.ok(new ObjectResponse("200", "Data", response));
 	}
+
+	@GetMapping("/search/{keyword}")
+	public ResponseEntity<ObjectResponse> getForumSearch(@PathVariable("keyword") String keyword) {
+		ServiceResponse<List<SearchAll>> response = forumService.getForumSearch(keyword);
+		if(response.getDataObject() == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "Data not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Data list", response.getDataObject()));
+	}
+
 }

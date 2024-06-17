@@ -57,4 +57,24 @@ const deleteForumGroup = async (id, accessToken, axiosJWT) => {
 	return res;
 };
 
-export { getAllForumGroup, addForumGroup, updateForumGroup, deleteForumGroup };
+const voteSortByOrder = async (id, type, accessToken, axiosJWT) => {
+	const res = await axiosJWT.post(
+		`/admin/forum-groups/vote-sort-by-order-forum-group/${id}/${type}`,
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${accessToken}`,
+			},
+		}
+	);
+	//
+	return res;
+};
+
+export {
+	getAllForumGroup,
+	addForumGroup,
+	updateForumGroup,
+	deleteForumGroup,
+	voteSortByOrder,
+};

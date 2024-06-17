@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import _ from "lodash";
+import { useSelector, useDispatch } from "react-redux";
 
 //Service
 import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
 import { getAllForum } from "../../../services/forumService/ForumService";
 import { getForumStat } from "../../../services/forumService/ForumStatService";
+import { voteSortByOrder } from "../../../services/forumService/ForumGroupService";
+import { createAxios } from "../../../services/createInstance";
+import { loginSuccess } from "../../../redux/authSlice";
 
 //Utils
 import LastCommentInfo from "../../lastCommentInfo/lastCommentInfo";
@@ -59,6 +63,7 @@ import {
 	FaCalculator,
 	FaMoneyCheckAlt,
 } from "react-icons/fa";
+
 const ForumManage = () => {
 	const [forumGroup, setForumGroup] = useState([]);
 	const [forum, setForum] = useState([]);
@@ -86,6 +91,10 @@ const ForumManage = () => {
 
 	const [forumStat, setForumStat] = useState({});
 
+	const dispatch = useDispatch();
+	const currentUser = useSelector((state) => state.auth.login?.currentUser);
+	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
+
 	const handleClose = () => {
 		setShowModelNewForumGroup(false);
 		setShowModelUpdateForumGroup(false);
@@ -97,13 +106,20 @@ const ForumManage = () => {
 
 	const handleUpdateTable = (listForumGroup) => {
 		setForumGroup([listForumGroup, ...forumGroup]);
+		ObjectForumStat();
 	};
 
 	const listForumGroup = async () => {
 		let res = await getAllForumGroup();
 		if (res && res.data) {
-			setForumGroup(res.data);
-			console.log(res.data);
+			//sort by sortByOrder
+			let cloneListForumGroup = _.cloneDeep(res.data);
+			cloneListForumGroup = _.orderBy(
+				cloneListForumGroup,
+				["sortOrder"],
+				["asc"]
+			);
+			setForumGroup(cloneListForumGroup);
 		}
 	};
 
@@ -146,11 +162,13 @@ const ForumManage = () => {
 			(item) => item.id !== listForumGroup.id
 		);
 		setForumGroup(cloneListForumGroup);
+		ObjectForumStat();
 	};
 
 	const handleUpdateForum = (listForum) => {
 		setForum([listForum, ...forum]);
 		listForums();
+		ObjectForumStat();
 	};
 
 	const handleAddForum = (idForumGroup) => {
@@ -170,6 +188,7 @@ const ForumManage = () => {
 		cloneListForum[index] = listForum;
 		setForum(cloneListForum);
 		listForums();
+		ObjectForumStat();
 	};
 
 	const handleEditActionForumFromModel = (forum, isActive) => {
@@ -237,6 +256,20 @@ const ForumManage = () => {
 		return iconMapping[iconName] || null;
 	};
 
+	const handleVote = async (id, type) => {
+		let res = await voteSortByOrder(
+			+id,
+			type,
+			currentUser?.accessToken,
+			axiosJWT
+		);
+
+		console.log(res);
+		if (res && res.data) {
+			listForumGroup();
+		}
+	};
+
 	return (
 		<div className="content">
 			<Container>
@@ -269,6 +302,16 @@ const ForumManage = () => {
 								<Card key={(forumGroup.id, index)}>
 									{/* <Card.Header style={{ backgroundColor: "rgb(75, 104, 219)" }}> */}
 									<Card.Header style={{ backgroundColor: forumGroup.color }}>
+										<div className="vote-container">
+											<button
+												className="fa-solid fa-caret-up"
+												onClick={() => handleVote(forumGroup.id, "up")}
+											></button>
+											<button
+												className="fa-solid fa-caret-down"
+												onClick={() => handleVote(forumGroup.id, "down")}
+											></button>
+										</div>
 										<Card.Title className="d-flex">
 											{renderIcon(forumGroup.icon)}
 											<h4>{forumGroup.title}</h4>

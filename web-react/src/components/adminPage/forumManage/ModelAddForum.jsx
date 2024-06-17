@@ -1,18 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { createAxios } from "../../../services/createInstance";
 
 //Service
 import { addForum } from "../../../services/forumService/ForumService";
+import { createAxios } from "../../../services/createInstance";
 import { loginSuccess } from "../../../redux/authSlice";
+import { getAllForum } from "../../../services/forumService/ForumService";
 
 //Color Picker
 import ColorComponents from "../../colorComponents/ColorComponents";
+
 //Icon
 import SelectIcon from "../../IconComponents/IconComponents";
+
+//Utils
+import {
+	validateTitle,
+	validateIcon,
+	validateColor,
+	validateDescription,
+} from "../../../utils/validForumAndDiscussionUtils";
 
 const ModelAddForum = (props) => {
 	const { show, handleClose, handleUpdateForum, idForumGroup } = props;
@@ -42,7 +52,55 @@ const ModelAddForum = (props) => {
 		description: description,
 	};
 
+	//Error
+	const [forum, setForum] = useState([]);
+	const listForums = async () => {
+		let res = await getAllForum();
+		if (res && res.data) {
+			setForum(res.data);
+		}
+	};
+
+	const [titleError, setTitleError] = useState("");
+	const [iconError, setIconError] = useState("");
+	const [colorError, setColorError] = useState("");
+	const [descriptionError, setDescriptionError] = useState("");
+
 	const handleSaveForum = async () => {
+		setTitleError("");
+		setIconError("");
+		setColorError("");
+		setDescriptionError("");
+
+		let titleValidationError = validateTitle(title, forum);
+		let iconValidationError = validateIcon(icon);
+		let colorValidationError = validateColor(color);
+		let descriptionValidationError = validateDescription(description, forum);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+		if (iconValidationError) {
+			setIconError(iconValidationError);
+		}
+		if (colorValidationError) {
+			setColorError(colorValidationError);
+		}
+
+		if (descriptionValidationError) {
+			setDescriptionError(descriptionValidationError);
+		}
+
+		if (
+			titleValidationError ||
+			iconValidationError ||
+			colorValidationError ||
+			descriptionValidationError
+		) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		let res = await addForum(
 			addForumObject,
 			currentUser?.accessToken,
@@ -69,7 +127,17 @@ const ModelAddForum = (props) => {
 
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
+		setIconError("");
 	};
+
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
+	};
+
+	useEffect(() => {
+		listForums();
+	}, []);
 
 	return (
 		<Modal
@@ -93,10 +161,14 @@ const ModelAddForum = (props) => {
 						id="title"
 						type="text"
 						value={title}
-						onChange={(event) => setTitle(event.target.value)}
+						onChange={(event) => {
+							setTitle(event.target.value);
+							setTitleError("");
+						}}
 						placeholder="Enter Title"
 					/>
 				</div>
+				{titleError && <div className="text-danger mt-1">{titleError}</div>}
 				<div className="form-group mb-3">
 					<label className="form-label" htmlFor="description">
 						Description
@@ -105,12 +177,23 @@ const ModelAddForum = (props) => {
 						className="form-control"
 						id="description"
 						value={description}
-						onChange={(event) => setDescription(event.target.value)}
+						onChange={(event) => {
+							setDescription(event.target.value);
+							setDescriptionError("");
+						}}
 						placeholder="Enter Description"
 					/>
+					{descriptionError && (
+						<div className="text-danger mt-1">{descriptionError}</div>
+					)}
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				{iconError && <div className="text-danger mt-1">{iconError}</div>}
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
+				{colorError && <div className="text-danger mt-1">{colorError}</div>}
 			</Modal.Body>
 
 			<Modal.Footer>

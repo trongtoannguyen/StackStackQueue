@@ -28,7 +28,6 @@ const ModalSetStatusTags = (props) => {
 	};
 	const handleSaveTag = async () => {
 		let res = await updateTag(addNewTag, currentUser?.accessToken, axiosJWT);
-		console.log(res);
 		if (res && +res.data?.status === 200) {
 			handleClose();
 			handleUpdateEditTags({

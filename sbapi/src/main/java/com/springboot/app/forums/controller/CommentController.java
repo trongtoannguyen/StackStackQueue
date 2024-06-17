@@ -2,6 +2,7 @@ package com.springboot.app.forums.controller;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import com.springboot.app.forums.dto.AddDiscussionRequest;
 import org.modelmapper.ModelMapper;
@@ -103,6 +104,15 @@ public class CommentController {
 			return ResponseEntity.ok(new ObjectResponse("404", String.format("Comment with id %s not found", id), null));
 		}
 		return ResponseEntity.ok(new ObjectResponse("200", String.format("Deleted comment %s successfully", id), null));
+	}
+
+	@GetMapping("/all")
+	public ResponseEntity<ObjectResponse> getAllComments() {
+		ServiceResponse<List<CommentDTO>> response = commentService.getAllComment();
+		if (response.getAckCode() == AckCodeType.SUCCESS) {
+			return ResponseEntity.ok(new ObjectResponse("200", "Get all comments successfully", response.getDataObject()));
+		}
+		return ResponseEntity.ok(new ObjectResponse("400", "Could not get all comments", null));
 	}
 
 }

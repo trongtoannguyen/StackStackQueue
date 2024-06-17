@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
@@ -11,6 +11,10 @@ import { loginSuccess } from "../../redux/authSlice";
 import { createAxios } from "../../services/createInstance";
 import { createComment } from "../../services/forumService/CommentService";
 import "./Discussion.scss";
+import { getAllComments } from "../../services/forumService/CommentService";
+
+//Utils
+import { validateContent } from "../../utils/validForumAndDiscussionUtils";
 
 const ModalAddNewReply = (props) => {
 	const { show, handleClose, handleUpdateAddReply, replyToId = null } = props;
@@ -20,7 +24,7 @@ const ModalAddNewReply = (props) => {
 	const [content, setContent] = useState("");
 
 	const commentAdd = {
-		title: title,
+		title: "Reply",
 		content: content,
 	};
 
@@ -29,7 +33,30 @@ const ModalAddNewReply = (props) => {
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
+	const [contentError, setContentError] = useState("");
+
+	const [listComment, setListComment] = useState([]);
+	const getAllDataComments = async () => {
+		const res = await getAllComments();
+		if (res && +res.data.status === 200) {
+			setListComment(res.data.data);
+		}
+	};
+
 	const handleSaveReply = async () => {
+		setContentError("");
+
+		let contentValidationError = validateContent(content, listComment);
+
+		if (contentValidationError) {
+			setContentError(contentValidationError);
+		}
+
+		if (contentValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		try {
 			let res = await createComment(
 				discussionId,
@@ -86,6 +113,10 @@ const ModalAddNewReply = (props) => {
 		toolbar: toolbarOptions,
 	};
 
+	useEffect(() => {
+		getAllDataComments();
+	}, []);
+
 	return (
 		<Modal
 			show={show}
@@ -100,30 +131,22 @@ const ModalAddNewReply = (props) => {
 
 			<Modal.Body>
 				<div className="form-group mb-3">
-					<label className="form-label" htmlFor="title">
-						Title
-					</label>
-					<input
-						className="form-control"
-						id="title"
-						type="text"
-						value={title}
-						onChange={(event) => setTitle(event.target.value)}
-						placeholder="Enter Title"
-					/>
-				</div>
-
-				<div className="form-group mb-3">
 					<label htmlFor="content">Content</label>
 					<ReactQuill
 						theme="snow"
 						modules={module}
 						value={content}
-						onChange={setContent}
+						onChange={(value) => {
+							setContent(value);
+							setContentError("");
+						}}
 						id="content"
 						placeholder="Enter content here"
 						className="content-editor"
 					/>
+					{contentError && (
+						<div className="text-danger mt-1">{contentError}</div>
+					)}
 				</div>
 			</Modal.Body>
 

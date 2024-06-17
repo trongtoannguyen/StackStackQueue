@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Card, Row, Col, Button } from "reactstrap";
 import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 //Service
 import { loginSuccess } from "../../redux/authSlice";
@@ -18,6 +19,8 @@ import {
 } from "../../services/forumService/DiscussionViewService";
 import { fetchImage } from "../../services/userService/UserService";
 import { registerBookmark } from "../../services/bookmarkService/bookmarkService";
+import { getDiscussionById } from "../../services/forumService/DiscussionService";
+import { getAllComments } from "../../services/forumService/CommentService";
 
 //Modal
 import DiscussionInfo from "./DiscussionInfo";
@@ -28,8 +31,12 @@ import ModalUpdateComment from "./ModalUpdateComment";
 import ModalAddNewReply from "./ModalAddNewReply";
 import Pagination from "../pagination/Pagination";
 
-//util
+//Util
 import { formatLongDate } from "../../utils/FormatDateTimeHelper";
+import {
+	validateTitle,
+	validateContent,
+} from "../../utils/validForumAndDiscussionUtils";
 
 const toolbarOptions = [
 	["bold", "italic", "underline", "strike"], // toggled buttons
@@ -63,6 +70,7 @@ const DiscussionDetails = () => {
 
 	const [replyToId, setReplyToId] = useState(null);
 
+	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
 	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
@@ -130,13 +138,43 @@ const DiscussionDetails = () => {
 		title: title,
 		content: content,
 	};
+	//validate
+	const [titleError, setTitleError] = useState("");
+	const [contentError, setContentError] = useState("");
+
+	const [listValidComment, setValidListComment] = useState([]);
+	const getAllDataComments = async () => {
+		const res = await getAllComments();
+		if (res && +res.data.status === 200) {
+			setValidListComment(res.data.data);
+		}
+	};
 
 	const handleAddNewComment = async () => {
+		setTitleError("");
+		setContentError("");
+
+		let titleValidationError = validateTitle(title, listValidComment);
+		let contentValidationError = validateContent(content, listValidComment);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+
+		if (contentValidationError) {
+			setContentError(contentValidationError);
+		}
+
+		if (titleValidationError || contentValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		try {
 			let res = await createComment(
 				discussionId,
 				commentAdd,
-				replyToId,
+				null,
 				currentUser?.accessToken,
 				axiosJWT
 			);
@@ -145,6 +183,7 @@ const DiscussionDetails = () => {
 				setContent("");
 				setTitle("");
 				fetchAllCommentData();
+				getDiscussionByIdInfo();
 				setComments([res.data.data, ...comments]);
 				toast.success(res.data.message);
 			} else {
@@ -224,6 +263,7 @@ const DiscussionDetails = () => {
 		if (comment === null || comment?.commentId < 0) {
 			return;
 		}
+
 		if (comment?.author?.username === currentUser?.username) {
 			toast.error("User cannot bookmark own post comment");
 			return;
@@ -251,8 +291,12 @@ const DiscussionDetails = () => {
 	const [isShowAddNewReply, setIsShowAddNewReply] = useState(false);
 
 	const handleReply = (commentId) => {
-		setIsShowAddNewReply(true);
-		setReplyToId(commentId);
+		if (currentUser?.accessToken) {
+			setIsShowAddNewReply(true);
+			setReplyToId(commentId);
+		} else {
+			navigate("/login");
+		}
 	};
 
 	const handleUpdateAddReply = (reply) => {
@@ -292,7 +336,6 @@ const DiscussionDetails = () => {
 	};
 
 	const handleEditCommentFromModel = (comment) => {
-		console.log(`Check`, comment);
 		let cloneListComments = _.cloneDeep(comments);
 		let index = cloneListComments.findIndex((c) => c.id === comment.id);
 		cloneListComments[index] = comment;
@@ -301,16 +344,38 @@ const DiscussionDetails = () => {
 		fetchAllCommentData();
 	};
 
+	const [discussionInfo, setDiscussionInfo] = useState({});
+	const getDiscussionByIdInfo = async () => {
+		let res = await getDiscussionById(discussionId);
+		if (res && res.data) {
+			setDiscussionInfo(res.data);
+		}
+	};
+
+	const handelCheckLoginAndAddNewComment = () => {
+		if (currentUser?.accessToken) {
+			setIsShowAddNewComment(true);
+		} else {
+			navigate("/login");
+		}
+	};
+
+	useEffect(() => {
+		fetchFirstCommentData();
+		fetchAllCommentData();
+		getDiscussionByIdInfo();
+		getAllDataComments();
+	}, [discussionId]);
+
+	useEffect(() => {
+		getAllDataComments();
+	}, []);
+
 	const breadcrumbs = [
 		{ id: 1, name: `${titleFG.title}`, link: `/forumGroup` },
 		{ id: 2, name: `${titleForum.title}`, link: `/forum/${titleForum.id}` },
 		{ id: 3, name: `${titleDisc.title}`, link: `/discussion/${discussionId}` },
 	];
-
-	useEffect(() => {
-		fetchFirstCommentData();
-		fetchAllCommentData();
-	}, [discussionId]);
 
 	const commentCard = (comment) => {
 		return (
@@ -355,7 +420,6 @@ const DiscussionDetails = () => {
 									<small>
 										post at:
 										{comment?.createdAt && formatLongDate(comment?.createdAt)}
-										<button className="fa-solid fa-user-plus"></button>
 										<br />
 										<i className="fa-solid fa-star" alt="reputation"></i>
 										{comment?.author?.reputation}{" "}
@@ -364,7 +428,7 @@ const DiscussionDetails = () => {
 									</small>
 								</span>
 
-								{currentUser.username === comment?.author?.username && (
+								{currentUser?.username === comment?.author?.username && (
 									<small className="ml-auto me-0 d-inline-block">
 										<button
 											onClick={() => handleEditDiscussion(comment)}
@@ -482,9 +546,15 @@ const DiscussionDetails = () => {
 													id="title"
 													type="text"
 													value={title}
-													onChange={(event) => setTitle(event.target.value)}
+													onChange={(value) => {
+														setTitle(value.target.value);
+														setTitleError("");
+													}}
 													placeholder="Enter Title"
 												/>
+												{titleError && (
+													<div className="text-danger mt-1">{titleError}</div>
+												)}
 											</div>
 
 											<div className="form-group mb-3">
@@ -493,11 +563,17 @@ const DiscussionDetails = () => {
 													theme="snow"
 													modules={module}
 													value={content}
-													onChange={setContent}
+													onChange={(value) => {
+														setContent(value);
+														setContentError("");
+													}}
 													id="content"
 													placeholder="Enter content here"
 													className="content-editor"
 												/>
+												{contentError && (
+													<div className="text-danger mt-1">{contentError}</div>
+												)}
 											</div>
 
 											<div className="mb-3">
@@ -522,7 +598,7 @@ const DiscussionDetails = () => {
 							<Card className="card">
 								<button
 									className="btn btn-success w-100 h-100 m-0"
-									onClick={() => setIsShowAddNewComment(true)}
+									onClick={() => handelCheckLoginAndAddNewComment()}
 								>
 									<i className="fa-solid fa-circle-plus"></i>
 									<></>
@@ -539,7 +615,7 @@ const DiscussionDetails = () => {
 					</Col>
 					{/* right column */}
 					<Col className="mb-3 col-12 col-md-4 col-lg-3">
-						<DiscussionInfo />
+						<DiscussionInfo discussionInfo={discussionInfo} />
 					</Col>
 				</Row>
 			</Col>
@@ -552,7 +628,7 @@ const DiscussionDetails = () => {
 			<ModalUpdateComment
 				show={showModelUpdateDiscussion}
 				handleClose={() => setShowModelUpdateComment(false)}
-				dataUpdateComment={dataUpdateComment}
+				dataUpdateComment={dataUpdateComment ? dataUpdateComment : null}
 				handleEditCommentFromModel={handleEditCommentFromModel}
 			/>
 		</section>

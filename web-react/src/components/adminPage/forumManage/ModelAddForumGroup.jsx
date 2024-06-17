@@ -9,12 +9,20 @@ import { createAxios } from "../../../services/createInstance";
 import { addForumGroup } from "../../../services/forumService/ForumGroupService";
 import { logOutSuccess } from "../../../redux/authSlice";
 import { getUserModerator } from "../../../services/userService/UserService";
+import { getAllForumGroup } from "../../../services/forumService/ForumGroupService";
 
 //Color Picker
 import ColorComponents from "../../colorComponents/ColorComponents";
 
 //Icon
 import SelectIcon from "../../IconComponents/IconComponents";
+
+//Utils
+import {
+	validateTitle,
+	validateIcon,
+	validateColor,
+} from "../../../utils/validForumAndDiscussionUtils";
 
 const ModelAddForumGroup = (props) => {
 	const { show, handleClose, handleUpdateTable } = props;
@@ -43,6 +51,19 @@ const ModelAddForumGroup = (props) => {
 		}
 	};
 
+	//Forum Groups
+	const [forumGroup, setForumGroup] = useState([]);
+	const listForumGroup = async () => {
+		let res = await getAllForumGroup();
+		if (res && res.data) {
+			setForumGroup(res.data);
+		}
+	};
+
+	const [titleError, setTitleError] = useState("");
+	const [iconError, setIconError] = useState("");
+	const [colorError, setColorError] = useState("");
+
 	const addForumGroupObject = {
 		title: title,
 		icon: icon,
@@ -50,6 +71,33 @@ const ModelAddForumGroup = (props) => {
 	};
 
 	const handleSaveForumGroup = async () => {
+		setTitleError("");
+		setIconError("");
+		setColorError("");
+
+		let titleValidationError = validateTitle(title, forumGroup);
+		let iconValidationError = validateIcon(icon);
+		let colorValidationError = validateColor(color);
+
+		if (titleValidationError) {
+			setTitleError(titleValidationError);
+		}
+		if (iconValidationError) {
+			setIconError(iconValidationError);
+		}
+		if (colorValidationError) {
+			setColorError(colorValidationError);
+		}
+
+		if (titleValidationError || iconValidationError || colorValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
+		if (roleName.trim() === "") {
+			setRoleName(listModerator[0]?.username || "");
+		}
+
 		let res = await addForumGroup(
 			addForumGroupObject,
 			roleName,
@@ -59,7 +107,7 @@ const ModelAddForumGroup = (props) => {
 		if (res && +res.data?.status === 201) {
 			handleClose();
 			setTitle("");
-			setIcon(null);
+			setIcon("");
 			setColor("#ffffff");
 			handleUpdateTable({
 				id: res.data.data.id,
@@ -76,14 +124,24 @@ const ModelAddForumGroup = (props) => {
 
 	const handleSelectIcon = (iconValue) => {
 		setIcon(iconValue);
+		setIconError("");
+	};
+
+	const handleChangeComplete = (color) => {
+		setColor(color.hex);
+		setColorError("");
 	};
 
 	useEffect(() => {
+		setRoleName(listModerator[0]?.username || "");
 		if (show) {
-			ListUserModerator();
-			setRoleName(listModerator[0]?.username || "");
+			listForumGroup();
 		}
-	}, [show, listModerator]);
+	}, [show]);
+
+	useEffect(() => {
+		ListUserModerator();
+	}, []);
 
 	return (
 		<Modal
@@ -122,12 +180,21 @@ const ModelAddForumGroup = (props) => {
 						id="title"
 						type="text"
 						value={title}
-						onChange={(event) => setTitle(event.target.value)}
+						onChange={(event) => {
+							setTitle(event.target.value);
+							setTitleError("");
+						}}
 						placeholder="Enter Title"
 					/>
+					{titleError && <div className="text-danger mt-1">{titleError}</div>}
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
-				<ColorComponents setColor={setColor} color={color} />
+				{iconError && <div className="text-danger mt-1">{iconError}</div>}
+				<ColorComponents
+					handleChangeComplete={handleChangeComplete}
+					color={color}
+				/>
+				{colorError && <div className="text-danger mt-1">{colorError}</div>}
 			</Modal.Body>
 
 			<Modal.Footer>
