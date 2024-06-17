@@ -18,7 +18,15 @@ class _MemberListScreenState extends State<MemberListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context),
+      appBar: AppBar(
+        title: const Text('Members'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -47,7 +55,7 @@ class _MemberListScreenState extends State<MemberListScreen> {
                           MemberItem(user: state.memberEntity[index]),
                     );
                   } else if (state is MemberFailure) {
-                    return const Text('error');
+                    return const Text('error connection');
                   } else {
                     return const Text('default');
                   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/core/storage/storage.dart';
-import 'package:flutterapp/features/forums/presentation/views/forums_screen.dart';
+import 'package:flutterapp/features/feed/presentation/views/home_page.dart';
+import 'package:flutterapp/features/forums/presentation/views/forum_group_screen.dart';
+import 'package:flutterapp/features/forums/presentation/views/forum_screen.dart';
 import 'package:flutterapp/features/members/presentation/views/member_list_screen.dart';
 
 import '../../../auth/presentation/views/home_screen.dart';
@@ -20,7 +22,14 @@ class _MainScreenState extends State<MainScreen> {
   String? ownerId;
   Future<String> fetchId() async {
     String? ownerId = await Storage().secureStorage.read(key: 'userId');
-    return ownerId!;
+    return ownerId ?? "Anonymous";
+  }
+
+  String? image;
+  Future<String> fetchImage() async {
+    String? avatar = await Storage().secureStorage.read(key: 'avatar');
+    return avatar ??
+        "https://lh3.googleusercontent.com/a/ACg8ocIKA_Jkp2pWe0wuRjRJvAGJ0_tdjLSK2iBDmIVGTjRAe6B6EJDW=s96-c";
   }
 
   @override
@@ -34,8 +43,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   static const List<Widget> _widgetOptions = <Widget>[
-    FeedScreen(),
-    ForumsScreen(),
+    HomePage(),
+    ForumScreen(),
     MemberListScreen(),
     ProfileScreen(ownerId: ''),
   ];

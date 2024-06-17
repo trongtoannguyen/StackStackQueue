@@ -120,7 +120,8 @@ public class CommentServiceImpl implements CommentService {
 		return response;
 	}
 
-	private ViewCommentResponse mapCommentToViewCommentResponse(Comment comment) {
+	@Override
+	public ViewCommentResponse mapCommentToViewCommentResponse(Comment comment) {
 		ViewCommentResponse viewCommentResponse = new ViewCommentResponse();
 		viewCommentResponse.setCommentId(comment.getId());
 		viewCommentResponse.setCreatedAt(comment.getCreatedAt());
@@ -314,6 +315,16 @@ public class CommentServiceImpl implements CommentService {
 			deleteChildComments(childComment);
 			commentRepository.delete(childComment);
 		}
+	}
+
+
+	@Override
+	public String getContentByCommentId(Long id) {
+		Comment comment = commentRepository.findById(id).orElse(null);
+		if (comment != null) {
+			return comment.getContent();
+		}
+		return null;
 	}
 
 }

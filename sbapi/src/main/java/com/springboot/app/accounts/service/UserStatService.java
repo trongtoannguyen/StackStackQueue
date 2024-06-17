@@ -18,7 +18,5 @@ public interface UserStatService {
 	ServiceResponse<UserStat> updateProfileViewed(String username);
 
 	ServiceResponse<UserStat> syncUserStat(String username);
-
-	ServiceResponse<List<MobileMemberResponse>> getAllMembers();
 }
 

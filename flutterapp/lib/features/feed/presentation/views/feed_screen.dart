@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/core/storage/storage.dart';
-import 'package:flutterapp/features/forums/presentation/views/forums_screen.dart';
+import 'package:flutterapp/features/forums/presentation/views/forum_group_screen.dart';
+import 'package:flutterapp/features/forums/presentation/views/forum_screen.dart';
 import 'package:flutterapp/features/forums/presentation/widgets/forum_group_cart.dart';
 import 'package:flutterapp/features/members/presentation/views/member_list_screen.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,11 +63,6 @@ class _FeedScreenState extends State<FeedScreen> {
       drawer: Drawer(
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            // if (state is ProfPicLoading) {
-            //   return const CircularProgressIndicator();
-            // } else if (state is ProfPicSuccess) {
-            //   return
-            // }
             return ListView(
               children: [
                 ListTile(
@@ -142,7 +138,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => const ForumsScreen(),
+                              builder: (context) => const ForumScreen(),
                             ),
                           );
                         },

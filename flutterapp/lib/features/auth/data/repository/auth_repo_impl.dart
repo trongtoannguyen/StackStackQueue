@@ -23,7 +23,6 @@ class AuthRepoImpl implements AuthRepo {
     } on ServerException catch (e) {
       return Left(ServerFailure());
     }
-    throw UnimplementedError();
   }
 
   @override

@@ -1,13 +1,15 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class ProfileWidget extends StatelessWidget {
   final String imagePath;
+  final double width;
+  final double height;
 
   const ProfileWidget({
     super.key,
     required this.imagePath,
+    required this.width,
+    required this.height,
   });
 
   @override
@@ -19,15 +21,14 @@ class ProfileWidget extends StatelessWidget {
 
   Widget buildImage() {
     final image = NetworkImage(imagePath);
-
     return ClipOval(
       child: Material(
         color: Colors.transparent,
         child: Ink.image(
           image: image,
           fit: BoxFit.cover,
-          width: 100,
-          height: 100,
+          width: width,
+          height: height,
         ),
       ),
     );

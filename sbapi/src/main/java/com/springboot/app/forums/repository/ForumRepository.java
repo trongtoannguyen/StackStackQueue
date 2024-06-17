@@ -25,4 +25,7 @@ public interface ForumRepository extends JpaRepository<Forum, Long> {
 	@Modifying
 	@Query("SELECT COUNT(f) FROM Forum f")
 	Integer countForums();
+
+	@Query("SELECT f FROM Forum f WHERE f.forumGroup.id = :id")
+	List<Forum> findForumsByGroupId(@Param("id") Long groupId);
 }

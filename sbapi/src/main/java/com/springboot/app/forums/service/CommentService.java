@@ -9,6 +9,7 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.dto.response.DiscussionResponse;
+import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.FileInfo;
 
@@ -25,4 +26,8 @@ public interface CommentService {
 	ServiceResponse<Comment> deleteComment(Long id);
 
 	Comment updateComment(Comment comment);
+
+	ViewCommentResponse mapCommentToViewCommentResponse(Comment comment);
+
+	String getContentByCommentId(Long id);
 }

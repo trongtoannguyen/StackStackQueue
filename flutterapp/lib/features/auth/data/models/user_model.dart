@@ -5,24 +5,23 @@ import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
   const UserModel(
-    super.id,
-    super.username,
-    super.email,
-    super.name,
-    super.avatar,
-    super.imageUrl,
-    super.accessToken,
-  );
+      {required super.id,
+      required super.username,
+      required super.email,
+      required super.name,
+      required super.avatar,
+      required super.imageUrl,
+      required super.accessToken});
 
   factory UserModel.fromMap(Map<String, dynamic> json) {
     return UserModel(
-      json['id'] as Long,
-      json['username'] as String,
-      json['email'] as String,
-      json['name'] as String,
-      json['avatar'] as String,
-      json['imageUrl'] as String,
-      json['accessToken'] as String,
+      id: (json['id'] ?? 0) as int,
+      username: (json['username'] ?? "") as String,
+      email: (json['email'] ?? "") as String,
+      name: (json['name'] ?? "") as String,
+      avatar: (json['avatar'] ?? "") as String,
+      imageUrl: (json['imageUrl'] ?? "") as String,
+      accessToken: (json['accessToken'] ?? "") as String,
     );
   }
 

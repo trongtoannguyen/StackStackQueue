@@ -17,9 +17,11 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  //domain usecase
   final LoginUser _loginUserUsecase;
   final RegisterUser _registerUser;
   final ChangeProImg _changeProImg;
+
   AuthBloc({
     required RegisterUser registerUser,
     required LoginUser loginUserUsecase,
@@ -37,28 +39,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
     on<LoggedIn>((event, emit) async {
+      emit(LoginLoading());
       final email = event.email;
       final password = event.password;
-
-      final token = await _loginUserUsecase.call(
-        Params(
-          email: email,
-          password: password,
-        ),
-      );
-      token.fold((l) => print('error'), (tk) {
-        _saveToken(tk);
-        emit(Authenticated());
-      });
+      try {
+        final token = await _loginUserUsecase.call(
+          Params(
+            email: email,
+            password: password,
+          ),
+        );
+        token.fold(
+            (l) => emit(LoginFailure(message: "Username or password invalid.")),
+            (tk) {
+          _saveToken(tk);
+          emit(Authenticated());
+        });
+      } catch (e) {
+        emit(LoginFailure(message: e.toString()));
+      }
     });
     on<LoggedOut>((event, emit) async {
       Storage().token = '';
       Storage().userId = '';
       await _deleteToken();
       await _deleteUserId();
+      await _deleteCookies();
+      await _deleteAvatarUrl();
       emit(Unauthenticated());
     });
     on<Register>((event, emit) async {
+      emit(RegisterState(status: RegisterEventStatus.loading, message: null));
       final username = event.username;
       final email = event.email;
       final password = event.password;
@@ -70,7 +81,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           username: username,
         ),
       );
-      res.fold((l) => print('error'), (res) => print(res));
+      res.fold(
+          (l) => emit(RegisterState(
+              status: RegisterEventStatus.failure,
+              message: "Username or email already exists.")),
+          (res) => emit(RegisterState(
+              status: RegisterEventStatus.success, message: res)));
     });
     on<ChangeProfPic>((event, emit) {
       emit(ProfPicLoading());
@@ -92,6 +108,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _deleteToken() async {
     await Storage().secureStorage.delete(key: 'token');
+  }
+
+  Future<void> _deleteCookies() async {
+    await Storage().secureStorage.delete(key: 'cookies');
+  }
+
+  Future<void> _deleteAvatarUrl() async {
+    await Storage().secureStorage.delete(key: 'avatarUrl');
   }
 
   Future<void> _saveToken(String token) async {

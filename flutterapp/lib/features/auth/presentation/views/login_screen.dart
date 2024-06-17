@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterapp/features/auth/domain/entities/user_entity.dart';
 import 'package:flutterapp/features/auth/presentation/views/welcome_screen.dart';
+import 'package:formz/formz.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -17,6 +19,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _hidePassword = true;
   bool _isFocusedEmail = false;
   bool _isFocusedPassword = false;
+
+  // late MyFormState _state;
+  // void _onEmailChanged() {
+  //   setState(() {
+  //     _state = _state.copyWith(email: Email.dirty(emailController.text));
+  //   });
+  // }
+  //
+  // void _onPasswordChanged() {
+  //   setState(() {
+  //     _state =
+  //         _state.copyWith(password: Password.dirty(passwordController.text));
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: 'Enter your email',
                         filled: true,
                         fillColor: _isFocusedEmail
-                            ? Color.fromARGB(143, 55, 108, 148)
-                            : Color.fromARGB(93, 55, 108, 148),
+                            ? const Color.fromARGB(143, 55, 108, 148)
+                            : const Color.fromARGB(93, 55, 108, 148),
                         border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
                           borderSide: BorderSide.none,
@@ -156,4 +172,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+class MyFormState with FormzMixin {
+  MyFormState({
+    Email? email,
+    this.password = const Password.pure(),
+    this.status = FormzSubmissionStatus.initial,
+  }) : email = email ?? Email.pure();
 
+  final Email email;
+  final Password password;
+  final FormzSubmissionStatus status;
+
+  MyFormState copyWith({
+    Email? email,
+    Password? password,
+    FormzSubmissionStatus? status,
+  }) {
+    return MyFormState(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  List<FormzInput<dynamic, dynamic>> get inputs => [email, password];
+}

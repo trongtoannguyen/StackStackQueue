@@ -54,4 +54,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 
 	List<Comment> findByReplyTo(Comment replyTo);
 
+	List<Comment> findByCreatedBy(String username);
+
 }

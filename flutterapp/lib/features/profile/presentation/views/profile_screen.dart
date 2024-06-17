@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/config/theme/theme_manager.dart';
-import 'package:flutterapp/resources/utils/user_preferences.dart';
+import 'package:flutterapp/core/utils/user_preferences.dart';
+import 'package:flutterapp/features/profile/presentation/widgets/profile_drawer_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/user_pre_model.dart';
@@ -18,6 +19,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const user = UserPreferences.myUser;
     return Scaffold(
+      drawer: ProfileDrawerWidget(),
       appBar: buildAppBar(context),
       body: ListView(
         physics: BouncingScrollPhysics(),

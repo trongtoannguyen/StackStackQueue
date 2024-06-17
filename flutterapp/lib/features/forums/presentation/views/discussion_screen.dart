@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutterapp/features/forums/presentation/bloc/discussion_bloc.dart';
 
 class DiscussionScreen extends StatefulWidget {
   const DiscussionScreen({super.key});
@@ -24,15 +23,7 @@ class _DiscussionScreenState extends State<DiscussionScreen> {
                 width: 10,
               ),
               ElevatedButton(
-                onPressed: () {
-                  context.read<DiscussionBloc>().add(
-                        CreateDiscussion(
-                          title: title.text,
-                          content: content.text,
-                          forumId: 1,
-                        ),
-                      );
-                },
+                onPressed: () {},
                 child: const Text('Post'),
               ),
             ],

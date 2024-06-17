@@ -7,12 +7,12 @@ abstract class GetUserInfoParams<Type, ParamsGetUserInfo> {
 }
 
 class ParamsGetUserInfo extends Equatable {
-  final String ownerId;
+  final String userId;
 
-  const ParamsGetUserInfo({required this.ownerId});
+  const ParamsGetUserInfo({required this.userId});
 
   @override
-  List<Object?> get props => [ownerId];
+  List<Object?> get props => [userId];
 }
 
 class NoParams extends Equatable {
