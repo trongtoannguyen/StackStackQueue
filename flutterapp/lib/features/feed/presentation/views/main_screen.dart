@@ -77,8 +77,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Forums',
+            icon: Icon(Icons.search),
+            label: 'Search',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
@@ -92,4 +92,6 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+
+  //-----------------------------------------
 }

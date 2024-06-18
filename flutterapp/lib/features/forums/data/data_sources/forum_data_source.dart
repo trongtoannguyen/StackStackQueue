@@ -57,7 +57,7 @@ class ForumDataSourceImp implements ForumDataSource {
         throw ServerException('Error getAllForumByGroup');
       }
     } catch (err) {
-      print(err.toString());
+      print('Error getAllForumByGroup: ${err.toString()}');
       throw ServerException(err.toString());
     }
     return forums;

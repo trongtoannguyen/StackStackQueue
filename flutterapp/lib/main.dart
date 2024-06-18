@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterapp/features/forums/presentation/bloc/forum_filter/forum_filter_bloc.dart';
+import 'package:flutterapp/features/forums/presentation/bloc/froum_bloc/forum_bloc.dart';
 import 'package:flutterapp/features/forums/presentation/bloc/group_bloc/group_bloc.dart';
 import 'package:flutterapp/features/members/presentation/bloc/member_bloc.dart';
+import 'package:flutterapp/features/posts/presentation/bloc/comments_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme/theme_contants.dart';
@@ -31,6 +34,19 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (_) => serviceLocator<GroupBloc>()..add(GetGroupsEvent()),
+          ),
+          BlocProvider(
+            create: (_) =>
+                serviceLocator<ForumBloc>()..add(GetAllForumsEvent()),
+          ),
+          BlocProvider(
+            create: (context) => ForumFilterBloc(
+              forumBloc: BlocProvider.of<ForumBloc>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (_) =>
+                serviceLocator<CommentsBloc>()..add(LoadCommentsEvent()),
           ),
         ],
         child: ChangeNotifierProvider<ThemeService>(

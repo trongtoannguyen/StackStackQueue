@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-import '../exceptions/failure.dart';
+import '../../exceptions/failure.dart';
 
 abstract class CreateDiscussionParams<Type, ParamsDiscussion> {
   Future<Either<Failure, Type>> call(ParamsDiscussion params);

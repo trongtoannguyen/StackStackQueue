@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-import '../exceptions/failure.dart';
+import '../../exceptions/failure.dart';
 
 abstract class CreateCommentParams<Type, ParamsComment> {
   Future<Either<Failure, Type>> call(ParamsComment params);

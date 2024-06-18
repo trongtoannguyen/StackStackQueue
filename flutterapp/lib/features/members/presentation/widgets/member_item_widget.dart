@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutterapp/core/network/api_urls.dart';
 import 'package:flutterapp/features/members/domain/entities/member_entity.dart';
 import 'package:flutterapp/features/members/presentation/widgets/button_widget.dart';
@@ -16,20 +17,23 @@ class MemberItem extends StatelessWidget {
     final avatar = user.imageUrl != ""
         ? user.imageUrl
         : '${ApiUrls.API_BASE_URL}/user-stat/images/${user.avatar}';
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(10.0),
-        child: Card(
-          shadowColor: Colors.white38,
+    return Container(
+      height: 500,
+      padding: const EdgeInsets.all(4.0),
+      child: Card(
+        shadowColor: Colors.white38,
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              ProfileWidget(
-                imagePath: avatar,
-                width: 100,
+              const SizedBox(height: 4),
+              SizedBox(
                 height: 100,
+                child: ProfileWidget(
+                  imagePath: avatar,
+                  width: 100,
+                  height: 100,
+                ),
               ),
-              const SizedBox(height: 10),
               InkWell(
                   onTap: () {
                     //route to profile screen
@@ -41,17 +45,8 @@ class MemberItem extends StatelessWidget {
                   },
                   child: buildName(user)),
               Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    buildFollowButton(),
-                    const SizedBox(width: 8),
-                    buildChatButton(),
-                    const SizedBox(width: 8),
-                  ],
-                ),
+                child: buildFollowButton(),
               ),
-              const SizedBox(height: 40),
             ],
           ),
         ),

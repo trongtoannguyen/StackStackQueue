@@ -14,7 +14,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
   GroupBloc({required GetAllGroupsUseCase getAllGroupsUseCase})
       : _getAllGroups = getAllGroupsUseCase,
         super(GroupInitial()) {
-    on<GroupEvent>((event, emit) async {
+    on<GetGroupsEvent>((event, emit) async {
       emit(GroupLoading());
       try {
         await _getAllGroups.call(NoParams()).then((value) {

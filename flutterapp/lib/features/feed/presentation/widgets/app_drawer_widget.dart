@@ -91,7 +91,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: ListTile(
-                      title: Text(ownerId!),
+                      title: Text(ownerId ?? 'Anonymous'),
                       subtitle: InkWell(
                           onTap: () async {
                             String? ownerId = await Storage()

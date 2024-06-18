@@ -15,7 +15,7 @@ class MemberBloc extends Bloc<MemberEvent, MemberState> {
   MemberBloc({required GetAllMemberUseCase getAllMemberUseCase})
       : _getAllMemberUseCase = getAllMemberUseCase,
         super(MemberInitial()) {
-    on<MemberEvent>((event, emit) async {
+    on<GetMemberEvent>((event, emit) async {
       emit(MemberLoading());
       try {
         await _getAllMemberUseCase.call(NoParams()).then((members) {
