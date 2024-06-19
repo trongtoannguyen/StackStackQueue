@@ -52,10 +52,22 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, PagingA
 
 	//findAllByDiscussion sắp xấp theo thứ tự CreateAt giảm dần
 	@Query("SELECT c FROM Comment c WHERE c.discussion = :discussion ORDER BY c.createdAt DESC")
-	List<Comment> findByDiscussion(@Param("discussion") Discussion discussion);
+	List<Comment> findByDiscussionOrderByCreatedAtDesc(@Param("discussion") Discussion discussion);
+
+	//findAllByForum sắp xấp theo thứ tự CreateAt giảm dần
+	@Query("SELECT c FROM Comment c WHERE c.discussion.forum.id = :forumId ORDER BY c.createdAt DESC")
+	List<Comment> findAllByForumIdOrderByCreatedAtDesc(@Param("forumId") Long forumId);
+
+	//findAllByCreateBy sắp xấp theo thứ tự CreateAt giảm dần
+	@Query("SELECT c FROM Comment c WHERE c.createdBy = :username ORDER BY c.createdAt DESC")
+	List<Comment> findAllByCreatedByOrderByCreatedAtDesc(@Param("username") String username);
 
 	@Query("SELECT c FROM Comment c WHERE (:keyword IS NULL OR :keyword = '' OR c.title LIKE %:keyword%) OR (:keyword IS NULL OR :keyword = '' OR c.content LIKE %:keyword%)")
 	List<Comment> findByTitle(@Param("keyword") String keyword);
 	List<Comment> findByCreatedBy(String username);
+
+	//findCommentsByDiscussionId
+	@Query("SELECT c FROM Comment c WHERE c.discussion.id = :discussionId")
+	List<Comment> findCommentsByDiscussionId(@Param("discussionId") Long discussionId);
 
 }

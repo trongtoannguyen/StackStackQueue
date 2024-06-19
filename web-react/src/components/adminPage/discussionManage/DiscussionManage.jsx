@@ -221,7 +221,7 @@ const DiscussionManage = () => {
 							<td>{discussion.stat?.commentCount}</td>
 							<td>{formatDate(discussion.createdAt)}</td>
 							<td>
-								<LastCommentInfo comment={discussion.stat.lastComment} />
+								<LastCommentInfo id={discussion.id} type="discussion" />
 							</td>
 						</tr>
 					))}

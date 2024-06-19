@@ -64,7 +64,7 @@ public class CommentController {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
 		ServiceResponse<Comment> response = commentService.addComment(discussion.getId(), newComment.getComment(),
-				username, newComment.getReplyToId(), Collections.emptyList(), Collections.emptyList());
+				username, newComment.getReplyToId());
 		CommentDTO commentDTO = modelMapper.map(response.getDataObject(), CommentDTO.class);
 		if (response.getAckCode() == AckCodeType.SUCCESS) {
 			return ResponseEntity.ok(new ObjectResponse("201",
@@ -97,9 +97,9 @@ public class CommentController {
 		return ResponseEntity.ok(new ObjectResponse("200", String.format("Updated comment %s successfully", id), commentDTO));
 	}
 
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<ObjectResponse> deleteComment(@PathVariable Long id) {
-		ServiceResponse<Comment> comment = commentService.deleteComment(id);
+	@DeleteMapping("/delete/{id}/{discussionId}")
+	public ResponseEntity<ObjectResponse> deleteComment(@PathVariable Long id, @PathVariable Long discussionId) {
+		ServiceResponse<Comment> comment = commentService.deleteComment(id, discussionId);
 		if (comment == null) {
 			return ResponseEntity.ok(new ObjectResponse("404", String.format("Comment with id %s not found", id), null));
 		}
@@ -114,5 +114,7 @@ public class CommentController {
 		}
 		return ResponseEntity.ok(new ObjectResponse("400", "Could not get all comments", null));
 	}
+
+
 
 }

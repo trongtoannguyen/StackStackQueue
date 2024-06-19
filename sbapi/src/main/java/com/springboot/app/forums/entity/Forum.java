@@ -1,6 +1,7 @@
 package com.springboot.app.forums.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.springboot.app.model.BaseEntity;
@@ -70,7 +71,7 @@ public class Forum extends BaseEntity {
 
 	@OneToMany(mappedBy = "forum", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@OrderBy("createdAt DESC")
-	private List<Discussion> discussions;
+	private List<Discussion> discussions = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "forum_stat_id", foreignKey = @ForeignKey(name = "FK_FORUM_FORUM_STAT"))

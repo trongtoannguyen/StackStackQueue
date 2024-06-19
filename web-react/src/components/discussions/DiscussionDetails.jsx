@@ -30,6 +30,7 @@ import ModalUpdateComment from "./ModalUpdateComment";
 
 import ModalAddNewReply from "./ModalAddNewReply";
 import Pagination from "../pagination/Pagination";
+import ModalDeleteComment from "./ModalDeleteComment";
 
 //Util
 import { formatLongDate } from "../../utils/FormatDateTimeHelper";
@@ -327,7 +328,7 @@ const DiscussionDetails = () => {
 	};
 
 	//update Comment
-	const [dataUpdateComment, setDataUpdateComment] = useState(null);
+	const [dataUpdateComment, setDataUpdateComment] = useState({});
 	const [showModelUpdateDiscussion, setShowModelUpdateComment] =
 		useState(false);
 	const handleEditDiscussion = (comment) => {
@@ -358,6 +359,20 @@ const DiscussionDetails = () => {
 		} else {
 			navigate("/login");
 		}
+	};
+
+	//Delete Comment
+	const [commentDelete, setCommentDelete] = useState({});
+	const [showModelDeleteComment, setShowModelDeleteComment] = useState(false);
+
+	const handleClickDelete = (comment) => {
+		setCommentDelete(comment);
+		setShowModelDeleteComment(true);
+	};
+
+	const handleEditDeleteCommentModel = () => {
+		fetchFirstCommentData();
+		fetchAllCommentData();
 	};
 
 	useEffect(() => {
@@ -434,7 +449,14 @@ const DiscussionDetails = () => {
 											onClick={() => handleEditDiscussion(comment)}
 											className="mx-2 fa-solid fa-edit fa-2x"
 										></button>
-										<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
+										{comment?.title !== titleDisc.title &&
+											(console.log(comment?.title),
+											(
+												<button
+													className="mx-2 fa-solid fa-xmark fa-2x"
+													onClick={() => handleClickDelete(comment)}
+												></button>
+											))}
 									</small>
 								)}
 							</>
@@ -630,6 +652,12 @@ const DiscussionDetails = () => {
 				handleClose={() => setShowModelUpdateComment(false)}
 				dataUpdateComment={dataUpdateComment ? dataUpdateComment : null}
 				handleEditCommentFromModel={handleEditCommentFromModel}
+			/>
+			<ModalDeleteComment
+				show={showModelDeleteComment}
+				handleClose={() => setShowModelDeleteComment(false)}
+				commentDelete={commentDelete ? commentDelete : null}
+				handleEditDeleteCommentModel={handleEditDeleteCommentModel}
 			/>
 		</section>
 	);

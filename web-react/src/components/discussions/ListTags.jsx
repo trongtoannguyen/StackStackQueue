@@ -30,7 +30,7 @@ const ListTags = (props) => {
 			<Card.Header>
 				<Card.Title as="h5">List Tags</Card.Title>
 			</Card.Header>
-			<div>
+			<div style={{ display: "flex", flexWrap: "wrap", width: "100%" }}>
 				{listTags.map((tag) => (
 					<div
 						key={tag.id}
@@ -39,7 +39,7 @@ const ListTags = (props) => {
 						<button
 							style={{
 								backgroundColor: tag.color,
-								padding: "5px 10px",
+								padding: "5px 8px",
 								borderRadius: "5px",
 								color: "white",
 							}}

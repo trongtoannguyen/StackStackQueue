@@ -4,7 +4,7 @@ import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import SelectMulti from "../selectMulti/SelectMulti";
-import { Row, Col, Button } from "reactstrap";
+import { Row, Col } from "reactstrap";
 import { Link } from "react-router-dom";
 
 //Service
@@ -31,6 +31,7 @@ import ModalUpdateComment from "./ModalUpdateComment";
 //Modal
 import Avatar from "../../avatar/Avatar";
 import "../../../components/discussions/stylecomment.scss";
+import ModalDeleteComment from "./ModalDeleteComment";
 
 const TagsManage = () => {
 	//Discussion
@@ -59,9 +60,15 @@ const TagsManage = () => {
 	};
 
 	const handleEditDiscussion = (data) => {
+		console.log("handleEditDiscussion");
+		console.log(data);
 		let cloneDiscussion = _.cloneDeep(data);
 		cloneDiscussion = data;
+		console.log("cloneDiscussion");
+		console.log(cloneDiscussion);
 		setDiscussion(cloneDiscussion);
+		console.log("discussion");
+		console.log(discussion);
 	};
 
 	//All Tags
@@ -254,6 +261,19 @@ const TagsManage = () => {
 		fetchAllCommentData();
 	};
 
+	//Delete Comment
+	const [commentDelete, setCommentDelete] = useState(null);
+	const [showModelDeleteComment, setShowModelDeleteComment] = useState(false);
+
+	const handleClickDelete = (comment) => {
+		setCommentDelete(comment);
+		setShowModelDeleteComment(true);
+	};
+
+	const handleEditDeleteCommentModel = () => {
+		fetchAllCommentData();
+	};
+
 	useEffect(() => {
 		fetchAllCommentData();
 	}, [discussionId]);
@@ -273,10 +293,6 @@ const TagsManage = () => {
 						className="vote fa-solid fa-caret-down mb-3"
 						onClick={() => handleDownVote(comment?.commentId)}
 					></button>
-
-					{/* {!comment?.firstComment && (
-						<button className="fa-solid fa-check text-success mb-3"></button>
-					)} */}
 
 					<button
 						className={
@@ -321,7 +337,10 @@ const TagsManage = () => {
 											onClick={() => handleEditComment(comment)}
 											className="mx-2 fa-solid fa-edit fa-2x"
 										></button>
-										<button className="mx-2 fa-solid fa-xmark fa-2x"></button>
+										<button
+											className="mx-2 fa-solid fa-xmark fa-2x"
+											onClick={() => handleClickDelete(comment)}
+										></button>
 									</small>
 								)}
 							</>
@@ -512,6 +531,12 @@ const TagsManage = () => {
 				handleClose={() => setShowModelUpdateComment(false)}
 				dataUpdateComment={dataUpdateComment}
 				handleEditCommentFromModel={handleEditCommentFromModel}
+			/>
+			<ModalDeleteComment
+				show={showModelDeleteComment}
+				handleClose={() => setShowModelDeleteComment(false)}
+				commentDelete={commentDelete}
+				handleEditDeleteCommentModel={handleEditDeleteCommentModel}
 			/>
 		</div>
 	);

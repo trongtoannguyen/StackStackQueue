@@ -8,12 +8,20 @@ import { createAxios } from "../../../services/createInstance";
 //Service
 import { updateTag } from "../../../services/tagService/tagService";
 import { loginSuccess } from "../../../redux/authSlice";
+import { getAllTags } from "../../../services/tagService/tagService";
 
 //Color Picker
 import ColorComponents from "../../colorComponents/ColorComponents";
 
 //Icon
 import SelectIcon from "../../IconComponents/IconComponents";
+
+//Utils
+import {
+	validateLabel,
+	validateIcon,
+	validateColor,
+} from "../../../utils/validForumAndDiscussionUtils";
 
 const ModalUpdateTags = (props) => {
 	const { show, handleClose, handleUpdateEditTags, dataEditTag } = props;
@@ -39,7 +47,56 @@ const ModalUpdateTags = (props) => {
 		icon: icon,
 		color: color,
 	};
+
+	const [labelError, setLabelError] = useState("");
+	const [iconError, setIconError] = useState("");
+	const [colorError, setColorError] = useState("");
+
+	//All Tags
+	const [listTags, setListTags] = useState([]);
+
+	const getAllTagsData = async () => {
+		const res = await getAllTags(
+			1,
+			5,
+			"id",
+			"ASC",
+			"",
+			currentUser?.accessToken,
+			axiosJWT
+		);
+		if (res && +res.status === 201) {
+			setListTags(res.data.data);
+			toast.success(res?.data?.message);
+		} else {
+			toast.error(res?.data?.message);
+		}
+	};
+
 	const handleSaveTag = async () => {
+		setLabelError("");
+		setIconError("");
+		setColorError("");
+
+		let labelValidationError = validateLabel(label, listTags);
+		let iconValidationError = validateIcon(icon);
+		let colorValidationError = validateColor(color);
+
+		if (labelValidationError) {
+			setLabelError(labelValidationError);
+		}
+		if (iconValidationError) {
+			setIconError(iconValidationError);
+		}
+		if (colorValidationError) {
+			setColorError(colorValidationError);
+		}
+
+		if (labelValidationError || iconValidationError || colorValidationError) {
+			toast.error("Please fill in all required fields");
+			return;
+		}
+
 		let res = await updateTag(addNewTag, currentUser?.accessToken, axiosJWT);
 		if (res && +res.data?.status === 200) {
 			handleClose();
@@ -55,7 +112,7 @@ const ModalUpdateTags = (props) => {
 			});
 			toast.success(res.data.message);
 		} else {
-			toast.error("Error when creating Forum");
+			toast.error("Error when update Tags");
 		}
 	};
 
@@ -74,6 +131,7 @@ const ModalUpdateTags = (props) => {
 			setIcon(dataEditTag?.icon);
 			setColor(dataEditTag?.color);
 		}
+		getAllTagsData();
 	}, [dataEditTag]);
 
 	return (
@@ -98,15 +156,21 @@ const ModalUpdateTags = (props) => {
 						id="label"
 						type="text"
 						value={label}
-						onChange={(event) => setLabel(event.target.value)}
+						onChange={(event) => {
+							setLabel(event.target.value);
+							setLabelError("");
+						}}
 						placeholder="Enter label"
 					/>
+					{labelError && <div className="text-danger mt-1">{labelError}</div>}
 				</div>
 				<SelectIcon handleSelectIcon={handleSelectIcon} icon={icon} />
+				{iconError && <div className="text-danger mt-1">{iconError}</div>}
 				<ColorComponents
 					handleChangeComplete={handleChangeComplete}
 					color={color}
 				/>
+				{colorError && <div className="text-danger mt-1">{colorError}</div>}
 			</Modal.Body>
 
 			<Modal.Footer>

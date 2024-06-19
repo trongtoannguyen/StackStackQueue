@@ -3,6 +3,7 @@ package com.springboot.app.repository;
 import com.springboot.app.admin.dto.DataForumGroupResponse;
 import com.springboot.app.admin.dto.PieChartResponse;
 import com.springboot.app.forums.dto.response.ForumGroupStat;
+import com.springboot.app.forums.dto.response.ForumStat;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.Discussion;
 import com.springboot.app.tags.Tag;
@@ -166,40 +167,51 @@ public class DiscussionDAO {
 
 		return forumGroupStat;
 	}
+	public List<ForumStat> getForumStat(){
+		// Truy vấn JPQL để tính toán các giá trị
+		String queryStr = "SELECT " +
+				"f.id,f.title, " +
+				"(SELECT count(d.id) FROM Discussion d WHERE d.forum.id = f.id AND d.closed = true), " +
+				"(SELECT count(c.id) FROM Comment c WHERE c.discussion.forum.id = f.id AND c.discussion.closed = true) " +
+				"FROM Forum f WHERE f.active = true";
 
-
+		Query query = entityManager.createQuery(queryStr);
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = query.getResultList();
+		List<ForumStat> forumStat = new java.util.ArrayList<>();
+		for (Object[] result : results) {
+			ForumStat data = new ForumStat();
+			data.setId((Long) result[0]);
+			data.setTitle((String) result[1]);
+			data.setDiscussionCount((Long) result[2]);
+			data.setCommentCount((Long) result[3]);
+			forumStat.add(data);
+		}
+		return forumStat;
+		}
 
 	public List<DataForumGroupResponse> getForumGroupData2() {
 		String queryStr =
-				"SELECT g.title, count (d.id), count(c.id),count(distinct c.createdBy) " +
-						"FROM Forum f " +
+				"SELECT fg.id, fg.title, count (distinct d.id), count(c.id),count(distinct c.createdBy) " +
+						"FROM ForumGroup fg " +
+						"JOIN  Forum f ON f.forumGroup.id = fg.id " +
 						"JOIN Discussion d ON d.forum.id = f.id " +
 						"JOIN Comment c ON c.discussion.id = d.id " +
-						"JOIN f.forumGroup g " +
-						"GROUP BY g.title";
+						"GROUP BY fg.id, fg.title";
 		Query query = entityManager.createQuery(queryStr);
 		@SuppressWarnings("unchecked")
 		List<Object[]> results = query.getResultList();
 		List<DataForumGroupResponse> response = new java.util.ArrayList<>();
 		for (Object[] result : results) {
 			DataForumGroupResponse data = new DataForumGroupResponse();
-			data.setName((String) result[0]);
-			data.setDiscussions((Long) result[1]);
-			data.setComments((Long) result[2]);
-			data.setUsers((Long) result[3]);
+			data.setName((String) result[1]);
+			data.setDiscussions((Long) result[2]);
+			data.setComments((Long) result[3]);
+			data.setUsers((Long) result[4]);
 			response.add(data);
 		}
 		return response;
 	}
-
-
-
-
-
-
-
-
-
 
 
 }

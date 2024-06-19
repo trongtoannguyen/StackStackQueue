@@ -156,9 +156,10 @@ const ListDiscussions = () => {
 							onChange={(e) => setSize(e.target.value)}
 							value={size}
 						>
-							<option value="5">5</option>
-							<option value="8">8</option>
-							<option value="10">10</option>
+							<option value="5">5 per page</option>
+							<option value="10">10 per page</option>
+							<option value="15">15 per page</option>
+							<option value="20">20 per page</option>
 						</select>
 						<input
 							type="text"
@@ -189,7 +190,7 @@ const ListDiscussions = () => {
 										></i>
 									</span>
 								</th>
-								<th className="sort_header">
+								<th className="sort_header col-2">
 									Comments
 									<span>
 										<i
@@ -208,7 +209,7 @@ const ListDiscussions = () => {
 										></i>
 									</span>
 								</th>
-								<th className="sort_header">
+								<th className="sort_header col-2">
 									Started
 									<span>
 										<i
@@ -227,7 +228,7 @@ const ListDiscussions = () => {
 										></i>
 									</span>
 								</th>
-								<th>Last Comment</th>
+								<th className="col-4">Last Comment</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -249,10 +250,12 @@ const ListDiscussions = () => {
 												: ""}
 										</span>
 									</td>
-									<td>{discussion.stat?.commentCount}</td>
+									<td className="text-center">
+										{discussion.stat?.commentCount}
+									</td>
 									<td>{formatDate(discussion.createdAt)}</td>
 									<td>
-										<LastCommentInfo comment={discussion.stat.lastComment} />
+										<LastCommentInfo id={discussion.id} type="discussion" />
 									</td>
 								</tr>
 							))}

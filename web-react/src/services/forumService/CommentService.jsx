@@ -40,4 +40,14 @@ const getAllComments = async () => {
 	return await axios.get("/view/comments/all");
 };
 
-export { getAllComments, createComment, updateComment };
+const deleteComment = async (id, comment, accessToken, axiosJWT) => {
+	const res = await axiosJWT.delete(`/comments/delete/${id}/${comment}`, {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	return res;
+};
+
+export { getAllComments, createComment, updateComment, deleteComment };

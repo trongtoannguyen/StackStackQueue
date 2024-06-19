@@ -1,70 +1,10 @@
-/* SearchFormHeader.css */
-
-.search-form {
-	width: 100%;
-	margin: auto;
-	padding: 1rem;
-	border: 1px solid #ccc;
-	border-radius: 0.5rem;
-	background-color: #f8f9fa;
-}
-
-.no-border {
-	border: none;
-}
-
-.search-input {
-	width: 100%;
-	padding: 0.5rem;
-	border-radius: 0.25rem;
-	border: 1px solid #ccc;
-}
-
-.search-input.text-dark {
-	color: #000;
-}
-
-.search-input.bg-light {
-	background-color: #f8f9fa;
-}
-
-.search-btn {
-	padding: 0.5rem;
-	cursor: pointer;
-}
-
-.search-btn.text-dark {
-	color: #000;
-}
-
-.search-btn.bg-light {
-	background-color: #f8f9fa;
-}
-
 .search-results {
-	margin-top: 1rem;
-	border-top: 1px solid #ccc;
-	padding-top: 1rem;
-}
-
-.search-result-item {
-	padding: 0.5rem;
-	border-bottom: 1px solid #ccc;
-	cursor: pointer;
-}
-
-.search-result-item:last-child {
-	border-bottom: none;
-}
-
-.search-result-item.text-dark {
-	color: #000;
-}
-
-.search-result-item.bg-light {
-	background-color: #f8f9fa;
-}
-
-.search-result-item:hover {
-	background-color: #e9ecef;
+	border: 1px solid #ccc;
+	max-height: 200px;
+	overflow: auto;
+	background: #fff;
+	position: absolute;
+	width: 100%;
+	border-radius: 5px;
+	box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }

@@ -3,6 +3,7 @@ package com.springboot.app.forums.controller;
 
 import java.util.List;
 
+import com.springboot.app.forums.dto.request.LastComment;
 import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Discussion;
 import org.modelmapper.ModelMapper;
@@ -112,5 +113,14 @@ public class DicussionViewController {
 			return ResponseEntity.ok(new ObjectResponse("200", "Discussions found", response));
 		}
 		return ResponseEntity.ok(new ObjectResponse("404", "Discussions not found", null));
+	}
+
+	@GetMapping("/getLastCommentServiceResponseDiscussion/{id}")
+	public ResponseEntity<ObjectResponse> getLastCommentServiceResponse(@PathVariable("id") Long id) {
+		ServiceResponse<LastComment> response = discussionService.getLatCommentServiceResponse(id);
+		if(response.getDataObject() == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "Data not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Data", response.getDataObject()));
 	}
 }

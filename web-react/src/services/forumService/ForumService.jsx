@@ -37,4 +37,20 @@ const getForumById = async (id) => {
 	return await axios.get(`/view/forums/get-by-id/${id}`);
 };
 
-export { getAllForum, addForum, updateForum, getForumById };
+const getLastCommentServiceResponseForum = async (id) => {
+	return await axios.get(
+		`/view/forums/getLastCommentServiceResponseForum/${id}`
+	);
+};
+const getForumStat = async () => {
+	return await axios.get("/view/forums/get-forum-stat");
+};
+
+export {
+	getAllForum,
+	addForum,
+	updateForum,
+	getForumById,
+	getLastCommentServiceResponseForum,
+	getForumStat,
+};

@@ -53,6 +53,8 @@ import {
 	FaCalculator,
 	FaMoneyCheckAlt,
 } from "react-icons/fa";
+import { IoGameController } from "react-icons/io5";
+
 //Paginate
 import Pagination from "../../pagination/Pagination";
 
@@ -103,6 +105,7 @@ const TagsManage = () => {
 			FaBalanceScale: <FaBalanceScale />,
 			FaCalculator: <FaCalculator />,
 			FaMoneyCheckAlt: <FaMoneyCheckAlt />,
+			IoGameController: <IoGameController />,
 		};
 
 		return iconMapping[iconName] || null;

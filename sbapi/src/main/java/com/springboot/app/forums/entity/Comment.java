@@ -1,5 +1,6 @@
 package com.springboot.app.forums.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -72,30 +73,10 @@ public class Comment extends BaseEntity {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "replyTo",cascade = CascadeType.ALL,orphanRemoval = true)
 	@OrderBy("id ASC")
-	private List<Comment> replies; // children of this comment
+	private List<Comment> replies = new ArrayList<>() ; // children of this comment
 
 	@Column(name = "IP_address", length = 80)
 	private String ipAddress;
-
-	/**
-	 * OK to eager fetch attachments as only a handful attachments are expected for
-	 * each comment
-	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,orphanRemoval = true)
-	@JoinTable(name = "comment_attachment", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_ATTACHMENT"), inverseForeignKey = @ForeignKey(name = "FK_ATTACHMENT_COMMENT"), indexes = {
-			@Index(name = "IDX_COMMENT_ATTACHMENT", columnList = "comment_id,file_info_id") })
-	@OrderColumn(name = "sort_order")
-	private List<FileInfo> attachments;
-
-	/**
-	 * OK to eager fetch attachments as only a handful thumbnails are expected for
-	 * each comment
-	 */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinTable(name = "comment_thumbnail", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "file_info_id"), foreignKey = @ForeignKey(name = "FK_COMMENT_THUMBNAIL"), inverseForeignKey = @ForeignKey(name = "FK_THUMBNAIL_COMMENT"), indexes = {
-			@Index(name = "IDX_COMMENT_THUMBNAIL", columnList = "comment_id,file_info_id") })
-	@OrderColumn(name = "sort_order")
-	private List<FileInfo> thumbnails;
 
 	@Column(name = "hidden")
 	private boolean hidden;
@@ -106,7 +87,7 @@ public class Comment extends BaseEntity {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "comment", cascade = CascadeType.ALL,orphanRemoval = true)
 	@OrderBy("createdAt DESC")
-	private List<Bookmark> bookmarks;
+	private List<Bookmark> bookmarks  = new ArrayList<>();
 
 
 }

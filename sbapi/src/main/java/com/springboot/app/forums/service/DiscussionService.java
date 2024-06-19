@@ -6,6 +6,7 @@ import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
 import com.springboot.app.forums.dto.UploadedFileData;
+import com.springboot.app.forums.dto.request.LastComment;
 import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.Discussion;
@@ -14,10 +15,9 @@ import com.springboot.app.tags.Tag;
 
 public interface DiscussionService {
 
-	ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username,
-			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles);
+	ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username);
 
-	ServiceResponse<Void> deleteDiscussion(Discussion discussion);
+	ServiceResponse<Void> deleteDiscussion(Long discussionId);
 
 	ServiceResponse<DiscussionDTO> getById(Long id);
 
@@ -35,5 +35,7 @@ public interface DiscussionService {
 	ServiceResponse<Discussion> addTagsToDiscussion(Long discussionId, List<Long> tagIds);
 
 	ServiceResponse<List<DiscussionDTO>> getDiscussionsByTagId(Long tagId);
+
+	ServiceResponse<LastComment> getLatCommentServiceResponse(Long id);
 
 }

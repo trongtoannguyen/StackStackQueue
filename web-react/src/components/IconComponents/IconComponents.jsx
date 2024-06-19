@@ -37,6 +37,8 @@ import {
 	FaMoneyCheckAlt,
 } from "react-icons/fa";
 
+import { IoGameController } from "react-icons/io5";
+
 import { Dropdown } from "react-bootstrap";
 
 import PropTypes from "prop-types";
@@ -98,9 +100,15 @@ const SelectIcon = (props) => {
 			label: "Money Check Alt",
 			icon: <FaMoneyCheckAlt />,
 		},
+		{
+			value: "IoGameController",
+			label: "Gaming",
+			icon: <IoGameController />,
+		},
 	];
 	const renderIcon = (iconName) => {
 		const iconMapping = {
+			IoGameController: <IoGameController />,
 			FaCode: <FaCode />,
 			FaLaptopCode: <FaLaptopCode />,
 			FaMobileAlt: <FaMobileAlt />,
