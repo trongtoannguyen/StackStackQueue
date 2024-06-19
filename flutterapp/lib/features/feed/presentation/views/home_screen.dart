@@ -15,185 +15,35 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../config/theme/theme_manager.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
-  late TabController tabController;
-  late int _currentTabIndex = 0;
-
-  static const List<ForumGroupEntity> groups = [
-    ForumGroupEntity(id: 1, title: "DEV", color: "red"),
-    ForumGroupEntity(id: 2, title: "Game", color: "green"),
-    ForumGroupEntity(id: 3, title: "Financial", color: "blue"),
-    ForumGroupEntity(id: 4, title: "Marketing", color: "grey"),
-  ];
-  // //
-
-  @override
-  void initState() {
-    tabController = TabController(length: groups.length + 1, vsync: this);
-    super.initState();
-  }
-
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(tabController.index == 0
-              ? "All"
-              : (groups[tabController.index - 1].title ?? "All")),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          iconTheme: Theme.of(context).iconTheme,
-          actions: [
-            Consumer<ThemeService>(builder: (context, ThemeService theme, _) {
-              return IconButton(
-                  onPressed: () {
-                    theme.toggleTheme();
-                  },
-                  icon: Icon(theme.darkTheme!
-                      ? Icons.sunny
-                      : CupertinoIcons.moon_stars));
-            })
-          ],
-          bottom: TabBar(
-              onTap: (tabIndex) {
-                setState(() {
-                  _currentTabIndex = tabIndex;
-                });
-                if (tabIndex == 0) {
-                  BlocProvider.of<ForumFilterBloc>(context).add(
-                    const UpdateForums(
-                      forumFilter: -1,
-                    ),
-                  );
-                } else {
-                  BlocProvider.of<ForumFilterBloc>(context).add(
-                    UpdateForums(
-                      forumFilter: groups[tabIndex - 1].id ?? -1,
-                    ),
-                  );
-                }
-              },
-              controller: tabController,
-              tabs: [
-                const TabItem(title: "All"),
-                TabItem(title: groups[0].title ?? "G1"),
-                TabItem(title: groups[1].title ?? "G2"),
-                TabItem(title: groups[2].title ?? "G3"),
-                TabItem(title: groups[3].title ?? "G4"),
-              ]),
-        ),
-        body: TabBarView(
-          controller: tabController,
-          children: [
-            _toForumGroup(tabController, "All"),
-            _toForumGroup(tabController, groups[0].title ?? "G1"),
-            _toForumGroup(tabController, groups[1].title ?? "G2"),
-            _toForumGroup(tabController, groups[2].title ?? "G3"),
-            _toForumGroup(tabController, groups[3].title ?? "G4"),
-          ],
-        ),
-      ),
-    );
-  }
-
-//-------------------End of HomePage-------------------
-  Widget _buildHomePage(BuildContext context) {
     return BlocBuilder<GroupBloc, GroupState>(
       builder: (context, state) {
         if (state is GroupLoading) {
-          return Scaffold(
-              appBar: AppBar(
-                title: Text('Home Page'),
-              ),
-              body: const Center(
-                child: CircularProgressIndicator(),
-              ));
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: CircularProgressIndicator(),
+          );
         } else if (state is GroupSuccess && state.groups.isEmpty) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Home Page'),
-            ),
-            body: const Center(
-              child: Text('No groups found'),
-            ),
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('No groups found'),
           );
         } else if (state is GroupSuccess) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Home Page'),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              iconTheme: Theme.of(context).iconTheme,
-              actions: [
-                Consumer<ThemeService>(
-                    builder: (context, ThemeService theme, _) {
-                  return IconButton(
-                      onPressed: () {
-                        theme.toggleTheme();
-                      },
-                      icon: Icon(theme.darkTheme!
-                          ? Icons.sunny
-                          : CupertinoIcons.moon_stars));
-                })
-              ],
-              bottom: TabBar(
-                  onTap: (tabIndex) {
-                    setState(() {
-                      _currentTabIndex = tabIndex;
-                    });
-                    if (tabIndex == 0) {
-                      BlocProvider.of<ForumFilterBloc>(context).add(
-                        const UpdateForums(
-                          forumFilter: -1,
-                        ),
-                      );
-                    } else {
-                      BlocProvider.of<ForumFilterBloc>(context).add(
-                        UpdateForums(
-                          forumFilter: state.groups[tabIndex - 1].id ?? -1,
-                        ),
-                      );
-                    }
-                  },
-                  controller: tabController,
-                  tabs: [
-                    const TabItem(title: "All"),
-                    for (var group in state.groups)
-                      TabItem(title: group.title ?? 'Group'),
-                  ]),
-            ),
-            body: TabBarView(
-              controller: tabController,
-              children: [
-                _toForumGroup(tabController, "All"),
-                for (var group in state.groups)
-                  _toForumGroup(tabController, group.title ?? 'Group'),
-              ],
-            ),
-          );
+          return const Center(child: Text('Success'));
         } else {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Home Page'),
-            ),
-            body: const Text('Something went wrong'),
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Something went wrong'),
           );
         }
       },
     );
   }
 
-  //-------------------End of TabBar-------------------
-
+//-------------------End of HomeScreen-------------------
   BlocConsumer<ForumFilterBloc, ForumFilterState> _toForumGroup(
       TabController tabController, String title) {
     return BlocConsumer<ForumFilterBloc, ForumFilterState>(
