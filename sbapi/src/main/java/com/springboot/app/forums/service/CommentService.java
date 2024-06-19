@@ -1,10 +1,7 @@
 package com.springboot.app.forums.service;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import com.springboot.app.accounts.entity.User;
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.CommentDTO;
@@ -13,7 +10,6 @@ import com.springboot.app.forums.dto.response.DiscussionResponse;
 import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.entity.Comment;
-import com.springboot.app.forums.entity.FileInfo;
 
 public interface CommentService {
 	PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
@@ -21,12 +17,7 @@ public interface CommentService {
 
 	ServiceResponse<DiscussionResponse> getFirstCommentByDiscussionId(Long discussionId);
 
-
-	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
-			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles);
-
-	ServiceResponse<Comment> deleteComment(Long id);
-
+	ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId	);
 	Comment updateComment(Comment comment);
 
 	ServiceResponse<List<CommentDTO>> getAllComment();
@@ -35,4 +26,6 @@ public interface CommentService {
 	ViewCommentResponse mapCommentToViewCommentResponse(Comment comment);
 
 	String getContentByCommentId(Long id);
+
+	ServiceResponse<Comment> deleteComment(Long id,Long discussionId);
 }

@@ -39,10 +39,6 @@ public class AdminDashboardController {
 		return ResponseEntity.ok(new ObjectResponse("404", "Not found", null));
 	}
 
-	//data for chart in dashboard page
-	// user count and comment count by forum group
-	// discussion count and comment count by forum group
-
 	@GetMapping("/chart-by-forum")
 	public ResponseEntity<ObjectResponse> getCountUsersByForum() {
 		ServiceResponse<List<DataForumGroupResponse>> response = adminDashboardService.getDataByForumGroup();

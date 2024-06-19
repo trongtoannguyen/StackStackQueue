@@ -199,11 +199,6 @@ const Home = () => {
 					</Col>
 
 					<Col md="4">
-						<Card className="mx-auto text-center p-2">
-							<b>
-								<i className="fa-regular fa-clock"></i> Discussion Tags
-							</b>
-						</Card>
 						<ForumInfo />
 					</Col>
 				</Row>

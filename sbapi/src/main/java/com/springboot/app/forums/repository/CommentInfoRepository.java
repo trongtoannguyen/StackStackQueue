@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface CommentInfoRepository extends JpaRepository<CommentInfo, Long> {
-    List<CommentInfo> findByCommentId(Long commentId);
-    void deleteByCommentId(Long commentId);
+    //find CommentInfo by commentId
+    CommentInfo findByCommentId(Long commentId);
 }

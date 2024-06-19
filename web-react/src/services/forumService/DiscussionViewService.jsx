@@ -13,3 +13,9 @@ export const getAllCommentByDiscussionId = async (pageData) => {
 export const viewDiscussionsByTagId = async (tagId) => {
 	return await axios.get(`view/discussions/tag/${tagId}`);
 };
+
+export const getLastCommentServiceResponseDiscussion = async (id) => {
+	return await axios.get(
+		`/view/discussions/getLastCommentServiceResponseDiscussion/${id}`
+	);
+};

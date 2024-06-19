@@ -7,14 +7,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.entity.UserStat;
 import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.accounts.repository.UserStatRepository;
 import com.springboot.app.accounts.service.UserStatService;
+import com.springboot.app.forums.dto.request.LastComment;
 import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.repository.*;
-import com.springboot.app.forums.service.ForumStatService;
+import com.springboot.app.forums.service.CommentService;
 import com.springboot.app.tags.Tag;
 import com.springboot.app.tags.TagRepository;
-import com.springboot.app.tags.TagService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,13 +25,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.springboot.app.dto.response.PaginateResponse;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.DiscussionDTO;
-import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.Comment;
 import com.springboot.app.forums.entity.CommentInfo;
 import com.springboot.app.forums.entity.CommentVote;
@@ -38,10 +37,6 @@ import com.springboot.app.forums.entity.DiscussionStat;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumStat;
 import com.springboot.app.forums.service.DiscussionService;
-import com.springboot.app.repository.CommentDAO;
-import com.springboot.app.repository.DiscussionDAO;
-import com.springboot.app.service.FileInfoHelper;
-import com.springboot.app.service.FileService;
 
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
@@ -59,17 +54,6 @@ public class DiscussionServiceImpl implements DiscussionService {
 
 	@Autowired
 	private ForumRepository forumRepository;
-	@Autowired
-	private CommentDAO commentDAO;
-
-	@Autowired
-	private DiscussionDAO discussionDAO;
-
-	@Autowired
-	private FileInfoHelper fileInfoHelper;
-
-	@Autowired
-	private FileService fileService;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -86,20 +70,25 @@ public class DiscussionServiceImpl implements DiscussionService {
 	@Autowired
 	private UserRepository userRepository;
 
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private DiscussionStatRepository discussionStatRepository;
+    @Autowired
+    private CommentInfoRepository commentInfoRepository;
+
+	@Autowired
+	private UserStatRepository userStatRepository;
+
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username,
-			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
+	public ServiceResponse<Discussion> addDiscussion(Discussion newDiscussion, Comment comment, String username) {
 		ServiceResponse<Discussion> response = new ServiceResponse<>();
 
 		// Set basic properties
 		comment.setTitle(newDiscussion.getTitle());
 		comment.setCreatedBy(username);
 		newDiscussion.setCreatedBy(username);
-
-		// Handle file attachments and thumbnails
-		comment.setThumbnails(fileInfoHelper.createThumbnails(thumbnailFiles));
-		comment.setAttachments(fileInfoHelper.createAttachments(attachmentFiles));
 
 		// Create and associate CommentVote
 		CommentVote commentVote = new CommentVote();
@@ -117,6 +106,10 @@ public class DiscussionServiceImpl implements DiscussionService {
 
 		// Ensure comment is persisted before populating statistics
 		commentRepository.save(comment);
+
+		if(newDiscussion.getStat() == null) {
+			newDiscussion.setStat(new DiscussionStat());
+		}
 
 		// Populate discussion statistics
 		populateDiscussionStat(comment, newDiscussion, username);
@@ -146,16 +139,6 @@ public class DiscussionServiceImpl implements DiscussionService {
 		return forumStat;
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public ServiceResponse<DiscussionDTO> getById(Long id) {
-		ServiceResponse<DiscussionDTO> response = new ServiceResponse<>();
-		Discussion discussion = discussionRepository.findById(id).orElse(null);
-		DiscussionDTO dto = modelMapper.map(discussion, DiscussionDTO.class);
-		response.setDataObject(dto);
-		return response;
-	}
-
 	private DiscussionStat populateDiscussionStat(Comment comment, Discussion discussion, String username) {
 		// populate discussion stat
 		CommentInfo lastComment = new CommentInfo();
@@ -178,138 +161,18 @@ public class DiscussionServiceImpl implements DiscussionService {
 		discussionStat.setCommentCount(discussionStat.getCommentCount() + 1);
 		discussionStat.setLastComment(lastComment);
 		discussionStat.getCommentors().put(username, 1);
-		discussionStat.setThumbnailCount(comment.getThumbnails().size());
-		discussionStat.setAttachmentCount(comment.getAttachments().size());
 
 		// note: no need to merge in case of update
 		return discussionStat;
 	}
 
 	@Override
-	@Transactional(readOnly = false)
-	public ServiceResponse<Void> deleteDiscussion(Discussion discussion) {
-		ServiceResponse<Void> response = new ServiceResponse<>();
-
-		Forum forum = discussion.getForum();
-		forum.getDiscussions().remove(discussion);
-		forum.getStat().setLastComment(null);
-		forumRepository.save(forum);
-
-		// delete attachments and thumbnails
-		List<String> attachmentPaths = commentDAO.getAttachmentPathsForDiscussion(discussion);
-		List<String> thumbnailPaths = commentDAO.getThumbnailPathsForDiscussion(discussion);
-
-		/*
-		 * add a hook to transaction callback to remove files if transaction success
-		 * (committed)
-		 */
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-			@Override
-			public void afterCompletion(int status) {
-				if (status == TransactionSynchronization.STATUS_COMMITTED) {
-					for (String path : thumbnailPaths) {
-						fileService.deleteCommentThumbnail(path);
-					}
-					for (String path : attachmentPaths) {
-						fileService.deleteCommentAttachment(path);
-					}
-				}
-			}
-		});
-
-		discussionRepository.delete(discussion);
-
-		return response;
-	}
-
-	@Transactional(readOnly = false)
-	public ServiceResponse<Void> assignNewForum(Discussion discussion, Forum toForum) {
-		ServiceResponse<Void> response = new ServiceResponse<>();
-		Forum fromForum = discussion.getForum();
-
-		discussion.setForum(toForum);
-		discussionRepository.save(discussion);
-
-		toForum.getDiscussions().add(discussion);
-		forumRepository.save(toForum);
-
-		if (fromForum != null) {
-			fromForum.getDiscussions().remove(discussion);
-//			fromForum.getStat().setLastComment(null);
-			forumRepository.save(fromForum);
-		}
-
-		return response;
-	}
-
 	@Transactional(readOnly = true)
-//	@Cacheable(value=CachingConfig.DISCCUSIONS, key="{'discussionService.getLatestDiscussions', #maxResult}")
-	public ServiceResponse<List<Discussion>> getLatestDiscussions(Integer maxResult) {
-
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		response.setDataObject(discussionDAO.getLatestDiscussions(maxResult));
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-//	@Cacheable(value=CachingConfig.DISCCUSIONS, key="{'discussionService.getMostViewsDiscussions', #daysBack, #maxResult}")
-	public ServiceResponse<List<Discussion>> getMostViewsDiscussions(Integer daysBack, Integer maxResult) {
-
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		LocalDateTime since = LocalDateTime.now().minusDays(daysBack);
-
-		response.setDataObject(discussionDAO.getMostViewsDiscussions(since, maxResult));
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-//	@Cacheable(value=CachingConfig.DISCCUSIONS, key="{'discussionService.getMostCommentsDiscussions', #daysBack, #maxResult}")
-	public ServiceResponse<List<Discussion>> getMostCommentsDiscussions(Integer daysBack, Integer maxResult) {
-
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		LocalDateTime since = LocalDateTime.now().minusDays(daysBack);
-		response.setDataObject(discussionDAO.getMostCommentsDiscussions(since, maxResult));
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<String>> getCommentors(Discussion discussion) {
-
-		ServiceResponse<List<String>> response = new ServiceResponse<>();
-
-		response.setDataObject(commentDAO.getCommentorsForDiscussion(discussion));
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<List<Discussion>> fetchDiscussions(List<Discussion> discussions) {
-
-		ServiceResponse<List<Discussion>> response = new ServiceResponse<>();
-
-		List<Long> discussionIds = new ArrayList<>();
-		for (Discussion d : discussions) {
-			discussionIds.add(d.getId());
-		}
-
-		response.setDataObject(discussionDAO.fetch(discussionIds));
-
-		return response;
-	}
-
-	@Transactional(readOnly = true)
-	public ServiceResponse<Map<String, Integer>> getMostDiscussionUsers(LocalDateTime since, Integer maxResult) {
-
-		ServiceResponse<Map<String, Integer>> response = new ServiceResponse<>();
-
-		response.setDataObject(discussionDAO.getMostDiscussionUsers(since, maxResult));
-
+	public ServiceResponse<DiscussionDTO> getById(Long id) {
+		ServiceResponse<DiscussionDTO> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(id).orElse(null);
+		DiscussionDTO dto = modelMapper.map(discussion, DiscussionDTO.class);
+		response.setDataObject(dto);
 		return response;
 	}
 
@@ -428,6 +291,114 @@ public class DiscussionServiceImpl implements DiscussionService {
 			dtos.add(modelMapper.map(d, DiscussionDTO.class));
 		}
 		response.setDataObject(dtos);
+		return response;
+	}
+
+	@Override
+	public ServiceResponse<LastComment> getLatCommentServiceResponse(Long id){
+		ServiceResponse<LastComment> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(id).orElse(null);
+
+		if(discussion == null) {
+			return response;
+		}
+		CommentInfo lastCommentInfo = discussion.getStat().getLastComment();
+
+		Author author = new Author();
+		User user = userRepository.findByUsername(lastCommentInfo.getCreatedBy()).orElse(null);
+		if (user != null) {
+			author.setUsername(user.getUsername());
+			author.setAvatar(user.getAvatar());
+			author.setImageUrl(user.getImageUrl());
+		}
+		LastComment lastComment = new LastComment();
+		lastComment.setAuthor(author);
+		lastComment.setCommentDate(lastCommentInfo.getCommentDate());
+		lastComment.setContentAbbr(lastCommentInfo.getContentAbbr());
+		lastComment.setCommenter(lastCommentInfo.getCreatedBy());
+		lastComment.setTitle(lastCommentInfo.getTitle());
+
+		response.setDataObject(lastComment);
+		return response;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public ServiceResponse<Void> deleteDiscussion(Long discussionId){
+		ServiceResponse<Void> response = new ServiceResponse<>();
+		Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+		if(discussion == null) {
+			response.addMessage("Discussion not found");
+			return response;
+		}
+
+		List<Tag> tag = discussion.getTags();
+		if(tag != null && !tag.isEmpty()) {
+			discussion.getTags().clear();
+			discussionRepository.save(discussion);
+		}
+
+		//find all comments associated with the discussion
+		List<Comment> comments = commentRepository.findCommentsByDiscussionId(discussionId);
+
+		//delete all comments
+		for(Comment comment : comments) {
+		 	commentService.deleteComment(comment.getId(),discussionId);
+		}
+
+		// Delete the discussion
+		discussionRepository.delete(discussion);
+
+		//remove the discussion stat
+		Map<String, Integer> commentors = discussion.getStat().getCommentors();
+		commentors.clear();
+
+		DiscussionStat discussionStat = discussion.getStat();
+		discussionStatRepository.delete(discussionStat);
+
+		//update forum stat
+		Forum forum = discussion.getForum();
+		ForumStat forumStat = forum.getStat();
+		forumStat.setDiscussionCount(forumStat.getDiscussionCount() - 1);
+		List<Comment> commentsForForum = commentRepository.findAllByForumIdOrderByCreatedAtDesc(forum.getId());
+		if (commentsForForum != null && !commentsForForum.isEmpty()){
+        	CommentInfo forumCommentInfo = commentInfoRepository.findByCommentId(commentsForForum.getFirst().getId());
+			forumStat.setLastComment(forumCommentInfo);
+		}else {
+			forumStat.setLastComment(null);
+		}
+		forumRepository.save(forum);
+
+		//update user stat
+		User user = userRepository.findByUsername(discussion.getCreatedBy()).orElse(null);
+		if(user == null){
+			return null;
+		}
+		UserStat userStat = user.getStat();
+		userStat.setDiscussionCount(userStat.getDiscussionCount() - 1);
+
+		CommentInfo userLastComment = userStat.getLastComment();
+		if(userLastComment != null){
+			Comment commentForUser = commentRepository.findAllByCreatedByOrderByCreatedAtDesc(discussion.getCreatedBy()).getFirst();
+			if (commentForUser != null ) {
+				userLastComment.setCommentId(commentForUser.getId());
+				userLastComment.setCommenter(commentForUser.getCreatedBy());
+				userLastComment.setTitle(commentForUser.getTitle());
+				userLastComment.setCommentDate(commentForUser.getCreatedAt());
+
+				String contentAbbreviation = new TextExtractor(new Source(commentForUser.getContent())).toString();
+				String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..." : contentAbbreviation;
+				userLastComment.setContentAbbr(contentAbbr);
+				user.getStat().setLastComment(userLastComment);
+			}
+			user.getStat().setLastComment(null);
+		}
+		userRepository.save(user);
+
+		//delete
+		CommentInfo lastComment = discussionStat.getLastComment();
+		commentInfoRepository.delete(lastComment);
+
 		return response;
 	}
 

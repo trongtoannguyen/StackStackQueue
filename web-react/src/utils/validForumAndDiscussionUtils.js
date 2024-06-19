@@ -10,6 +10,18 @@ export const validateTitle = (title, existing) => {
 
 	return "";
 };
+export const validateLabel = (label, existing) => {
+	if (!label.trim()) {
+		return "Label is required";
+	}
+
+	const isDuplicate = existing.some((group) => group.label === label);
+	if (isDuplicate) {
+		return "Label already in use";
+	}
+
+	return "";
+};
 
 export const validateIcon = (icon) => {
 	if (!icon.trim()) {

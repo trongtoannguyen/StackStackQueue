@@ -5,6 +5,7 @@ import java.util.List;
 import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.forums.dto.ForumDTO;
 import com.springboot.app.forums.dto.ForumGroupDTO;
+import com.springboot.app.forums.dto.request.LastComment;
 import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.entity.Forum;
 import com.springboot.app.forums.entity.ForumGroup;
@@ -30,4 +31,7 @@ public interface ForumService {
 	ServiceResponse<List<SearchAll>> getForumSearch(String keyword);
 
 	ServiceResponse<List<ForumGroup>> voteSortByOrderForumGroup(Long id, String type);
+
+	ServiceResponse<LastComment> getLastCommentServiceResponse(Long id);
+
 }

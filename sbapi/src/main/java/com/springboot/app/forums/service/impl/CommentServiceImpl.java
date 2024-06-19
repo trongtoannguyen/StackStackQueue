@@ -16,6 +16,8 @@ import com.springboot.app.forums.dto.response.ViewCommentResponse;
 import com.springboot.app.forums.dto.search.SearchAll;
 import com.springboot.app.forums.repository.*;
 import com.springboot.app.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +47,9 @@ import net.htmlparser.jericho.TextExtractor;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
+	private static final Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
+
 	@Autowired
 	private CommentRepository commentRepository;
 
@@ -68,9 +73,6 @@ public class CommentServiceImpl implements CommentService {
 
 	@Autowired
 	private CommentInfoRepository commentInfoRepository;
-
-	@Autowired
-	private DiscussionStatRepository discussionStatRepository;
 
 	@Override
 	public PaginateResponse getAllCommentsByDiscussionId(int pageNo, int pageSize, String orderBy, String sortDir,
@@ -191,8 +193,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId,
-			List<UploadedFileData> thumbnailFiles, List<UploadedFileData> attachmentFiles) {
+	public ServiceResponse<Comment> addComment(Long discussionId, Comment comment, String username, Long replyToId) {
 		ServiceResponse<Comment> response = new ServiceResponse<>();
 
 		if (replyToId != null) {
@@ -206,8 +207,6 @@ public class CommentServiceImpl implements CommentService {
 
 		comment.setCreatedBy(username);
 		comment.setIpAddress(JSFUtils.getRemoteIPAddress());
-		comment.setThumbnails(fileInfoHelper.createThumbnails(thumbnailFiles));
-		comment.setAttachments(fileInfoHelper.createAttachments(attachmentFiles));
 
 		CommentVote commentVote = new CommentVote();
 		commentVote.setCreatedBy(username);
@@ -248,7 +247,7 @@ public class CommentServiceImpl implements CommentService {
 		return forumStat;
 	}
 
-	private DiscussionStat updateDiscussionLastComment(Discussion discussion, Comment comment, String username) {
+	private void updateDiscussionLastComment(Discussion discussion, Comment comment, String username) {
 		DiscussionStat discussionStat = discussion.getStat();
 		discussionStat.setCommentCount(discussionStat.getCommentCount() + 1);
 
@@ -257,8 +256,6 @@ public class CommentServiceImpl implements CommentService {
 		String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..."
 				: contentAbbreviation;
 
-		lastComment.setUpdatedBy(username);
-		lastComment.setUpdatedAt(LocalDateTime.now());
 		lastComment.setCommentId(comment.getId());
 		lastComment.setCommenter(username);
 		lastComment.setTitle(comment.getTitle());
@@ -269,8 +266,6 @@ public class CommentServiceImpl implements CommentService {
 		discussionStat.setUpdatedAt(LocalDateTime.now());
 		discussionStat.setUpdatedBy(username);
 		discussionStat.setLastComment(lastComment);
-
-		return discussionStat;
 
 	}
 
@@ -288,45 +283,148 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	@Transactional(readOnly = false)
-	public ServiceResponse<Comment> deleteComment(Long id) {
+	public ServiceResponse<Comment> deleteComment(Long id, Long discussionId) {
 		ServiceResponse<Comment> response = new ServiceResponse<>();
 		Optional<Comment> optionalComment = commentRepository.findById(id);
+
+		logger.info("Deleting comment with id: {}", id);
 		if (optionalComment.isPresent()) {
-			Comment comment = optionalComment.get();
-			deleteChildComments(comment);
+			Comment parentComment = optionalComment.get();
 
-			// Lấy danh sách CommentInfo liên quan
-//			List<CommentInfo> commentInfos = commentInfoRepository.findByCommentId(id);
-//
-//			Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
-//			//lấy danh sách comment của discussion
-//			List<Comment> comments = commentRepository.findByDiscussion(discussion);
-//
-//			if(comments.size() > 1){
-//				for (CommentInfo commentInfo : commentInfos) {
-//					// Cập nhật discussion_stats để bỏ tham chiếu tới comment_info
-//					discussionStatRepository.updateLastCommentInfoId(commentInfo.getId(), comments.get(1).getId());
-//				}
-//			}
+			// Handle child comments and related updates
+			deleteChildComments(parentComment);
 
+			CommentVote commentVote = parentComment.getCommentVote();
+			if (commentVote != null) {
+				Set<Vote> votes = commentVote.getVotes();
+				for (Vote vote : votes) {
+					commentVote.getVotes().remove(vote);
+					commentVoteRepository.save(commentVote);
+				}
+				commentVoteRepository.delete(commentVote);
+			}
+			logger.info("Deleting comment 1 ");
+			Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+			if (discussion == null) {
+				response.setAckCode(AckCodeType.FAILURE);
+				return response;
+			}
 
-			// Xóa các CommentInfo liên quan
-			commentInfoRepository.deleteByCommentId(id);
+			// Delete the Comment
+			commentRepository.delete(parentComment);
+			// Update Discussion and Forum before deleting CommentInfo
+			updateDiscussionAndForum(discussionId);
+			// Update User's Last Comment before deleting CommentInfo
+			updateUserLastComment(parentComment.getCreatedBy(), id);
 
-			commentRepository.delete(comment);
-			response.setDataObject(comment);
+			response.setDataObject(parentComment);
 			response.setAckCode(AckCodeType.SUCCESS);
 		} else {
 			response.setAckCode(AckCodeType.FAILURE);
 		}
-        return response;
-    }
+
+		return response;
+	}
+
+	private void updateDiscussionAndForum(Long discussionId) {
+		Discussion discussion = discussionRepository.findById(discussionId).orElse(null);
+		if (discussion == null) {
+			return;
+		}
+
+		Forum forum = discussion.getForum();
+		if(forum == null){
+			return;
+		}
+
+		updateDiscussionLastComment(discussion);
+		updateForumLastComment(forum);
+
+		// Update the Discussion Stat
+		DiscussionStat discussionStat = discussion.getStat();
+		discussionStat.setCommentCount(discussionStat.getCommentCount() - 1);
+		discussion.setStat(discussionStat);
+		// Update the Forum Stat
+		ForumStat forumStat = forum.getStat();
+		forumStat.setCommentCount(forumStat.getCommentCount() - 1);
+		forum.setStat(forumStat);
+		// Save the Forum
+		forumRepository.save(forum);
+	}
+
+	private void updateDiscussionLastComment(Discussion discussion) {
+		CommentInfo discussionCommentInfo = discussion.getStat().getLastComment();
+		if (discussionCommentInfo != null ) {
+			List<Comment> commentsForDiscussion = commentRepository.findByDiscussionOrderByCreatedAtDesc(discussion);
+			if (!commentsForDiscussion.isEmpty()) {
+				Comment commentForDiscussion = commentsForDiscussion.get(0);
+				discussionCommentInfo.setCommentId(commentForDiscussion.getId());
+				discussionCommentInfo.setCommenter(commentForDiscussion.getCreatedBy());
+				discussionCommentInfo.setTitle(commentForDiscussion.getTitle());
+				discussionCommentInfo.setCommentDate(commentForDiscussion.getCreatedAt());
+
+				String contentAbbreviation = new TextExtractor(new Source(commentForDiscussion.getContent())).toString();
+				String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..." : contentAbbreviation;
+				discussionCommentInfo.setContentAbbr(contentAbbr);
+				discussion.getStat().setLastComment(discussionCommentInfo);
+			}
+		}
+	}
+
+	private void updateForumLastComment(Forum forum) {
+		CommentInfo forumCommentInfo = forum.getStat().getLastComment();
+		if (forumCommentInfo != null) {
+			List<Comment> commentsForForum = commentRepository.findAllByForumIdOrderByCreatedAtDesc(forum.getId());
+			if (!commentsForForum.isEmpty()) {
+				Comment commentForForum = commentsForForum.get(0);
+				forumCommentInfo.setCommentId(commentForForum.getId());
+				forumCommentInfo.setCommenter(commentForForum.getCreatedBy());
+				forumCommentInfo.setTitle(commentForForum.getTitle());
+				forumCommentInfo.setCommentDate(commentForForum.getCreatedAt());
+
+				String contentAbbreviation = new TextExtractor(new Source(commentForForum.getContent())).toString();
+				String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..." : contentAbbreviation;
+				forumCommentInfo.setContentAbbr(contentAbbr);
+				forum.getStat().setLastComment(forumCommentInfo);
+			}
+		}
+	}
+
+	private void updateUserLastComment(String username, Long commentId) {
+		User user = userRepository.findByUsername(username).orElse(null);
+		if (user != null) {
+			CommentInfo userCommentInfo = user.getStat().getLastComment();
+			if (userCommentInfo != null) {
+				Comment commentForUser = commentRepository.findAllByCreatedByOrderByCreatedAtDesc(username).get(0);
+				if (commentForUser != null) {
+					userCommentInfo.setCommentId(commentForUser.getId());
+					userCommentInfo.setCommenter(commentForUser.getCreatedBy());
+					userCommentInfo.setTitle(commentForUser.getTitle());
+					userCommentInfo.setCommentDate(commentForUser.getCreatedAt());
+
+					String contentAbbreviation = new TextExtractor(new Source(commentForUser.getContent())).toString();
+					String contentAbbr = contentAbbreviation.length() > 100 ? contentAbbreviation.substring(0, 97) + "..." : contentAbbreviation;
+					userCommentInfo.setContentAbbr(contentAbbr);
+					user.getStat().setLastComment(userCommentInfo);
+				}
+			}
+
+			Comment commentForUser = commentRepository.findById(commentId).orElse(null);
+			if (commentForUser != null && commentForUser.getCreatedBy().equals(username)) {
+				user.getStat().setCommentCount(user.getStat().getCommentCount() - 1);
+			}
+			userRepository.save(user);
+		}
+	}
+
 
 	private void deleteChildComments(Comment parentComment) {
 		List<Comment> childComments = commentRepository.findByReplyTo(parentComment);
 		for (Comment childComment : childComments) {
-			deleteChildComments(childComment);
+			logger.info("Deleting comment 13 ");
 			commentRepository.delete(childComment);
+			updateDiscussionAndForum(childComment.getId());
+			updateUserLastComment(childComment.getCreatedBy(), childComment.getId());
 		}
 	}
 

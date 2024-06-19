@@ -4,7 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.springboot.app.accounts.entity.User;
+import com.springboot.app.accounts.repository.UserRepository;
+import com.springboot.app.accounts.service.UserService;
+import com.springboot.app.forums.dto.request.LastComment;
+import com.springboot.app.forums.dto.response.Author;
 import com.springboot.app.forums.dto.search.SearchAll;
+import com.springboot.app.forums.entity.CommentInfo;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +58,9 @@ public class ForumServiceImpl implements ForumService {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	private ForumGroupDTO convertToDTO(ForumGroup forumGroup) {
 		return modelMapper.map(forumGroup, ForumGroupDTO.class);
 	}
@@ -90,16 +99,6 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	public ServiceResponse<Void> deleteForumGroup(ForumGroup forumGroup) {
 		ServiceResponse<Void> response = new ServiceResponse<>();
-
-//		int sortOrderBy = forumGroup.getSortOrder();
-//
-//		List<ForumGroup> forumGroups = forumGroupRepository.findAllBySortByGreaterThan(sortOrderBy);
-//
-//		for(int i = sortOrderBy; i < forumGroups.size(); i++) {
-//			ForumGroup fg = forumGroups.get(i);
-//			fg.setSortOrder(sortOrderBy - 1);
-//			forumGroupRepository.save(fg);
-//		}
 
 		int sortOrderBy = forumGroup.getSortOrder();
 		forumGroupRepository.decrementSortOrder(sortOrderBy);
@@ -145,7 +144,7 @@ public class ForumServiceImpl implements ForumService {
 
 		newForum.setForumGroup(forumGroup);
 
-		newForum = genericDAO.merge(newForum);
+		newForum = forumRepository.save(newForum);
 		// map newForum to ForumDTO
 		ForumDTO newForumDTO = convertToDTO(newForum);
 
@@ -231,13 +230,22 @@ public class ForumServiceImpl implements ForumService {
 			return response;
 		}
 
-		int currentSortOrder = forumGroup.getSortOrder();
+		Integer currentSortOrder = forumGroup.getSortOrder();
 		ForumGroup forumGroupSwap;
+		int swapSortOrder;
 
 		if ("up".equals(type)) {
-			forumGroupSwap = forumGroupRepository.findBySortOrder(currentSortOrder + 1);
+			swapSortOrder = currentSortOrder - 1;
+			if(swapSortOrder < 1) {
+				return response;
+			}
+			forumGroupSwap = forumGroupRepository.findBySortOrder(swapSortOrder);
 		} else {
-			forumGroupSwap = forumGroupRepository.findBySortOrder(currentSortOrder - 1);
+			swapSortOrder = currentSortOrder + 1;
+			if(swapSortOrder > forumRepository.findTopBySortOrder()) {
+				return response;
+			}
+			forumGroupSwap = forumGroupRepository.findBySortOrder(currentSortOrder + 1);
 		}
 
 		if (forumGroupSwap != null) {
@@ -251,4 +259,34 @@ public class ForumServiceImpl implements ForumService {
 		response.setDataObject(forumGroupRepository.findAll());
 		return response;
 	}
+
+	@Override
+	@Transactional
+	public ServiceResponse<LastComment> getLastCommentServiceResponse(Long id){
+		ServiceResponse<LastComment> response = new ServiceResponse<>();
+		Forum forum = forumRepository.findById(id).orElse(null);
+		if (forum == null) {
+			return response;
+		}
+
+		CommentInfo lastCommentInfo = forum.getStat().getLastComment();
+
+		Author author = new Author();
+		User user = userRepository.findByUsername(lastCommentInfo.getCreatedBy()).orElse(null);
+		if (user != null) {
+			author.setUsername(user.getUsername());
+			author.setAvatar(user.getAvatar());
+			author.setImageUrl(user.getImageUrl());
+		}
+		LastComment lastComment = new LastComment();
+		lastComment.setAuthor(author);
+		lastComment.setCommentDate(lastCommentInfo.getCommentDate());
+		lastComment.setContentAbbr(lastCommentInfo.getContentAbbr());
+		lastComment.setCommenter(lastCommentInfo.getCreatedBy());
+		lastComment.setTitle(lastCommentInfo.getTitle());
+
+		response.setDataObject(lastComment);
+		return response;
+	}
+
 }

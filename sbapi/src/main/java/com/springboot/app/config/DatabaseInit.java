@@ -6,7 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.springboot.app.forums.dto.UploadedFileData;
 import com.springboot.app.forums.entity.*;
+import com.springboot.app.forums.repository.CommentRepository;
+import com.springboot.app.forums.repository.CommentVoteRepository;
+import com.springboot.app.service.FileInfoHelper;
+import com.springboot.app.utils.JSFUtils;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +37,6 @@ import com.springboot.app.dto.response.ServiceResponse;
 import com.springboot.app.emails.entity.EmailOption;
 import com.springboot.app.emails.entity.RegistrationOption;
 import com.springboot.app.emails.repository.EmailOptionRepository;
-import com.springboot.app.forums.dto.ForumDTO;
-import com.springboot.app.forums.dto.ForumGroupDTO;
 import com.springboot.app.forums.service.DiscussionService;
 import com.springboot.app.forums.service.ForumService;
 import com.springboot.app.service.GenericService;
@@ -62,9 +66,6 @@ public class DatabaseInit {
 	private EmailOptionRepository emailOptionRepository;
 
 	@Autowired
-	private ModelMapper modelMapper;
-
-	@Autowired
 	private BadgeService badgeService;
 
 	@Bean
@@ -75,6 +76,10 @@ public class DatabaseInit {
 				logger.info("Database is running...");
 				addRoles(roleRepository);
 				addAdmin(userRepository, roleRepository);
+
+				if(genericService.getEntity(ForumGroup.class, 1L).getDataObject() == null){
+					createForumGroup("admin");
+				}
 
 				createRegistrationOption();
 				createEmailOption();
@@ -129,18 +134,15 @@ public class DatabaseInit {
 		ad.setStat(userStat);
 
 		userRepository.save(ad);
-		logger.info("Account of admin added to th database.");
-
-//		Forum forum = createAnouncementsForum(ad);
-//		Discussion discussion = createWelcomeDiscussion(ad, forum);
-//		createBulletinTag(discussion);
 
 	}
 
 	private void createBulletinTag(Discussion discussion) {
 		Tag tag = new Tag();
+		tag.setId(1L);
 		tag.setLabel("Bulletin");
-		tag.setColor("1e90ff");
+		tag.setIcon("FaGamepad");
+		tag.setColor("#9F5B5B");
 
 		tagService.createNewTag(tag);
 
@@ -150,53 +152,158 @@ public class DatabaseInit {
 	}
 
 	//create forum group
-	private ForumGroup createForumGroup(User user) {
-		ForumGroup forumGroup = new ForumGroup();
-		forumGroup.setTitle("General");
-		forumGroup.setCreatedBy(user.getUsername());
-		forumGroup.setIcon("fa fa-comments");
-		forumGroup.setColor("ff7e00");
+	private void createForumGroup(String username) {
+		ForumGroup forumGroup1 = new ForumGroup();
+		forumGroup1.setTitle("System");
+		forumGroup1.setCreatedBy(username);
+		forumGroup1.setIcon("FaLaptopCode");
+		forumGroup1.setColor("#1ABB76");
+		forumService.addForumGroup(forumGroup1, username);
 
-		forumGroup = forumService.addForumGroup(forumGroup, user.getUsername()).getDataObject();
+		ForumGroup forumGroup2 = new ForumGroup();
+		forumGroup2.setTitle("Technology");
+		forumGroup2.setCreatedBy(username);
+		forumGroup2.setIcon("FaServer");
+		forumGroup2.setColor("#CC363B");
+		forumService.addForumGroup(forumGroup2, username);
+
+		ForumGroup forumGroup3 = new ForumGroup();
+		forumGroup3.setTitle("Gaming");
+		forumGroup3.setCreatedBy(username);
+		forumGroup3.setIcon("IoGameController");
+		forumGroup3.setColor("#2964D4");
+		forumService.addForumGroup(forumGroup3, username);
 
 		logger.info("Forum group created.");
-		return forumGroup;
+
+		createAnouncementsForum1(username, forumGroup1);
+		createAnouncementsForum2(username, forumGroup2);
+		createAnouncementsForum3(username, forumGroup3);
 	}
 
-	private Forum createAnouncementsForum(User user) {
-		Forum forum = new Forum();
-		forum.setTitle("Announcements");
-		forum.setDescription("Announcements from the forum administrators");
-		forum.setCreatedBy(user.getUsername());
-		forum.setActive(false);
-		forum.setIcon("fa fa-bullhorn");
-		forum.setColor("ff7e00");
+	private void createAnouncementsForum1(String username, ForumGroup forumGroup) {
+		Forum forum1 = new Forum();
+		forum1.setCreatedBy(username);
+		forum1.setTitle("Feedback");
+		forum1.setDescription("Helpful that is given to someone to say what can be done to improve a performance\n");
+		forum1.setIcon("FaFileAlt");
+		forum1.setColor("#4ADA78");
+		ForumGroup newForumGroup = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum1, newForumGroup,username);
 
-		ForumDTO forumdto = forumService.addForum(forum, null, user.getUsername()).getDataObject();
-		forum = modelMapper.map(forumdto, Forum.class);
+		Forum forum2 = new Forum();
+		forum2.setCreatedBy(username);
+		forum2.setTitle("Update the policy");
+		forum2.setDescription("We can also detect the rules responsible for the conflict and then update the policy with new deadlines for these rules.");
+		forum2.setIcon("FaBook");
+		forum2.setColor("9F5B5B");
+		ForumGroup newForumGroup2 = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum2, newForumGroup2,username);
 
 		logger.info("Announcements forum created.");
-		return forum;
+
+		createWelcomeDiscussion1(username, forum1);
+		createWelcomeDiscussion2(username, forum2);
 	}
 
-	private Discussion createWelcomeDiscussion(User user, Forum forum) {
-		Discussion discussion = new Discussion();
-		discussion.setForum(forum);
-		discussion.setCreatedBy(user.getUsername());
-		discussion.setStat(new DiscussionStat());
-		discussion.setSticky(true);
-		discussion.setImportant(true);
-		discussion.setTitle("Welcome to the forum");
+	private void createAnouncementsForum2(String username, ForumGroup forumGroup) {
+		Forum forum3 = new Forum();
+		forum3.setCreatedBy(username);
+		forum3.setTitle("Coding");
+		forum3.setDescription("Coding is the process of creating instructions that computers then interpret and follow.");
+		forum3.setIcon("FaCode");
+		forum3.setColor("9F5B5B");
+		ForumGroup newForumGroup = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum3, newForumGroup,username);
 
-		Comment comment = new Comment();
-		comment.setContent("Welcome to the forum. This is the first discussion created by the system.");
+		Forum forum4 = new Forum();
+		forum4.setCreatedBy(username);
+		forum4.setTitle("Backend");
+		forum4.setDescription("The back-end is the code that runs on the server, that receives requests from the clients, and contains the logic to send the appropriate data back to the client.");
+		forum4.setIcon("FaServer");
+		forum4.setColor("9F5B5B");
+		ForumGroup newForumGroup2 = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum4, newForumGroup2,username);
 
-		discussion = discussionService.addDiscussion(discussion, comment, user.getUsername(), Collections.emptyList(),
-				Collections.emptyList()).getDataObject();
+		Forum forum5 = new Forum();
+		forum5.setCreatedBy(username);
+		forum5.setTitle("Frontend");
+		forum5.setIcon("FaServer");
+		forum5.setDescription("Front-end development describes the part of an app or website that customers interact with directly.");
+		forum5.setColor("9F5B5B");
+		ForumGroup newForumGroup3 = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum5, newForumGroup3,username);
+
+		logger.info("Announcements forum created.");
+
+	}
+
+	private void createAnouncementsForum3(String username, ForumGroup forumGroup) {
+		Forum forum5 = new Forum();
+		forum5.setCreatedBy(username);
+		forum5.setTitle("RBP Gaming");
+		forum5.setDescription("A role-playing game (RPG) is a game in which each participant assumes the role of a character that can interact within the game's imaginary world.");
+		forum5.setIcon("FaRobot");
+		forum5.setColor("9F5B5B");
+		ForumGroup newForumGroup = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum5, newForumGroup,username);
+
+		Forum forum6 = new Forum();
+		forum6.setCreatedBy(username);
+		forum6.setTitle("Streamers");
+		forum6.setDescription("Game streamers broadcast themselves playing video games online.");
+		forum6.setIcon("FaMicrochip");
+		forum6.setColor("9F5B5B");
+		ForumGroup newForumGroup2 = genericService.findEntity(ForumGroup.class, forumGroup.getId()).getDataObject();
+		forumService.addForum(forum6, newForumGroup2,username);
+
+		logger.info("Announcements forum created.");
+	}
+
+	private void createWelcomeDiscussion1(String username, Forum forum) {
+		//Discussion feedback
+		Discussion discussion1 = new Discussion();
+		discussion1.setForum(forum);
+		discussion1.setCreatedBy(username);
+		discussion1.setClosed(true);
+		discussion1.setSticky(true);
+		discussion1.setImportant(true);
+		discussion1.setTitle("We listened to your feedback, we took it to heart");
+		forum.getDiscussions().add(discussion1);
+
+		Comment comment1 = new Comment();
+		comment1.setContent("We will continue to explore the best experience for our users, listening to your feedback and looking at how we can meet your needs in the best way possible.");
+		comment1.setIpAddress(JSFUtils.getRemoteIPAddress());
+
+		discussionService.addDiscussion(discussion1, comment1,"admin");
+		createBulletinTag(discussion1);
 
 		logger.info("Welcome discussion created.");
-		return discussion;
+
 	}
+	private void createWelcomeDiscussion2(String username, Forum forum) {
+		//Update the policy
+		Discussion discussion3 = new Discussion();
+		discussion3.setForum(forum);
+		forum.getDiscussions().add(discussion3);
+		discussion3.setCreatedBy(username);
+		discussion3.setClosed(true);
+		discussion3.setSticky(true);
+		discussion3.setImportant(true);
+		discussion3.setTitle("The policy statement needs to be revised");
+
+
+		Comment comment3 = new Comment();
+		comment3.setContent("Spotify CEO Daniel Ek soon apologized, and said the company would update the policy to better clarify how the permissions will be used.");
+		comment3.setIpAddress(JSFUtils.getRemoteIPAddress());
+
+		discussionService.addDiscussion(discussion3, comment3,"admin");
+
+		logger.info("Welcome discussion created.");
+
+	}
+
+
 
 	private void createEmailOption() {
 		try {

@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 //Model
@@ -15,9 +14,6 @@ import ModalAddDiscussion from "./ModalAddDiscussion";
 //Services
 import { getForumById } from "../../services/forumService/ForumService";
 import { getPageDiscussion } from "../../services/forumService/DiscussionService";
-import { updateViews } from "../../services/forumService/DiscussionService";
-import { loginSuccess } from "../../redux/authSlice";
-import { createAxios } from "../../services/createInstance";
 
 //Util
 import { formatDate } from "../../utils/FormatDateTimeHelper";
@@ -38,9 +34,7 @@ const Discussion = () => {
 	const [showModelAddDiscussion, setShowModelAddDiscussion] = useState(false);
 
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
 	const currentUser = useSelector((state) => state.auth.login?.currentUser);
-	let axiosJWT = createAxios(currentUser, dispatch, loginSuccess);
 
 	const handleClose = () => {
 		setShowModelAddDiscussion(false);
@@ -88,18 +82,6 @@ const Discussion = () => {
 		listForums();
 	};
 
-	const handelUpdateView = async (id) => {
-		// 	try {
-		// 		let res = await updateViews(id, currentUser?.accessToken, axiosJWT);
-		// 		if (res && res.data) {
-		// 			listDiscussionsByForum();
-		// 		}
-		// 	} catch (error) {
-		// 		console.error("Error fetching discussions:", error);
-		// 	}
-		console.log(id);
-	};
-
 	const breadcrumbs = [
 		{ id: 1, name: `${forum.forumGroup?.title}`, link: `/forumGroup` },
 		{ id: 2, name: `${forum.title}`, link: `/forum/${forum.id}` },
@@ -122,10 +104,10 @@ const Discussion = () => {
 							<Table striped hover>
 								<thead>
 									<tr>
-										<th>Discussion Title</th>
-										<th>Replies</th>
-										<th>Views</th>
-										<th>Last Post</th>
+										<th className="col-12 lg-9">Discussion Title</th>
+										<th className="col-12 lg-1">Replies</th>
+										<th className="col-12 lg-1">Views</th>
+										<th className="col-12 lg-3">Last Post</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -135,9 +117,8 @@ const Discussion = () => {
 												<td>
 													<h4>
 														<Link
-															onClick={() => handelUpdateView(item.id)}
 															to={`/discussion/${item.id}`}
-															className="text-decoration-none text-dark"
+															className="text-decoration-none text-dark text-title"
 														>
 															{item.title}
 														</Link>
@@ -160,8 +141,8 @@ const Discussion = () => {
 												</td>
 												<td>{item.stat.commentCount}</td>
 												<td>{item.stat.viewCount}</td>
-												<td>
-													<LastCommentInfo comment={item.stat.lastComment} />
+												<td style={{ maxWidth: "300px" }}>
+													<LastCommentInfo id={item.id} type="discussion" />
 												</td>
 											</tr>
 										);

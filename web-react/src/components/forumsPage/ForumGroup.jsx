@@ -7,10 +7,12 @@ import _ from "lodash";
 //Service
 import { getAllForumGroup } from "../../services/forumService/ForumGroupService";
 import { getAllForum } from "../../services/forumService/ForumService";
+import { getForumStat } from "../../services/forumService/ForumService";
 
 //Page
 import ForumInfo from "./ForumInfo";
 import LastCommentInfo from "../lastCommentInfo/lastCommentInfo";
+import "./ForumGroup.scss";
 
 //Icon
 import {
@@ -123,9 +125,18 @@ const ForumGroup = () => {
 		return iconMapping[iconName] || null;
 	};
 
+	const [fetchForumStat, setFetchForumStat] = useState([]);
+	const getListForumStat = async () => {
+		let res = await getForumStat();
+		if (res && res.data) {
+			setFetchForumStat(res.data);
+		}
+	};
+
 	useEffect(() => {
 		listForums();
 		listForumGroup();
+		getListForumStat();
 	}, []);
 
 	return (
@@ -142,7 +153,10 @@ const ForumGroup = () => {
 								return (
 									<Card key={(forumGroup.id, index)}>
 										<Card.Header
-											style={{ backgroundColor: "rgb(75, 104, 219)" }}
+											style={{
+												backgroundColor: forumGroup.color,
+												color: "white",
+											}}
 										>
 											<Card.Title className="d-flex">
 												{renderIcon(forumGroup.icon)}
@@ -155,47 +169,53 @@ const ForumGroup = () => {
 													if (forum.idForumGroup == forumGroup.id) {
 														if (forum.active == true) {
 															return (
-																<Row key={forum.id}>
-																	<ListGroup.Item
-																		as="li"
-																		className="d-flex justify-content-between align-items-start"
-																	>
-																		<div className="col-12 col-md-6">
-																			<div className="row col-12 d-flex">
-																				<span className="col-2">
-																					{renderIcon(forum.icon)}
-																				</span>
-																				<span className="col-9 fw-bold">
-																					<Link
-																						to={`/forum/${forum.id}`}
-																						style={{
-																							textDecoration: "none",
-																							color: forum.color,
-																						}}
-																					>
-																						{forum.title}
-																					</Link>
-																				</span>
+																<ListGroup.Item
+																	className="row d-flex"
+																	key={forum.id}
+																>
+																	<div className="col-12 col-md-12 col-lg-5 d-block">
+																		<div className="d-flex justify-content-start align-items-center">
+																			{renderIcon(forum.icon)}
+																			<div className="link-body">
+																				<Link to={`/forum/${forum.id}`}>
+																					{forum.title}
+																				</Link>
 																			</div>
+																		</div>
 
-																			<div className="col-12">
-																				{forum.description}
-																			</div>
+																		<div className="col-12 text-muted">
+																			{forum.description}
 																		</div>
-																		<div className="col-6 col-md-2">
-																			discussions:{" "}
-																			{forum?.stat?.discussionCount} <br />
-																			comments: {forum?.stat?.commentCount}
-																		</div>
-																		<div className="col-6 col-md-4">
-																			{forum?.stat?.lastComment && (
-																				<LastCommentInfo
-																					comment={forum?.stat?.lastComment}
-																				/>
-																			)}
-																		</div>
-																	</ListGroup.Item>
-																</Row>
+																	</div>
+																	<div className="col-12 col-md-12 col-lg-2">
+																		{fetchForumStat?.map((stat) => {
+																			if (forum?.id == stat?.id) {
+																				return (
+																					<>
+																						<div
+																							style={{
+																								fontSize: "15px",
+																								paddingTop: "10px",
+																							}}
+																						>
+																							Discussions:{" "}
+																							{stat?.discussionCount} Comments:{" "}
+																							{stat?.commentCount}
+																						</div>
+																					</>
+																				);
+																			}
+																		})}
+																	</div>
+																	<div className="col-12 col-md-12 col-lg-5">
+																		{forum?.stat?.lastComment && (
+																			<LastCommentInfo
+																				id={forum?.id}
+																				type="forum"
+																			/>
+																		)}
+																	</div>
+																</ListGroup.Item>
 															);
 														}
 													}

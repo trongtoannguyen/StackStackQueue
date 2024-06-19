@@ -1,20 +1,66 @@
 import Avatar from "../avatar/Avatar";
 import { Row, Col } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import _ from "lodash";
 
 import { formatDifferentUpToNow } from "../../utils/FormatDateTimeHelper";
+import { getLastCommentServiceResponseForum } from "../../services/forumService/ForumService";
+import { getLastCommentServiceResponseDiscussion } from "../../services/forumService/DiscussionViewService";
 import PropTypes from "prop-types";
+import "./lastComment.scss";
 
 const LastCommentInfo = (props) => {
-	const { comment } = props;
+	const { id, type } = props;
+
+	const [comment, setComment] = useState({});
+
+	const getLastComment = async () => {
+		if (type === "forum") {
+			const res = await getLastCommentServiceResponseForum(id);
+			if (res && +res.status === 200) {
+				let cloneData = _.cloneDeep(comment);
+				cloneData = res.data;
+				setComment(cloneData);
+			}
+		}
+
+		if (type === "discussion") {
+			const res = await getLastCommentServiceResponseDiscussion(id);
+			if (res && +res.status === 200) {
+				let cloneData = _.cloneDeep(comment);
+				cloneData = res.data;
+				setComment(cloneData);
+			}
+		}
+	};
+
+	useEffect(() => {
+		getLastComment();
+	}, []);
 
 	return (
-		<Row>
-			<Col md={3}>
-				<Avatar username={""} height={40} width={40} />
+		<div className="row d-flex">
+			<Col lg={3} sm={6}>
+				<Avatar
+					src={
+						comment?.author?.avatar
+							? comment?.author?.avatar
+							: comment?.author?.imageUrl
+							? comment?.author?.imageUrl
+							: ""
+					}
+					height={40}
+					width={40}
+				/>
 			</Col>
-			<Col md={9}>
-				<b>{comment?.title}</b> <br />
-				<small>{comment?.contentAbbr}</small> <br />
+			<Col lg={9} sm={6}>
+				<b className="text-ellipsis">{comment?.title}</b>
+				<small
+					className="text-ellipsis-content"
+					style={{ fontSize: "12px", fontWeight: "400", fontStyle: "italic" }}
+				>
+					{comment?.contentAbbr}
+				</small>{" "}
 				<small>
 					{comment?.commenter} -{" "}
 					{comment?.commentDate
@@ -22,12 +68,13 @@ const LastCommentInfo = (props) => {
 						: ""}
 				</small>
 			</Col>
-		</Row>
+		</div>
 	);
 };
 
 LastCommentInfo.propTypes = {
-	comment: PropTypes.object.isRequired,
+	id: PropTypes.number.isRequired,
+	type: PropTypes.string,
 };
 
 export default LastCommentInfo;

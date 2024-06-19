@@ -3,7 +3,11 @@ package com.springboot.app.forums.controller;
 import java.util.List;
 
 import com.springboot.app.dto.response.ServiceResponse;
+import com.springboot.app.forums.dto.request.LastComment;
+import com.springboot.app.forums.dto.response.ForumStat;
 import com.springboot.app.forums.dto.search.SearchAll;
+import com.springboot.app.forums.entity.ForumGroup;
+import com.springboot.app.repository.DiscussionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,8 @@ public class ForumController {
 
 	@Autowired
 	private GenericDAO genericDAO;
+    @Autowired
+    private DiscussionDAO discussionDAO;
 
 	@GetMapping("/get-child-forums-and-forum-groups")
 	public ResponseEntity<ObjectResponse> getChildForumsAndForumGroups() {
@@ -56,4 +62,21 @@ public class ForumController {
 		return ResponseEntity.ok(new ObjectResponse("200", "Data list", response.getDataObject()));
 	}
 
+	@GetMapping("/getLastCommentServiceResponseForum/{id}")
+	public ResponseEntity<ObjectResponse> getLastCommentServiceResponse(@PathVariable("id") Long id) {
+		ServiceResponse<LastComment> response = forumService.getLastCommentServiceResponse(id);
+		if(response.getDataObject() == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "Data not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Data", response.getDataObject()));
+	}
+
+	@GetMapping("/get-forum-stat")
+	public ResponseEntity<ObjectResponse> getForumStat() {
+		List<ForumStat> response = discussionDAO.getForumStat();
+		if(response == null) {
+			return ResponseEntity.ok(new ObjectResponse("404", "Data not found", null));
+		}
+		return ResponseEntity.ok(new ObjectResponse("200", "Data list", response));
+	}
 }

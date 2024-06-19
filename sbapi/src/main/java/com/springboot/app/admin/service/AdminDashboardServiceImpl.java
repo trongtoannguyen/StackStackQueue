@@ -35,12 +35,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	private CommentRepository commentRepository;
 
 	@Autowired
-	private ForumStatRepository forumStatRepository;
-
-	@Autowired
-	private ForumGroupRepository forumGroupRepository;
-
-	@Autowired
 	private TagRepository tagRepository;
 
 	@Resource
@@ -64,7 +58,10 @@ public class AdminDashboardServiceImpl implements AdminDashboardService{
 	public ServiceResponse<List<DataForumGroupResponse>> getDataByForumGroup() {
 		ServiceResponse<List<DataForumGroupResponse>> response = new ServiceResponse<>();
 		List<DataForumGroupResponse> dataForumGroupResponses = discussionDAO.getForumGroupData2();
+		System.out.println("dataForumGroupResponses: " + dataForumGroupResponses.size());
 		response.setDataObject(dataForumGroupResponses);
 		return response;
 	}
+
+
 }

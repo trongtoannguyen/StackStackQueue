@@ -1,22 +1,16 @@
 package com.springboot.app.forums.controller;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
-import com.springboot.app.tags.Tag;
+import com.springboot.app.forums.dto.request.DiscussionUpdateDTO;
+import com.springboot.app.forums.repository.DiscussionRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.springboot.app.dto.response.AckCodeType;
 import com.springboot.app.dto.response.ObjectResponse;
@@ -36,7 +30,7 @@ import com.springboot.app.utils.JSFUtils;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/discussions")
+	@RequestMapping("/api/discussions")
 public class DiscussionController {
 
 	private static final Logger logger = LoggerFactory.getLogger(DiscussionController.class);
@@ -52,6 +46,8 @@ public class DiscussionController {
 
 	@Autowired
 	private CommentRepository commentRepository;
+    @Autowired
+    private DiscussionRepository discussionRepository;
 
 	@PostMapping("/add")
 	public ResponseEntity<ObjectResponse> addDiscussion(@Valid @RequestBody AddDiscussionRequest newDiscussion) {
@@ -81,12 +77,10 @@ public class DiscussionController {
 		forum.getDiscussions().add(discussion);
 		Comment comment = new Comment();
 		comment.setContent(newDiscussion.getContent());
-
 		comment.setIpAddress(JSFUtils.getRemoteIPAddress());
 
 		// note: uploaded files are not supported, so we pass empty lists
-		ServiceResponse<Discussion> response = discussionService.addDiscussion(discussion, comment, username,
-				Collections.emptyList(), Collections.emptyList());
+		ServiceResponse<Discussion> response = discussionService.addDiscussion(discussion, comment, username);
 
 		DiscussionDTO discussionDTO = modelMapper.map(response.getDataObject(), DiscussionDTO.class);
 
@@ -175,29 +169,41 @@ public class DiscussionController {
 	}
 	@PutMapping("/updateDetails/{id}")
 	public ResponseEntity<ObjectResponse> updateDiscussion(@PathVariable Long id,
-														   @Valid @RequestBody Discussion discussion) {
+														   @Valid @RequestBody DiscussionUpdateDTO discussion) {
+
+		Discussion oldDiscussion = genericService.findEntity(Discussion.class, id).getDataObject();
+		if (oldDiscussion == null || oldDiscussion.getId() == null) {
+			return ResponseEntity
+					.ok(new ObjectResponse("404", String.format("Discussion with id %d not found", id), null));
+		}
+//		oldDiscussion.setId(id);
+		oldDiscussion.setClosed(discussion.isClosed());
+		oldDiscussion.setImportant(discussion.isImportant());
+
 		try {
 			LocalDateTime now = LocalDateTime.now();
 			var userSession = JwtUtils.getSession();
 			String username = userSession.getUsername();
-			discussion.setUpdatedBy(username);
-			discussion.setUpdatedAt(now);
+			oldDiscussion.setUpdatedBy(username);
+			oldDiscussion.setUpdatedAt(now);
 		} catch (Exception e) {
 			logger.error("Error getting user session: {}", e.getMessage());
 		}
 
-		ServiceResponse<Discussion> response = genericService.updateEntity(discussion);
+		Discussion update = discussionRepository.save(oldDiscussion);
+		ServiceResponse<Discussion> response = new ServiceResponse<>();
+		response.setDataObject(update);
 
 		// map discussion to discussionDTO
 		DiscussionDTO discussionDTO = modelMapper.map(response.getDataObject(), DiscussionDTO.class);
 
 		if (response.getAckCode() != AckCodeType.FAILURE) {
 			return ResponseEntity.ok(new ObjectResponse("200",
-					String.format("Updated Discussion %s successfully",discussion.getTitle()),
+					String.format("Updated Discussion %s successfully",discussionDTO.getTitle()),
 					discussionDTO));
 		}
 		return ResponseEntity.ok(new ObjectResponse("400",
-				String.format("Could not update Discussion: %s",discussion.getTitle()), null));
+				String.format("Could not update Discussion: %s",discussionDTO.getTitle()), null));
 	}
 
 		@PutMapping("/{discussionId}/tags")
@@ -210,5 +216,14 @@ public class DiscussionController {
 			DiscussionDTO response = modelMapper.map(updatedDiscussion.getDataObject(), DiscussionDTO.class);
 
 			return ResponseEntity.ok(new ObjectResponse("200", "Tags added to discussion successfully", response));
+		}
+
+		@DeleteMapping("/delete/{id}")
+		public ResponseEntity<ObjectResponse> deleteDiscussion(@PathVariable Long id) {
+			ServiceResponse<Void> response = discussionService.deleteDiscussion(id);
+			if (response.getAckCode() == AckCodeType.SUCCESS) {
+				return ResponseEntity.ok(new ObjectResponse("200", "Discussion deleted successfully", null));
+			}
+			return ResponseEntity.ok(new ObjectResponse("404", "Discussion not found", null));
 		}
 }

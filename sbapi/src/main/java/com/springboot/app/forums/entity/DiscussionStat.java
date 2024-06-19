@@ -32,12 +32,6 @@ public class DiscussionStat extends BaseEntity {
 	@Column(name = "last_viewed", columnDefinition = "DATETIME")
 	private LocalDateTime lastViewed;
 
-	@Column(name = "thumbnail_count")
-	private long thumbnailCount;
-
-	@Column(name = "attachment_count")
-	private long attachmentCount;
-
 	@ElementCollection
 	@CollectionTable(name = "disc_stat_commentor",
 		joinColumns = {@JoinColumn(name = "disc_stat_id")})
@@ -51,13 +45,5 @@ public class DiscussionStat extends BaseEntity {
 
 	public void addViewCount(long number){
 		this.viewCount += number;
-	}
-
-	public void addThumbnailCount(long number){
-		this.thumbnailCount += number;
-	}
-
-	public void addAttachmentCount(long number){
-		this.attachmentCount += number;
 	}
 }
