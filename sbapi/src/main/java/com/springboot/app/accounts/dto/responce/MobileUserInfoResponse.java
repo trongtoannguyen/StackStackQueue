@@ -3,6 +3,7 @@ package com.springboot.app.accounts.dto.responce;
 import com.springboot.app.accounts.enumeration.AccountStatus;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -15,6 +16,9 @@ public class MobileUserInfoResponse {
 	private String avatar;
 	private AccountStatus status;
 	private String address;
+	private String bio;
+	private LocalDate birthDate;
+	private String gender;
 
 	private Long totalDiscussions;
 	private Long totalComments;

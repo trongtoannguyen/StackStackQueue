@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/features/profile/domain/entities/user_pro_entity.dart';
 
 class NumbersWidget extends StatelessWidget {
-  const NumbersWidget({super.key});
+  const NumbersWidget({super.key, required this.user});
+
+  final UserProEntity user;
 
   @override
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          buildButton(context, '10', 'Reputation'),
+          buildButton(context, '${user.reputation}', 'Reputation'),
           buildDivider(),
-          buildButton(context, '35', 'Following'),
+          buildButton(context, '${user.totalFollowers}', 'Followers'),
           buildDivider(),
-          buildButton(context, '50', 'Followers'),
+          buildButton(context, '${user.totalFollowing}', 'Following'),
         ],
       );
   Widget buildDivider() => const SizedBox(

@@ -15,9 +15,9 @@ final class UpdateFilter extends ForumFilterEvent {
 }
 
 final class UpdateForums extends ForumFilterEvent {
-  final ForumFilter forumFilter;
+  final int forumFilter;
 
-  const UpdateForums({this.forumFilter = ForumFilter.all});
+  const UpdateForums({this.forumFilter = -1});
 
   @override
   List<Object> get props => [forumFilter];

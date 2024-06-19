@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/core/network/api_urls.dart';
 import 'package:flutterapp/features/members/domain/entities/member_entity.dart';
 import 'package:flutterapp/features/members/presentation/widgets/button_widget.dart';
 import 'package:flutterapp/features/members/presentation/widgets/numbers_widget.dart';
 import 'package:flutterapp/features/members/presentation/widgets/profile_widget.dart';
+import 'package:flutterapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutterapp/features/profile/presentation/views/profile_screen.dart';
 
 class MemberItem extends StatelessWidget {
@@ -25,7 +27,7 @@ class MemberItem extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 4),
+              const SizedBox(height: 10),
               SizedBox(
                 height: 100,
                 child: ProfileWidget(
@@ -36,11 +38,17 @@ class MemberItem extends StatelessWidget {
               ),
               InkWell(
                   onTap: () {
+                    context
+                        .read<ProfileBloc>()
+                        .add(GetProfileEvent(username: user.username));
                     //route to profile screen
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      "/profile",
-                      arguments: user.username,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(
+                          ownerId: user.username,
+                        ),
+                      ),
                     );
                   },
                   child: buildName(user)),
@@ -63,7 +71,7 @@ class MemberItem extends StatelessWidget {
           name,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
       ],
     );
   }

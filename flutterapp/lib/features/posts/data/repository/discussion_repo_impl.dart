@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutterapp/core/exceptions/error.dart';
 import 'package:flutterapp/core/exceptions/failure.dart';
@@ -19,19 +21,32 @@ class DiscussionRepoImpl implements DiscussionRepo {
   Future<Either<Failure, CommentEntity>> createComment({
     required String content,
     required int discussionId,
+    required File? imageURL,
   }) async {
-    // TODO: implement createComment
-    throw UnimplementedError();
+    try {
+      final result = await discussionDataSource.createComment(
+          content, discussionId, imageURL);
+      if (result == null) return Left(ServerFailure());
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, DiscussionEntity>> createDiscussion({
+  Future<Either<Failure, String>> createDiscussion({
     required String title,
     required String content,
     required int forumId,
   }) async {
-    // TODO: implement createComment
-    throw UnimplementedError();
+    try {
+      final result =
+          await discussionDataSource.createDiscussion(title, content, forumId);
+      if (result == null) return Left(ServerFailure());
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
   }
 
   @override

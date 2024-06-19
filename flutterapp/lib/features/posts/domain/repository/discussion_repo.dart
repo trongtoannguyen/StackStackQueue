@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutterapp/core/exceptions/failure.dart';
 import 'package:flutterapp/core/usecases/posts/create_comment.dart';
@@ -10,9 +12,11 @@ abstract class DiscussionRepo {
   Future<Either<Failure, List<CommentEntity>>> getAllCommentBy(
       int discussionId);
 
-  Future<Either<Failure, DiscussionEntity>> createDiscussion(
+  Future<Either<Failure, String>> createDiscussion(
       {required String title, required String content, required int forumId});
 
   Future<Either<Failure, CommentEntity>> createComment(
-      {required String content, required int discussionId});
+      {required String content,
+      required int discussionId,
+      required File? imageURL});
 }

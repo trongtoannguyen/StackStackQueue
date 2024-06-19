@@ -25,7 +25,7 @@ class ForumFilterBloc extends Bloc<ForumFilterEvent, ForumFilterState> {
   void _onUpdateFilter(UpdateFilter event, Emitter<ForumFilterState> emit) {
     if (state is ForumFilterLoading) {
       add(const UpdateForums(
-        forumFilter: ForumFilter.all,
+        forumFilter: -1,
       ));
     }
 
@@ -40,17 +40,10 @@ class ForumFilterBloc extends Bloc<ForumFilterEvent, ForumFilterState> {
     final state = _forumBloc.state;
     if (state is ForumSuccess) {
       final List<ForumEntity> forums = state.forums.where((forum) {
-        switch (event.forumFilter) {
-          case ForumFilter.all:
-            return true;
-          case ForumFilter.g1:
-            return forum.id! == 1;
-          case ForumFilter.g2:
-            return forum.id! == 2;
-          case ForumFilter.g3:
-            return forum.id! == 3;
-          case ForumFilter.g4:
-            return forum.id! == 4;
+        if (event.forumFilter == -1) {
+          return true;
+        } else {
+          return forum.id! == event.forumFilter;
         }
       }).toList();
       print('forums: ${forums.length}');

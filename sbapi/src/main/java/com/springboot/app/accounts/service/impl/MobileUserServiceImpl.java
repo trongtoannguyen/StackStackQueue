@@ -65,6 +65,10 @@ public class MobileUserServiceImpl implements MobileUserService {
 		userInfo.setAddress(user.getPerson().getAddress());
 		userInfo.setStatus(user.getAccountStatus());
 
+		userInfo.setBio(user.getPerson().getBio());
+		userInfo.setBirthDate(user.getPerson().getBirthDate());
+		userInfo.setGender(String.valueOf(user.getPerson().getGender()));
+
 		userInfo.setTotalDiscussions(user.getStat().getDiscussionCount());
 		userInfo.setTotalComments(user.getStat().getCommentCount());
 		userInfo.setReputation(user.getStat().getReputation());

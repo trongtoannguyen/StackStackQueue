@@ -28,4 +28,11 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       }
     });
   }
+
+  List<ForumGroupEntity> getGroups() {
+    if (state is GroupSuccess) {
+      return (state as GroupSuccess).groups;
+    }
+    return [];
+  }
 }

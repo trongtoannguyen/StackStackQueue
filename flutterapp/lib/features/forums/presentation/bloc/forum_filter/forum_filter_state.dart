@@ -13,11 +13,11 @@ class ForumFilterLoading extends ForumFilterState {}
 
 class ForumFilterLoaded extends ForumFilterState {
   final List<ForumEntity> forums;
-  final ForumFilter filter;
+  final int filter;
 
   const ForumFilterLoaded({
     required this.forums,
-    this.filter = ForumFilter.all,
+    this.filter = -1,
   });
 
   @override

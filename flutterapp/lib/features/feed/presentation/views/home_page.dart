@@ -2,17 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutterapp/config/contants/constants.dart';
-import 'package:flutterapp/core/network/api_urls.dart';
-import 'package:flutterapp/features/feed/presentation/widgets/app_drawer_widget.dart';
+import 'package:flutterapp/features/feed/presentation/widgets/avatar_widget.dart';
+import 'package:flutterapp/features/feed/presentation/widgets/tab_item_widget.dart';
 import 'package:flutterapp/features/forums/domain/entities/forum_entity.dart';
 import 'package:flutterapp/features/forums/domain/entities/forum_group_entity.dart';
 import 'package:flutterapp/features/forums/presentation/bloc/forum_filter/forum_filter_bloc.dart';
-import 'package:flutterapp/features/forums/presentation/bloc/froum_bloc/forum_bloc.dart';
 import 'package:flutterapp/features/forums/presentation/bloc/group_bloc/group_bloc.dart';
-import 'package:flutterapp/features/forums/presentation/views/forum_group_screen.dart';
 import 'package:flutterapp/features/posts/presentation/bloc/comments_bloc.dart';
 import 'package:flutterapp/features/posts/presentation/views/comments_screen.dart';
+import 'package:flutterapp/features/posts/presentation/views/create_discussion.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../config/theme/theme_manager.dart';
@@ -26,17 +24,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  late String title;
+  late int _currentTabIndex = 0;
 
-  final groups = <ForumGroupEntity>[];
+  static const List<ForumGroupEntity> groups = [
+    ForumGroupEntity(id: 1, title: "DEV", color: "red"),
+    ForumGroupEntity(id: 2, title: "Game", color: "green"),
+    ForumGroupEntity(id: 3, title: "Financial", color: "blue"),
+    ForumGroupEntity(id: 4, title: "Marketing", color: "grey"),
+  ];
+  // //
 
   @override
   void initState() {
-    tabController = TabController(length: 4, vsync: this);
-    tabController.addListener(() {
-      setState(() {});
-    });
-
+    tabController = TabController(length: groups.length + 1, vsync: this);
     super.initState();
   }
 
@@ -44,17 +44,11 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: AppDrawer(),
         appBar: AppBar(
           centerTitle: true,
-          //tabcontroller.index can be used to get the name of current index value of the tabview.
           title: Text(tabController.index == 0
-              ? TextConstants.titleTab_1
-              : tabController.index == 1
-                  ? TextConstants.titleTab_2
-                  : tabController.index == 2
-                      ? TextConstants.titleTab_3
-                      : TextConstants.titleTab_4),
+              ? "All"
+              : (groups[tabController.index - 1].title ?? "All")),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: Theme.of(context).iconTheme,
@@ -71,77 +65,40 @@ class _HomePageState extends State<HomePage>
           ],
           bottom: TabBar(
               onTap: (tabIndex) {
-                switch (tabIndex) {
-                  case 0:
-                    // tabController.animateTo(0);
-                    BlocProvider.of<ForumFilterBloc>(context).add(
-                      const UpdateForums(
-                        forumFilter: ForumFilter.all,
-                      ),
-                    );
-                    break;
-                  case 1:
-                    // tabController.animateTo(1);
-                    BlocProvider.of<ForumFilterBloc>(context).add(
-                      const UpdateForums(
-                        forumFilter: ForumFilter.g1,
-                      ),
-                    );
-                    break;
-                  case 2:
-                    // tabController.animateTo(2);
-                    BlocProvider.of<ForumFilterBloc>(context).add(
-                      const UpdateForums(
-                        forumFilter: ForumFilter.g2,
-                      ),
-                    );
-                    break;
-                  case 3:
-                    // tabController.animateTo(3);
-                    BlocProvider.of<ForumFilterBloc>(context).add(
-                      const UpdateForums(
-                        forumFilter: ForumFilter.g3,
-                      ),
-                    );
-                    break;
+                setState(() {
+                  _currentTabIndex = tabIndex;
+                });
+                if (tabIndex == 0) {
+                  BlocProvider.of<ForumFilterBloc>(context).add(
+                    const UpdateForums(
+                      forumFilter: -1,
+                    ),
+                  );
+                } else {
+                  BlocProvider.of<ForumFilterBloc>(context).add(
+                    UpdateForums(
+                      forumFilter: groups[tabIndex - 1].id ?? -1,
+                    ),
+                  );
                 }
               },
               controller: tabController,
               tabs: [
-                Tab(
-                  text: TextConstants.titleTab_1,
-                  icon: Icon(
-                    Icons.signpost,
-                    color: Colors.indigo.shade500,
-                  ),
-                ),
-                Tab(
-                    text: TextConstants.titleTab_2,
-                    icon: Icon(
-                      Icons.signpost,
-                      color: Colors.indigo.shade500,
-                    )),
-                Tab(
-                    text: TextConstants.titleTab_3,
-                    icon: Icon(
-                      Icons.signpost,
-                      color: Colors.indigo.shade500,
-                    )),
-                Tab(
-                    text: TextConstants.titleTab_4,
-                    icon: Icon(
-                      Icons.signpost,
-                      color: Colors.indigo.shade500,
-                    ))
+                const TabItem(title: "All"),
+                TabItem(title: groups[0].title ?? "G1"),
+                TabItem(title: groups[1].title ?? "G2"),
+                TabItem(title: groups[2].title ?? "G3"),
+                TabItem(title: groups[3].title ?? "G4"),
               ]),
         ),
         body: TabBarView(
           controller: tabController,
           children: [
-            _toForumGroup(tabController, TextConstants.titleTab_1),
-            _toForumGroup(tabController, TextConstants.titleTab_2),
-            _toForumGroup(tabController, TextConstants.titleTab_3),
-            _toForumGroup(tabController, TextConstants.titleTab_4)
+            _toForumGroup(tabController, "All"),
+            _toForumGroup(tabController, groups[0].title ?? "G1"),
+            _toForumGroup(tabController, groups[1].title ?? "G2"),
+            _toForumGroup(tabController, groups[2].title ?? "G3"),
+            _toForumGroup(tabController, groups[3].title ?? "G4"),
           ],
         ),
       ),
@@ -149,6 +106,86 @@ class _HomePageState extends State<HomePage>
   }
 
 //-------------------End of HomePage-------------------
+  Padding _buildGroupTab() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: BlocBuilder<GroupBloc, GroupState>(
+        builder: (context, state) {
+          if (state is GroupLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is GroupSuccess && state.groups.isEmpty) {
+            return const Center(
+              child: Text('No groups found'),
+            );
+          } else if (state is GroupSuccess) {
+            return TabBar(
+              onTap: (tabIndex) {
+                setState(() {
+                  _currentTabIndex = tabIndex;
+                });
+                if (tabIndex == 0) {
+                  BlocProvider.of<ForumFilterBloc>(context).add(
+                    const UpdateForums(
+                      forumFilter: -1,
+                    ),
+                  );
+                } else {
+                  BlocProvider.of<ForumFilterBloc>(context).add(
+                    UpdateForums(
+                      forumFilter: groups[tabIndex - 1].id ?? -1,
+                    ),
+                  );
+                }
+              },
+              controller: tabController,
+              tabs: [
+                const Tab(
+                  text: 'All',
+                ),
+                for (var group in state.groups)
+                  Tab(
+                    text: group.title,
+                  ),
+              ],
+            );
+          } else {
+            return const Text('Something went wrong');
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildGroupTabContent() {
+    return BlocBuilder<GroupBloc, GroupState>(
+      builder: (context, state) {
+        if (state is GroupLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is GroupSuccess && state.groups.isEmpty) {
+          return const Center(
+            child: Text('No groups found'),
+          );
+        } else if (state is GroupSuccess) {
+          return TabBarView(
+            controller: tabController,
+            children: [
+              _toForumGroup(tabController, "All"),
+              for (var group in state.groups)
+                _toForumGroup(tabController, group.title ?? 'Group'),
+            ],
+          );
+        } else {
+          return const Text('Something went wrong');
+        }
+      },
+    );
+  }
+
+  //-------------------End of TabBar-------------------
 
   BlocConsumer<ForumFilterBloc, ForumFilterState> _toForumGroup(
       TabController tabController, String title) {
@@ -156,8 +193,8 @@ class _HomePageState extends State<HomePage>
       listener: (context, state) {
         if (state is ForumFilterLoaded) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Forums loaded'),
+            SnackBar(
+              content: Text('Forums $title loaded'),
             ),
           );
         }
@@ -188,10 +225,18 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Card _forumItemCard(BuildContext context, ForumEntity forum) {
+  Container _forumItemCard(BuildContext context, ForumEntity forum) {
     if (forum.discussions.isEmpty) {
-      return Card(
+      return Container(
         margin: const EdgeInsets.only(bottom: 8.0),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.grey,
+              width: 1,
+            ),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -208,13 +253,14 @@ class _HomePageState extends State<HomePage>
                   ),
                   IconButton(
                     onPressed: () {
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => ForumGroupScreen(
-                      //       forumId: forum.id,
-                      //     ),
-                      //   ),
-                      // );
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CreateDiscussion(
+                            forumId: forum.id ?? 1,
+                            title: forum.title ?? 'Discussion',
+                          ),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.add_circle_sharp),
                   ),
@@ -229,8 +275,16 @@ class _HomePageState extends State<HomePage>
         ),
       );
     }
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          ),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -247,13 +301,14 @@ class _HomePageState extends State<HomePage>
                 ),
                 IconButton(
                   onPressed: () {
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => CreateDiscussionScreen(
-                    //       forumId: forum.id,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => CreateDiscussion(
+                          forumId: forum.id ?? 1,
+                          title: forum.title ?? 'Discussion',
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.add_circle_sharp),
                 ),
@@ -309,6 +364,7 @@ class _HomePageState extends State<HomePage>
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => CommentsScreen(
+                              discussionId: discussion.discussionId ?? 1,
                               discussionTitle:
                                   discussion.discussionTitle ?? 'Discussion',
                             ),
@@ -330,6 +386,11 @@ class _HomePageState extends State<HomePage>
               ],
             ),
           ),
+          Container(
+            height: 1,
+            color: Colors.grey,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+          ),
         ],
       ),
     );
@@ -347,28 +408,11 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildImage(DiscussionEntity discussion) {
-    final imagePath = discussion.imageUrl != ''
-        ? discussion.imageUrl
-        : '${ApiUrls.avatarUrl}/${discussion.avatar}';
-    if (imagePath == null) {
-      return Container(
-        width: 50,
-        height: 50,
-        color: Colors.grey,
-        child: const Icon(Icons.person),
-      );
-    }
-    final image = NetworkImage(imagePath);
-    return ClipOval(
-      child: Material(
-        color: Colors.transparent,
-        child: Ink.image(
-          image: image,
-          fit: BoxFit.cover,
-          width: 50,
-          height: 50,
-        ),
-      ),
+    return buildAvatar(
+      imageUrl: discussion.imageUrl,
+      avatar: discussion.avatar,
+      width: 50,
+      height: 50,
     );
   }
 }

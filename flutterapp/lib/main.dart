@@ -5,6 +5,7 @@ import 'package:flutterapp/features/forums/presentation/bloc/froum_bloc/forum_bl
 import 'package:flutterapp/features/forums/presentation/bloc/group_bloc/group_bloc.dart';
 import 'package:flutterapp/features/members/presentation/bloc/member_bloc.dart';
 import 'package:flutterapp/features/posts/presentation/bloc/comments_bloc.dart';
+import 'package:flutterapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme/theme_contants.dart';
@@ -29,6 +30,10 @@ class MyApp extends StatelessWidget {
       create: (_) => serviceLocator<AuthBloc>()..add(AppStarted()),
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (_) =>
+                serviceLocator<ProfileBloc>()..add(ProfileStartEvent()),
+          ),
           BlocProvider(
             create: (_) => serviceLocator<MemberBloc>()..add(GetMemberEvent()),
           ),

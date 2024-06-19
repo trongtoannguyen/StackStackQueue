@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/core/storage/storage.dart';
-import 'package:flutterapp/features/forums/presentation/views/forum_group_screen.dart';
+import 'package:flutterapp/features/feed/presentation/views/home_page.dart';
 import 'package:flutterapp/features/members/presentation/views/member_list_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -128,7 +128,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const FeedScreen(),
+                            builder: (context) => const HomePage(),
                           ),
                         );
                       },

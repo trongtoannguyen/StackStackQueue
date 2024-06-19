@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutterapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/storage/storage.dart';
@@ -103,7 +104,10 @@ class _ProfileDrawerWidgetState extends State<ProfileDrawerWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.read<ProfileBloc>().add(
+                            GetProfileEvent(username: ownerId ?? "Anonymous"));
+                      },
                       child: const Text('My Profile'),
                     ),
                     TextButton(

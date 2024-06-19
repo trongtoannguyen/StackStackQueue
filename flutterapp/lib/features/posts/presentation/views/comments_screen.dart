@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:flutterapp/features/feed/presentation/widgets/avatar_widget.dart';
 import 'package:flutterapp/features/feed/presentation/widgets/build_datetime.dart';
 import 'package:flutterapp/features/posts/domain/entities/comment_entity.dart';
 import 'package:flutterapp/features/posts/presentation/bloc/comments_bloc.dart';
+import 'package:flutterapp/features/posts/presentation/views/add_comment_screen.dart';
 
 class CommentsScreen extends StatefulWidget {
-  const CommentsScreen({super.key, required this.discussionTitle});
+  const CommentsScreen(
+      {super.key, required this.discussionTitle, required this.discussionId});
 
   final String discussionTitle;
+  final int discussionId;
 
   @override
   State<CommentsScreen> createState() => _CommentsScreenState();
@@ -58,6 +63,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Card commentItem(BuildContext context, CommentEntity comment) {
+    if (comment.hidden) {
+      return const Card(
+        child: Center(
+          child: Text('Comment is hidden'),
+        ),
+      );
+    }
     return Card(
       child: Container(
         margin: const EdgeInsets.all(8),
@@ -68,10 +80,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
           children: [
             Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   height: 50,
                   width: 50,
-                  child: Icon(Icons.person),
+                  child: _buildImage(comment),
                 ),
                 const SizedBox(
                   width: 8,
@@ -80,27 +92,70 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      comment.title,
+                      comment.author.username,
                       style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    buildCreatedAt(comment.author.username, comment.createdAt),
+                    buildCreatedAt("", comment.createdAt),
                   ],
                 ),
               ],
             ),
-            const SizedBox(
-              height: 4,
+            Container(
+              height: 1,
+              color: Colors.grey,
+              margin: const EdgeInsets.symmetric(vertical: 8),
             ),
             Container(
               padding: const EdgeInsets.all(8),
-              child: Text(comment.content),
-            )
+              child: HtmlWidget(comment.content),
+            ),
+            SizedBox(
+              height: 50,
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.favorite_border_sharp)),
+                    IconButton(
+                      icon: const Icon(Icons.comment),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddComment(
+                              discussionId: widget.discussionId,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // bookmarks
+                      },
+                      icon: const Icon(Icons.bookmark_border),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImage(CommentEntity comment) {
+    return buildAvatar(
+      imageUrl: comment.author.imageUrl,
+      avatar: comment.author.avatar,
+      width: 50,
+      height: 50,
     );
   }
 }

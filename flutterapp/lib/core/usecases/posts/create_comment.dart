@@ -12,12 +12,10 @@ abstract class CreateCommentParams<Type, ParamsComment> {
 class ParamsComment extends Equatable {
   final String content;
   final int discussionId;
-  final File imageURL;
-  const ParamsComment({
-    required this.content,
-    required this.discussionId,
-    required this.imageURL,
-  });
+  final File? imageURL;
+
+  const ParamsComment(
+      {required this.content, required this.discussionId, this.imageURL});
 
   @override
   List<Object?> get props => [content, discussionId, imageURL];
