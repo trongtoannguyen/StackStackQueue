@@ -22,6 +22,7 @@ class _ForumScreenState extends State<ForumScreen> {
             ],
           ),
           body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Column(
                 // children: [
                 //   SizedBox(

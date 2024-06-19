@@ -9,7 +9,7 @@ class GetAllForumUseCase
     implements GetAllForumCore<List<ForumEntity>, NoParams> {
   final ForumRepo repository;
 
-  GetAllForumUseCase(this.repository);
+  GetAllForumUseCase({required this.repository});
 
   @override
   Future<Either<Failure, List<ForumEntity>>> call(NoParams params) async {

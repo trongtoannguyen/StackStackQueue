@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/core/network/api_urls.dart';
 import 'package:flutterapp/features/members/domain/entities/member_entity.dart';
 import 'package:flutterapp/features/members/presentation/widgets/button_widget.dart';
 import 'package:flutterapp/features/members/presentation/widgets/numbers_widget.dart';
 import 'package:flutterapp/features/members/presentation/widgets/profile_widget.dart';
+import 'package:flutterapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutterapp/features/profile/presentation/views/profile_screen.dart';
 
 class MemberItem extends StatelessWidget {
@@ -16,42 +19,42 @@ class MemberItem extends StatelessWidget {
     final avatar = user.imageUrl != ""
         ? user.imageUrl
         : '${ApiUrls.API_BASE_URL}/user-stat/images/${user.avatar}';
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(10.0),
-        child: Card(
-          shadowColor: Colors.white38,
+    return Container(
+      height: 500,
+      padding: const EdgeInsets.all(4.0),
+      child: Card(
+        shadowColor: Colors.white38,
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              ProfileWidget(
-                imagePath: avatar,
-                width: 100,
-                height: 100,
-              ),
               const SizedBox(height: 10),
+              SizedBox(
+                height: 100,
+                child: ProfileWidget(
+                  imagePath: avatar,
+                  width: 100,
+                  height: 100,
+                ),
+              ),
               InkWell(
                   onTap: () {
+                    context
+                        .read<ProfileBloc>()
+                        .add(GetProfileEvent(username: user.username));
                     //route to profile screen
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      "/profile",
-                      arguments: user.username,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(
+                          ownerId: user.username,
+                        ),
+                      ),
                     );
                   },
                   child: buildName(user)),
               Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    buildFollowButton(),
-                    const SizedBox(width: 8),
-                    buildChatButton(),
-                    const SizedBox(width: 8),
-                  ],
-                ),
+                child: buildFollowButton(),
               ),
-              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -68,7 +71,7 @@ class MemberItem extends StatelessWidget {
           name,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
       ],
     );
   }

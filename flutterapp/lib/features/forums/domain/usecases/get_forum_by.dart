@@ -11,7 +11,8 @@ class GetForumByParamsUseCase
   GetForumByParamsUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, List<ForumEntity>>> call(ParamsGetForumBy params) {
-    return repository.getForumByGroupId(params.groupId);
+  Future<Either<Failure, List<ForumEntity>>> call(
+      ParamsGetForumBy params) async {
+    return await repository.getForumByGroupId(params.groupId);
   }
 }

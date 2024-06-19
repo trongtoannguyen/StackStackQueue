@@ -13,14 +13,14 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
 
   GroupBloc({required GetAllGroupsUseCase getAllGroupsUseCase})
       : _getAllGroups = getAllGroupsUseCase,
-        super(GroupInitial()) {
-    on<GroupEvent>((event, emit) async {
+        super(GroupLoading()) {
+    on<GetGroupsEvent>((event, emit) async {
       emit(GroupLoading());
       try {
         await _getAllGroups.call(NoParams()).then((value) {
           value.fold(
             (l) => emit(const GroupFailure(message: "Error")),
-            (group) => emit(GroupSuccess(groups: group)),
+            (groups) => emit(GroupSuccess(groups: groups)),
           );
         });
       } catch (err) {

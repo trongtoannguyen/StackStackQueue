@@ -9,16 +9,16 @@ class ForumModel extends ForumEntity {
       required super.totalComments,
       required super.discussions});
 
-  factory ForumModel.fromMap(Map<String, dynamic> json) {
-    List<DiscussionModel> discussion = jsonDecode(json["discussions"])
-        .map((e) => DiscussionModel.fromJson(e))
-        .toList();
+  factory ForumModel.fromMap(Map<dynamic, dynamic> json) {
+    List jsonResponse = json["discussions"] ?? [];
+    List<DiscussionModel> discussions =
+        jsonResponse.map((e) => DiscussionModel.fromMap(e)).toList();
 
     return ForumModel(
-      id: (json['_id'] ?? '') as int,
+      id: (json['id'] ?? 0) as int,
       title: (json['title'] ?? '') as String,
-      totalComments: (json['totalComments'] ?? '') as int,
-      discussions: discussion,
+      totalComments: (json['totalComments'] ?? 0) as int,
+      discussions: discussions,
     );
   }
 
@@ -46,9 +46,9 @@ class DiscussionModel extends DiscussionEntity {
 
   factory DiscussionModel.fromMap(Map<String, dynamic> json) {
     return DiscussionModel(
-      discussionId: (json['discussionId'] ?? '') as int,
+      discussionId: (json['discussionId'] ?? 0) as int,
       discussionTitle: (json['discussionTitle'] ?? '') as String,
-      createdAt: (json['createdAt'] ?? '') as DateTime,
+      createdAt: DateTime.parse(json['createdAt']),
       username: (json['username'] ?? '') as String,
       name: (json['name'] ?? '') as String,
       avatar: (json['avatar'] ?? '') as String,

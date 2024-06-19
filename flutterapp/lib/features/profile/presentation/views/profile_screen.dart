@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutterapp/config/theme/theme_manager.dart';
+import 'package:flutterapp/core/network/api_urls.dart';
 
 import 'package:flutterapp/core/utils/user_preferences.dart';
+import 'package:flutterapp/features/profile/domain/entities/user_pro_entity.dart';
+import 'package:flutterapp/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:flutterapp/features/profile/presentation/widgets/profile_drawer_widget.dart';
 import 'package:flutterapp/features/profile/presentation/widgets/editProfileScreen_widget.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/user_pre_model.dart';
@@ -28,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -43,25 +49,52 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Scaffold(
       drawer: ProfileDrawerWidget(),
       appBar: buildAppBar(context),
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        children: [
-          ProfileWidget(
-            imagePath: user.imagePath,
-            onClicked: () async {},
-          ),
-          const SizedBox(height: 14),
-          buildName(user),
-          const SizedBox(height: 14),
-          Center(child: buildUpgradeButton()),
-          const SizedBox(height: 14),
-          const NumbersWidget(),
-          const SizedBox(height: 24),
-          //buildAbout(user),
-          buildTabBar(),
-          buildTabContent(user),
-        ],
+      body: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfileLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is ProfileLoaded) {
+            return buildProfile(state.userPro);
+          } else if (state is ProfileError) {
+            return const Center(child: Text('Error connection'));
+          } else {
+            return const Center(child: Text('EMPTY'));
+          }
+        },
       ),
+    );
+  }
+
+  // Build Profile----------------------------------------------------------------
+  Widget buildProfile(UserProEntity user) {
+    String imagePath = "";
+    if (user.avatar != null && user.avatar != "") {
+      imagePath = '${ApiUrls.avatarUrl}/${user.avatar}';
+    } else {
+      imagePath = user.imageUrl ??
+          "https://lh3.googleusercontent.com/a/ACg8ocIKA_Jkp2pWe0wuRjRJvAGJ0_tdjLSK2iBDmIVGTjRAe6B6EJDW=s96-c";
+    }
+
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      children: [
+        ProfileWidget(
+          imagePath: imagePath,
+          onClicked: () async {},
+        ),
+        const SizedBox(height: 14),
+        buildName(user),
+        const SizedBox(height: 14),
+        Center(child: buildUpgradeButton()),
+        const SizedBox(height: 14),
+        NumbersWidget(user: user),
+        const SizedBox(height: 24),
+        //buildAbout(user),
+        buildTabBar(),
+        buildTabContent(user),
+      ],
     );
   }
 
@@ -72,9 +105,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           const EdgeInsets.only(top: 2.0), // Adjust the padding value as needed
       child: TabBar(
         tabs: const [
-          Tab(text: 'Profile'),
           Tab(text: 'Activities'),
-          Tab(text: 'Bookmark'),
+          Tab(text: 'Profile'),
         ],
         controller: _tabController,
         onTap: (index) {
@@ -86,36 +118,34 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget buildTabContent(User user) {
+  Widget buildTabContent(UserProEntity user) {
     switch (_currentTabIndex) {
-      case 0: // Profile tab
+      case 0:
+        return buildActivities(user); // Implement remark tab content
+      case 1:
         return buildAbout(user);
-      case 1: // Activities tab
-        return Container(); // Implement activities tab content
-      case 2: // Remark tab
-        return buildBookmark(user); // Implement remark tab content
       default:
         return Container();
     }
   }
 
   // Build Name----------------------------------------------------------------
-  Widget buildName(User user) => Column(
+  Widget buildName(UserProEntity user) => Column(
         children: [
           Text(
-            user.name,
+            user.name ?? user.username ?? "Anonymous",
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
           ),
           const SizedBox(height: 2),
           Text(
-            user.email,
+            user.email ?? "No email",
             style: const TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 4),
-          Center(
+          const Center(
             child: Text(
-              user.bio,
-              style: const TextStyle(
+              "No bio",
+              style: TextStyle(
                 fontSize: 16,
                 height: 2, // Adjust the line height as desired
                 fontWeight: FontWeight.normal,
@@ -134,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       );
 
   // Build About (Profile Tab)----------------------------------------------------------------
-  Widget buildAbout(User user) {
+  Widget buildAbout(UserProEntity user) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 33, vertical: 30),
@@ -149,53 +179,61 @@ class _ProfileScreenState extends State<ProfileScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 10),
-                      Text(
-                        'Name',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          'Name',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       SizedBox(height: 26),
-                      Text(
-                        'Email',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       SizedBox(height: 26),
-                      Text(
-                        'Date of Birth',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          'Date of Birth',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       SizedBox(height: 26),
-                      Text(
-                        'Gender',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          'Gender',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       SizedBox(height: 26),
-                      Text(
-                        'Address',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          'Address',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       SizedBox(height: 48),
-                      Text(
-                        'Bio',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -205,51 +243,58 @@ class _ProfileScreenState extends State<ProfileScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      Text(
-                        user.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.6,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          user.name ?? user.username ?? "Anonymous",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.6,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
-                      Text(
-                        user.email,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.7,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          user.email ?? "No email",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.7,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
-                      Text(
-                        user.birthday,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.7,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          DateFormat('dd-MM-yyyy').format(user.birthDate),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.7,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
-                      Text(
-                        user.gender,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.7,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          "${user.gender}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.7,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
-                      Text(
-                        user.address,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.7,
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      Text(
-                        user.bio,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1.7,
+                      SizedBox(
+                        height: 26,
+                        child: Text(
+                          user.address ?? "No address",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            height: 1.7,
+                          ),
                         ),
                       ),
                     ],
@@ -261,12 +306,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             ElevatedButton(
               onPressed: () {
                 // Navigate to the edit profile screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditProfileScreen(user: user),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => EditProfileScreen(user: user),
+                //   ),
+                // );
               },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -284,30 +329,21 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // Build (Activities Tab)----------------------------------------------------------------
-
-  // Build (Bookmark Tab)----------------------------------------------------------------
-  Widget buildBookmark(User user) {
+  Widget buildActivities(UserProEntity user) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 33, vertical: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Favorite Posts',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             const SizedBox(height: 16),
-            if (user.favoritePosts.isNotEmpty)
+            if (user.comments!.isNotEmpty)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: user.favoritePosts.length,
+                itemCount: user.comments!.length,
                 itemBuilder: (context, index) {
-                  final post = user.favoritePosts[index];
+                  final post = user.comments![index];
                   return buildFavoritePostItem(post);
                 },
                 separatorBuilder: (context, index) =>
@@ -315,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               )
             else
               const Center(
-                child: Text('No favorite posts yet.'),
+                child: Text('No posts yet.'),
               ),
           ],
         ),
@@ -324,17 +360,12 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
 // Build a single favorite post item
-  Widget buildFavoritePostItem(String postString) {
+  Widget buildFavoritePostItem(CommentEntity comment) {
     // Split the string into title, description, and dateAdded
-    List<String> parts = postString.split('|');
-    if (parts.length != 3) {
-      return const SizedBox
-          .shrink(); // Return an empty widget if the format is invalid
-    }
 
-    String title = parts[0];
-    String description = parts[1];
-    DateTime dateAdded = DateTime.parse(parts[2]);
+    String title = comment.discussionTitle;
+    String description = comment.content;
+    DateTime dateAdded = comment.createdAt;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,12 +378,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          description,
-          style: const TextStyle(
-            fontSize: 16,
-            height: 1.5,
-          ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: HtmlWidget(description),
         ),
         const SizedBox(height: 8),
         Row(

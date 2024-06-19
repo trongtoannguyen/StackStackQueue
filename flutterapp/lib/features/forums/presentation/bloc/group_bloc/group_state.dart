@@ -16,6 +16,9 @@ final class GroupSuccess extends GroupState {
   final List<ForumGroupEntity> groups;
 
   const GroupSuccess({required this.groups});
+
+  @override
+  List<Object> get props => [groups];
 }
 
 class GroupFailure extends GroupState {

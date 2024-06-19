@@ -55,9 +55,9 @@ class _MemberListScreenState extends State<MemberListScreen> {
                           MemberItem(user: state.memberEntity[index]),
                     );
                   } else if (state is MemberFailure) {
-                    return const Text('error connection');
+                    return const Center(child: Text('Error connection'));
                   } else {
-                    return const Text('default');
+                    return const Center(child: Text('default'));
                   }
                 },
               ),

@@ -24,13 +24,23 @@ class ForumRepoImpl implements ForumRepo {
   }
 
   @override
-  Future<Either<Failure, List<ForumsGroupModel>>> getAllGroup() {
-    throw UnimplementedError();
+  Future<Either<Failure, List<ForumsGroupModel>>> getAllGroup() async {
+    try {
+      final forumsGroup = await forumDataSource.getAllForumGroup();
+      return Right(forumsGroup);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, List<ForumEntity>>> getForumByGroupId(int groupId) {
-    // TODO: implement getForumByGroupId
-    throw UnimplementedError();
+  Future<Either<Failure, List<ForumEntity>>> getForumByGroupId(
+      int groupId) async {
+    try {
+      final forums = await forumDataSource.getAllForumByGroup(groupId);
+      return Right(forums);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
   }
 }
